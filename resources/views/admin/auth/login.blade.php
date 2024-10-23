@@ -15,7 +15,8 @@
                            name="email"
                            placeholder="Email"
                            required
-                           type="email" />
+                           type="email"
+                           value="{{ config('app.debug') ? 'admin@mail.com' : '' }}" />
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-envelope"></span>
@@ -32,7 +33,8 @@
                            name="password"
                            placeholder="Password"
                            required
-                           type="password">
+                           type="password"
+                           value="{{ config('app.debug') ? 'password' : '' }}">
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-lock"></span>
