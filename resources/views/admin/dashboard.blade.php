@@ -6,8 +6,8 @@
             <div class="info-box shadow-lg">
                 <span class="info-box-icon bg-secondary"><i class="fa-solid fa-dollar-sign"></i></span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Total Revenue</span>
-                    <span class="info-box-number">{{ 'Rp ' . number_format($total_revenue, 0, ',', '.') }}</span>
+                    <span class="info-box-text">Total Revenues</span>
+                    <span class="info-box-number">{{ formatRupiah($total_revenues) }}</span>
                 </div>
             </div>
         </div>
@@ -54,7 +54,7 @@
 
         <div class="col-md-3 col-sm-6 col-12">
             <div class="info-box shadow-lg">
-                <span class="info-box-icon bg-secondary"><i class="fa-solid fa-folder"></i></span>
+                <span class="info-box-icon bg-secondary"><i class="fa-solid fa-bag-shopping"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">Total Products</span>
                     <span class="info-box-number">{{ $total_products }}</span>
@@ -64,7 +64,7 @@
 
         <div class="col-md-3 col-sm-6 col-12">
             <div class="info-box shadow-lg">
-                <span class="info-box-icon bg-secondary"><i class="fa-solid fa-shopping-basket"></i></span>
+                <span class="info-box-icon bg-secondary"><i class="fa-solid fa-clipboard"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">Total Orders</span>
                     <span class="info-box-number">{{ $total_orders }}</span>
@@ -84,10 +84,20 @@
 
         <div class="col-md-3 col-sm-6 col-12">
             <div class="info-box shadow-lg">
-                <span class="info-box-icon bg-secondary"><i class="fa-solid fa-dollar-sign"></i></span>
+                <span class="info-box-icon bg-secondary"><i class="fa-solid fa-wallet"></i></span>
                 <div class="info-box-content">
                     <span class="info-box-text">Total Payment Banks</span>
                     <span class="info-box-number">{{ $total_payment_banks }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6 col-12">
+            <div class="info-box shadow-lg">
+                <span class="info-box-icon bg-secondary"><i class="fa-solid fa-wallet"></i></span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Payment E-Wallets</span>
+                    <span class="info-box-number">{{ $total_payment_ewallets }}</span>
                 </div>
             </div>
         </div>

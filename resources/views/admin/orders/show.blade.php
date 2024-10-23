@@ -5,46 +5,38 @@
         $status = App\Models\Order::STATUSES[$order->status];
         $payment = $order->invoice->payment;
         $shipping = $order->shipping;
-
     @endphp
 
-    <div class="row"
-         style="margin-bottom: 10px">
-        <div class="col-lg-12">
-            <div class="bs-stepper">
-                <div class="bs-stepper-header">
-                    <div class="step active">
-                        <button class="step-trigger">
-                            <span class="bs-stepper-circle">
-                                <i class="fas fa-shopping-basket"></i>
-                            </span>
-                            <span class="bs-stepper-label"> Order Created </span>
-                        </button>
-                    </div>
-                    <div class="line"></div>
-                    <div
-                         class="step {{ $order->status === App\Models\Order::STATUS_PROCESSING || $order->invoice->status === App\Models\Invoice::STATUS_PAID ? 'active' : '' }}">
-                        <button class="step-trigger">
-                            <span class="bs-stepper-circle"><i class="fas fa-dollar-sign"></i></span>
-                            <span class="bs-stepper-label"> Order Paid </span>
-                        </button>
-                    </div>
-                    <div class="line"></div>
-                    <div
-                         class="step {{ $order->status === App\Models\Order::STATUS_ON_DELIVERY || $order->shipping->status === App\Models\Shipping::STATUS_SHIPPED ? 'active' : '' }}">
-                        <button class="step-trigger">
-                            <span class="bs-stepper-circle"><i class="fas fa-truck"></i></span>
-                            <span class="bs-stepper-label">Order Shipped Out</span>
-                        </button>
-                    </div>
-                    <div class="line"></div>
-                    <div class="step {{ $order->status === App\Models\Order::STATUS_COMPLETED ? 'active' : '' }}">
-                        <button class="step-trigger">
-                            <span class="bs-stepper-circle"><i class="fas fa-check"></i></span>
-                            <span class="bs-stepper-label">Order Completed</span>
-                        </button>
-                    </div>
-                </div>
+    <div class="container mt-5">
+        <div class="stepper-wrapper">
+            <div class="stepper-item completed">
+                <div class="step-counter"><i class="fas fa-receipt"></i></div>
+                <div class="step-name">Order Placed</div>
+                <div class="step-date">{{ $order->created_at }}</div>
+            </div>
+            <div
+                 class="step-line {{ $order->status === App\Models\Order::STATUS_PROCESSING || $order->invoice->status === App\Models\Invoice::STATUS_PAID ? 'active' : '' }}">
+            </div>
+            <div
+                 class="stepper-item {{ $order->status === App\Models\Order::STATUS_PROCESSING || $order->invoice->status === App\Models\Invoice::STATUS_PAID ? 'completed' : '' }}">
+                <div class="step-counter"><i class="fas fa-dollar-sign"></i></div>
+                <div class="step-name">Order Paid <br>(@Rp($order->invoice->amount))</div>
+                <div class="step-date">{{ $order->confirmed_at }}</div>
+            </div>
+            <div
+                 class="step-line {{ $order->status === App\Models\Order::STATUS_ON_DELIVERY || $order->shipping->status === App\Models\Shipping::STATUS_SHIPPED ? 'active' : '' }}">
+            </div>
+            <div
+                 class="stepper-item {{ $order->status === App\Models\Order::STATUS_ON_DELIVERY || $order->shipping->status === App\Models\Shipping::STATUS_SHIPPED ? 'completed' : '' }}">
+                <div class="step-counter"><i class="fas fa-truck"></i></div>
+                <div class="step-name">Order Shipped Out</div>
+                <div class="step-date">{{ $order->shipping->updated_at }}</div>
+            </div>
+            <div class="step-line {{ $order->status === App\Models\Order::STATUS_COMPLETED ? 'active' : '' }}"></div>
+            <div class="stepper-item {{ $order->status === App\Models\Order::STATUS_COMPLETED ? 'completed' : '' }}">
+                <div class="step-counter"><i class="fas fa-check"></i></div>
+                <div class="step-name">Order Completed</div>
+                <div class="step-date">{{ $order->completed_at }}</div>
             </div>
         </div>
     </div>
@@ -109,9 +101,11 @@
                             <tr>
                                 <th>Total Amount</th>
                                 <td>
-                                    <span class="h3">@Rp($order->invoice->amount)</span> <br>
-                                    <span class="text-muted text-small">Due date at
-                                        {{ $order->invoice->due_date }}</span></span>
+                                    <span class="h5">@Rp($order->invoice->amount)</span> <br>
+                                    @if (\App\Models\Order::STATUS_PENDING_PAYMENT === $order->status)
+                                        <span class="text-muted text-small">Due date at
+                                            {{ $order->invoice->due_date }}</span></span>
+                                    @endif
                                 </td>
                             </tr>
                             @if ($payment->method === 'bank' && $payment->bank)
@@ -350,13 +344,85 @@
 @endsection
 
 @section('styles')
-    <link href="https://printjs-4de6.kxcdn.com/print.min.css"
-          rel="stylesheet" />
+    <style>
+        .stepper-wrapper {
+            display: flex;
+            align-items: flex-start;
+            margin: 40px 0;
+        }
+
+        .stepper-item {
+            position: relative;
+            text-align: center;
+            flex: 1;
+        }
+
+        .step-line {
+            position: relative;
+            height: 4px;
+            background-color: #e0e0e0;
+            flex: 1;
+            z-index: 0;
+            top: 20px;
+        }
+
+        .step-line.active {
+            background-color: #28a745;
+        }
+
+        .step-counter {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            font-size: 20px;
+            color: #fff;
+            position: relative;
+            z-index: 1;
+            margin: 0 auto;
+            transition: background-color 0.3s;
+        }
+
+        .completed .step-counter {
+            background-color: #28a745;
+        }
+
+        .stepper-item.completed .step-line {
+            background-color: #28a745;
+        }
+
+        .step-name {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .step-date {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .step-counter:hover {
+            background-color: #6c757d;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .stepper-wrapper {
+                flex-direction: column;
+                align-items: center
+            }
+
+            .step-line {
+                margin: 10px 0;
+            }
+        }
+    </style>
 @endsection
 
 @section('scripts')
-    <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
-
     <script>
         $(function() {
             $("#btn-accept-payment").on("click", function(e) {
@@ -415,15 +481,6 @@
                         form.find("#_tracking_number").val(result.value);
                         form.submit();
                     }
-                });
-            });
-
-            $('#btn-print-invoice').on('click', function() {
-                printJS({
-                    printable: 'invoice-root',
-                    type: 'html',
-                    header: "Invoice",
-                    documentTitle: "Invoice {{ $order->invoice->number }}",
                 });
             });
         });

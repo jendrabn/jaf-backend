@@ -2,106 +2,198 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\OrdersDataTable;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\OrderRequest;
-use App\Models\Invoice;
 use App\Models\Order;
+use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Shipping;
-use Illuminate\Database\QueryException;
+use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use App\DataTables\OrdersDataTable;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use App\Http\Requests\Admin\OrderRequest;
 use Symfony\Component\HttpFoundation\Response;
-use Yajra\DataTables\Facades\DataTables;
 
 class OrderController extends Controller
 {
-    public function index(OrdersDataTable $dataTable)
+
+    /**
+     * Display a listing of the orders.
+     *
+     * @param OrdersDataTable $dataTable
+     * @return mixed
+     */
+    public function index(OrdersDataTable $dataTable): mixed
     {
         return $dataTable->render("admin.orders.index");
     }
 
-    public function show(Order $order)
+    /**
+     * Show the specified order.
+     *
+     * @param Order $order
+     * @return View
+     */
+    public function show(Order $order): View
     {
-        $order->load('user', 'items', 'items.product', 'invoice', 'invoice.payment', 'invoice.payment.bank', 'shipping');
+        $order->load(
+            'user',
+            'items',
+            'items.product',
+            'invoice',
+            'invoice.payment',
+            'invoice.payment.bank',
+            'shipping'
+        );
 
         return view('admin.orders.show', compact('order'));
     }
 
-    public function confirmPayment(Request $request, Order $order)
+    /**
+     * Confirm payment for the specified order.
+     *
+     * @param Request $request
+     * @param Order $order
+     * @return RedirectResponse
+     */
+    public function confirmPayment(Request $request, Order $order): RedirectResponse
     {
         $validatedData = $request->validate([
-            'action' => ['required', 'string', 'in:accept,reject'],
-            'cancel_reason' => ['nullable', 'string', 'min:1', 'max:100']
+            'action' => [
+                'required',
+                'string',
+                'in:accept,reject'
+            ],
+            'cancel_reason' => [
+                'nullable',
+                'string',
+                'min:1',
+                'max:100'
+            ]
         ]);
 
-        try {
-            DB::transaction(function () use ($validatedData, $order) {
-                if ($validatedData['action'] === 'accept') {
-                    $order->update([
-                        'status' => Order::STATUS_PROCESSING,
-                        'confirmed_at' => now()
-                    ]);
-                    $order->invoice->update(['status' => Invoice::STATUS_PAID]);
-                    $order->invoice->payment->update(['status' => Payment::STATUS_RELEASED]);
-                }
+        DB::transaction(function () use ($validatedData, $order) {
+            if ($validatedData['action'] === 'accept') {
+                $order->update([
+                    'status' => Order::STATUS_PROCESSING,
+                    'confirmed_at' => now()
+                ]);
+                $order->invoice->update(['status' => Invoice::STATUS_PAID]);
+                $order->invoice->payment->update(['status' => Payment::STATUS_RELEASED]);
+            }
 
-                if ($validatedData['action'] === 'reject') {
-                    $order->update([
-                        'status' => Order::STATUS_CANCELLED,
-                        'cancel_reason' => $validatedData['cancel_reason']
-                    ]);
-                    $order->invoice->update(['status' => Invoice::STATUS_UNPAID]);
-                    $order->invoice->payment->update(['status' => Payment::STATUS_CANCELLED]);
-                    $order->items->each(function ($item) {
-                        $item->product->increment('stock', $item->quantity);
-                    });
-                }
-            });
-        } catch (QueryException $e) {
-            return response()->json(['message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+            if ($validatedData['action'] === 'reject') {
+                $order->update([
+                    'status' => Order::STATUS_CANCELLED,
+                    'cancel_reason' => $validatedData['cancel_reason']
+                ]);
+                $order->invoice->update(['status' => Invoice::STATUS_UNPAID]);
+                $order->invoice->payment->update(['status' => Payment::STATUS_CANCELLED]);
+                $order->items->each(fn($item) => $item->product->increment('stock', $item->quantity));
+            }
+        }, 3);
 
         toastr('Payment confirmed successfully.', 'success');
 
         return back();
     }
 
-    public function confirmShipping(Request $request, Order $order)
+    /**
+     * Confirm shipping for the specified order.
+     *
+     * @param Request $request
+     * @param Order $order
+     * @return RedirectResponse
+     */
+    public function confirmShipping(Request $request, Order $order): RedirectResponse
     {
         $validatedData = $request->validate([
-            'tracking_number' => ['required', 'string', 'min:1', 'max:50',]
+            'tracking_number' => [
+                'required',
+                'string',
+                'min:1',
+                'max:50',
+            ]
         ]);
 
-        try {
-            DB::transaction(function () use ($order, $validatedData) {
-                $order->update(['status' => Order::STATUS_ON_DELIVERY]);
-                $order->shipping->update([
-                    'status' => Shipping::STATUS_PROCESSING,
-                    'tracking_number' => $validatedData['tracking_number']
-                ]);
-            });
-        } catch (QueryException $e) {
-            throw $e;
-        }
+        DB::transaction(function () use ($order, $validatedData) {
+            $order->update(['status' => Order::STATUS_ON_DELIVERY]);
+            $order->shipping->update([
+                'status' => Shipping::STATUS_PROCESSING,
+                'tracking_number' => $validatedData['tracking_number']
+            ]);
+        }, 3);
 
         toastr('Shipping confirmed successfully.', 'success');
 
         return back();
     }
 
-    public function destroy(Order $order)
+    /**
+     * Remove the specified order from storage.
+     *
+     * @param Order $order
+     * @return JsonResponse
+     */
+    public function destroy(Order $order): JsonResponse
     {
         $order->delete();
 
-        return response()->json(['message' => 'Order deleted successfully.']);
+        return response()->json(['message' => 'Order deleted successfully.'], Response::HTTP_OK);
     }
 
+    /**
+     * Remove the specified order(s) from storage.
+     *
+     * @param OrderRequest $request
+     * @return JsonResponse
+     */
     public function massDestroy(OrderRequest $request)
     {
         Order::whereIn('id', $request->validated('ids'))->delete();
 
-        return response()->json(['message' => 'Orders deleted successfully.']);
+        return response()->json(['message' => 'Orders deleted successfully.'], Response::HTTP_OK);
+    }
+
+    /**
+     * Generate a PDF invoice for the specified orders.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function generateInvoicePdf(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => [
+                'required',
+                'array'
+            ],
+            'ids.*' => [
+                'required',
+                'numeric',
+                'exists:orders,id'
+            ],
+        ]);
+
+        $orders = Order::whereIn('id', $request->ids)->get();
+
+        $html = '';
+
+        foreach ($orders as $order) {
+            $html .= view('invoice', compact('order'))->render();
+            // $html .= '<div style="page-break-after: always;"></div>';
+        }
+
+        $pdf = Pdf::loadHTML($html)->setPaper('a4', 'potrait');
+        $base64Pdf = base64_encode($pdf->output());
+
+        $filename = $orders->count() > 1
+            ? $orders->map(fn($order) => $order->invoice->number)->join('_') . '.pdf'
+            : $orders->first()->invoice->number . '.pdf';
+
+        return response()->json(['data' => $base64Pdf, 'filename' => $filename], Response::HTTP_OK);
     }
 }

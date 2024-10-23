@@ -6,17 +6,25 @@ use App\Models\Bank;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Banner;
+use App\Models\Ewallet;
 use App\Models\Product;
-use Illuminate\Support\Carbon;
+use Illuminate\View\View;
 use Illuminate\Support\Str;
 use App\Models\ProductBrand;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use App\Models\ProductCategory;
 use App\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {
-    public function index()
+
+    /**
+     * Show the admin dashboard.
+     *
+     * @return View
+     */
+    public function index(): View
     {
         $total_admin = User::role(User::ROLE_ADMIN)->count();
         $total_users = User::role(User::ROLE_USER)->count();
@@ -26,7 +34,8 @@ class DashboardController extends Controller
         $total_orders = Order::count();
         $total_banners = Banner::count();
         $total_payment_banks = Bank::count();
-        $total_revenue = Order::selectRaw('sum(total_price + shipping_cost) as revenue')
+        $total_payment_ewallets = Ewallet::count();
+        $total_revenues = Order::selectRaw('sum(total_price + shipping_cost) as revenue')
             ->where('status', Order::STATUS_COMPLETED)
             ->first()
             ->revenue;
@@ -69,7 +78,8 @@ class DashboardController extends Controller
                 'total_orders',
                 'total_banners',
                 'total_payment_banks',
-                'total_revenue',
+                'total_payment_ewallets',
+                'total_revenues',
                 'orders_count',
                 'revenues'
             )

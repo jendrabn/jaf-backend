@@ -104,6 +104,7 @@ class OrdersDataTable extends DataTable
                 Button::make('colvis'),
                 Button::make('bulkDelete'),
                 Button::make('filter'),
+                Button::make('printInvoice'),
             ])
             ->ajax([
                 'data' => '
