@@ -742,7 +742,7 @@
                 ]
             }
         },
-        "/api/home_page": {
+        "/api/landing": {
             "get": {
                 "description": "API untuk mendapatkan banner (max. 10 banner) dan produk terbaru (max. 10 produk)",
                 "responses": {
@@ -769,6 +769,12 @@
                                                         "$ref": "#/components/schemas/Product"
                                                     },
                                                     "maxItems": 10
+                                                },
+                                                "blogs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Blog"
+                                                    }
                                                 }
                                             },
                                             "required": [
@@ -2451,6 +2457,142 @@
                     }
                 ]
             }
+        },
+        "/blogs": {
+            "get": {
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Blog"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Blog"
+                ]
+            }
+        },
+        "/blogs/categories": {
+            "get": {
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BlogCategory"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Blog"
+                ]
+            }
+        },
+        "/blogs/tags": {
+            "get": {
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/BlogTag"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Blog"
+                ]
+            }
+        },
+        "/blogs/{slug}": {
+            "get": {
+                "description": "",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "title": {
+                                            "type": "string"
+                                        },
+                                        "slug": {
+                                            "type": "string"
+                                        },
+                                        "content": {
+                                            "type": "string"
+                                        },
+                                        "min_read": {
+                                            "type": "integer"
+                                        },
+                                        "featured_image": {
+                                            "type": "string"
+                                        },
+                                        "featured_image_description": {
+                                            "type": "string"
+                                        },
+                                        "views_count": {
+                                            "type": "integer"
+                                        },
+                                        "author": {
+                                            "type": "string"
+                                        },
+                                        "category": {
+                                            "$ref": "#/components/schemas/BlogCategory"
+                                        },
+                                        "tags": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/BlogTag"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Blog"
+                ]
+            }
         }
     },
     "components": {
@@ -2970,6 +3112,66 @@
                         "example_field": [
                             "The example field is required"
                         ]
+                    }
+                }
+            },
+            "BlogCategory": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "blogs_count": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "BlogTag": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "blogs_count": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "Blog": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "featured_image": {
+                        "type": "string"
+                    },
+                    "views_count": {
+                        "type": "integer"
+                    },
+                    "author": {
+                        "type": "string"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/BlogCategory"
                     }
                 }
             }

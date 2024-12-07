@@ -4,7 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
-use App\Http\Controllers\Api\HomePageController;
+use App\Http\Controllers\Api\LandingController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RegionController;
@@ -17,8 +17,8 @@ use Illuminate\Support\Facades\Route;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
-// Home Page
-Route::get('/home_page', HomePageController::class);
+// Landi Page
+Route::get('/landing', LandingController::class);
 
 // Product
 Route::controller(ProductController::class)->group(function () {
@@ -87,9 +87,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
 // Blog
 Route::controller(BlogController::class)->group(function () {
     Route::get('/blogs', 'list');
-    Route::get('/blogs/{blog}', 'get');
     Route::get('/blogs/categories', 'categories');
     Route::get('/blogs/tags', 'tags');
+    Route::get('/blogs/{slug}', 'get');
 });
 
 // Route::fallback(fn () => abort(404));

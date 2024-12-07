@@ -28,7 +28,8 @@ class BlogRequest extends FormRequest
                     'required',
                     'string',
                     'min:3',
-                    'max:200'
+                    'max:200',
+                    'not_in:categories,tags'
                 ],
                 'slug' => [
                     'required',
@@ -77,7 +78,8 @@ class BlogRequest extends FormRequest
                     'required',
                     'string',
                     'min:3',
-                    'max:200'
+                    'max:200',
+                    'not_in:categories,tags'
                 ],
                 'slug' => [
                     'required',
