@@ -26,6 +26,7 @@ class BlogDetailResource extends JsonResource
             'author' => $this->author?->name,
             'category' => BlogCategoryResource::make($this->category),
             'tags' => BlogTagResource::collection($this->tags),
+            'created_at' => $this->created_at
         ];
     }
 }
