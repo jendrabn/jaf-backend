@@ -3,9 +3,10 @@
 namespace App\Providers;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Spatie\MediaLibrary\Conversions\ImageGenerators\Image;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,11 +24,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Blade::directive('Rp', function ($money) {
-            return "<?php echo 'Rp '. number_format((float) $money,0,',','.'); ?>";
+            return "<?php echo 'Rp '. number_format($money,0,',','.'); ?>";
         });
 
         ResetPassword::createUrlUsing(function (User $user, string $token) {
-            return urldecode(route('auth.reset_password', ['token' => $token, 'email' => $user->email]));
+            if (request()->is('api/*')) {
+                return env('RESET_PASSWORD_URL') . '?email=' . $user->email . '&token=' . $token;
+            } else {
+                return route('auth.reset_password', ['token' => $token, 'email' => $user->email]);
+            }
         });
     }
 }

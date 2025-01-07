@@ -111,3 +111,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('blogs', BlogController::class);
 
 });
+
+Route::get('swagger', function () {
+    return view('docs');
+});

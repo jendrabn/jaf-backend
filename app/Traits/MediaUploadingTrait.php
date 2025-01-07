@@ -3,9 +3,12 @@
 namespace App\Traits;
 
 use Illuminate\Http\Request;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 trait MediaUploadingTrait
 {
+
     public function storeMedia(Request $request)
     {
         // Validates file size
@@ -39,13 +42,17 @@ trait MediaUploadingTrait
 
         $file = $request->file('file');
 
-        $name = uniqid() . '_' . trim($file->getClientOriginalName());
+        $name = uniqid() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
 
-        $file->move($path, $name);
+        $fullPath = $path . '/' . $name;
+
+        $imageManager = new ImageManager(new Driver());
+
+        $imageManager->read($file)->toWebp(60)->save($fullPath);
 
         return response()->json([
             'name' => $name,
-            'original_name' => $file->getClientOriginalName(),
+            'original_name' => $fullPath
         ]);
     }
 }

@@ -42,7 +42,7 @@ class Ewallet extends Model implements HasMedia
     public function registerMediaCollections(?Media $media = null): void
     {
         $this->addMediaConversion('preview')
-            ->fit(Fit::Crop, 120, 120)
+            ->fit(Fit::Crop, 100, 100)
             ->nonQueued();
     }
 

@@ -32,7 +32,9 @@ class Banner extends Model implements HasMedia
 
     public function registerMediaConversions(?Media $media = null): void
     {
-        $this->addMediaConversion('preview')->fit(Fit::Crop, 120, 120)->nonQueued();
+        $this->addMediaConversion('preview')
+            ->fit(Fit::Crop, 100, 100)
+            ->nonQueued();
     }
 
     public function image(): Attribute

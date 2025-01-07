@@ -7,18 +7,18 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class BannerResource extends JsonResource
 {
-  /**
-   * Transform the resource into an array.
-   *
-   * @return array<string, mixed>
-   */
-  public function toArray(Request $request): array
-  {
-    return [
-      'id' => $this->id,
-      'image' => $this->image?->getUrl(),
-      'image_description' => $this->image_description,
-      'url' => $this->url,
-    ];
-  }
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'image' => $this->image?->getUrl('webp'),
+            'image_description' => $this->image_description,
+            'url' => $this->url,
+        ];
+    }
 }
