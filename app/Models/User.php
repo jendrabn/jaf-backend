@@ -27,7 +27,7 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
     public const ROLE_ADMIN = 'admin';
     public const ROLE_USER = 'user';
 
-    public const MEDIA_COLLECTION_NAME = 'user_images';
+    public const MEDIA_COLLECTION_NAME = 'avatar_images';
 
     public const SEX_SELECT = [
         1 => 'Male',
@@ -96,14 +96,6 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
         }
 
         parent::delete();
-    }
-
-    public function birthDate(): Attribute
-    {
-        return Attribute::make(
-            get: fn($value) => Carbon::parse($value)->format('d-m-Y'),
-            set: fn($value) => Carbon::parse($value)->format('Y-m-d')
-        );
     }
 
     public function registerMediaConversions(?Media $media = null): void

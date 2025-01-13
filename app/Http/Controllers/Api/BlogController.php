@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Resources\BlogCollection;
 use App\Http\Resources\BlogDetailResource;
 use App\Http\Resources\BlogResource;
 use App\Models\Blog;
@@ -43,7 +44,7 @@ class BlogController extends Controller
     {
         $blogs = $this->service->getBlogs($request);
 
-        return BlogResource::collection($blogs)
+        return BlogCollection::make($blogs)
             ->response()
             ->setStatusCode(Response::HTTP_OK);
     }
