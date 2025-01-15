@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 class BlogService
 {
 
-    public function getBlogs(Request $request)
+    public function getBlogs(Request $request, int $size = 10)
     {
-        $blogs = Blog::published();
+        $page = $request->get('page', 1);
+
+        $blogs = Blog::with(['media', 'category', 'tags'])->published();
 
         $blogs->when(
             $request->has('category_id'),
@@ -29,7 +31,21 @@ class BlogService
                 ->orWhereHas('tags', fn($q) => $q->where('name', 'like', "%{$request->get('search')}%"))
         );
 
-        $blogs = $blogs->latest('id')->paginate(10);
+        $blogs->when(
+            $request->has('sort_by'),
+            function ($q) use ($request) {
+                $sorts = [
+                    'newest' => ['id', 'desc'],
+                    'oldest' => ['id', 'asc'],
+                    'views' => ['views_count', 'desc']
+                ];
+
+                return $q->orderBy(...$sorts[$request->get('sort_by') ?? $sorts['newest']]);
+            },
+            fn($q) => $q->orderBy('id', 'desc')
+        );
+
+        $blogs = $blogs->paginate(perPage: $size, page: $page);
 
         return $blogs;
     }

@@ -2467,7 +2467,54 @@
         "/api/blogs": {
             "get": {
                 "description": "",
-                "parameters": [],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "style": "form",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "style": "form",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "style": "form",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "newest",
+                                "oldest",
+                                "views"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "category_id",
+                        "in": "query",
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "tag_id",
+                        "in": "query",
+                        "style": "form",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
