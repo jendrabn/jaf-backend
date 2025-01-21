@@ -184,9 +184,7 @@ class OrderService
                 'status' => Payment::STATUS_PENDING
             ]);
 
-            // dd($b);
-
-            $userAddress = $user->address()->updateOrCreate($shippingAddress);
+            $userAddress = $user->address()->updateOrCreate(['user_id' => $user->id], $shippingAddress);
 
             Shipping::create([
                 'order_id' => $order->id,
