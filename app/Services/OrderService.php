@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Requests\Api\{ConfirmPaymentRequest, CreateOrderRequest};
 use App\Models\{Bank, Cart, Invoice, Order, OrderItem, Payment, Shipping};
+use App\Models\Ewallet;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -11,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Str;
 
 class OrderService
 {
@@ -115,7 +117,6 @@ class OrderService
         $carts = Cart::where('user_id', $user->id)
             ->whereIn('id', $validatedData['cart_ids'])
             ->get();
-        $bank = Bank::findOrFail($validatedData['bank_id']);
 
         $this->validateBeforeCreateOrder($carts);
 
@@ -140,6 +141,7 @@ class OrderService
         $totalAmount = $totalPrice + $shippingCost;
 
         DB::beginTransaction();
+
         try {
             $order = Order::create([
                 'user_id' => $user->id,
@@ -165,21 +167,42 @@ class OrderService
 
             $invoice = Invoice::create([
                 'order_id' => $order->id,
-                'number' => implode('/', ['INV', $order->created_at->format('YYYYMMDD'), $order->id]),
+                'number' => implode('/', [
+                    'INV',
+                    $order->created_at->format('YYMMDD'),
+                    Str::random(3),
+                    $order->id
+                ]),
                 'amount' => $totalAmount,
                 'status' => Invoice::STATUS_UNPAID,
                 'due_date' => $order->created_at->addDays(1),
             ]);
 
-            $b = Payment::create([
-                'invoice_id' => $invoice->id,
-                'method' => $validatedData['payment_method'],
-                'info' => [
+            $paymentInfo = [];
+            if ($validatedData['payment_method'] === Payment::METHOD_BANK) {
+                $bank = Bank::findOrFail($validatedData['bank_id']);
+                $paymentInfo = [
                     'name' => $bank->name,
                     'code' => $bank->code,
                     'account_name' => $bank->account_name,
                     'account_number' => $bank->account_number
-                ],
+                ];
+            } elseif ($validatedData['payment_method'] === Payment::METHOD_EWALLET) {
+                $ewallet = Ewallet::findOrFail($validatedData['ewallet_id']);
+                $paymentInfo = [
+                    'name' => $ewallet->name,
+                    'account_name' => $ewallet->account_name,
+                    'account_username' => $ewallet->account_username,
+                    'phone' => $ewallet->phone,
+                ];
+            } else {
+                throw new \Exception('Payment method not found!');
+            }
+
+            Payment::create([
+                'invoice_id' => $invoice->id,
+                'method' => $validatedData['payment_method'],
+                'info' => $paymentInfo,
                 'amount' => $totalAmount,
                 'status' => Payment::STATUS_PENDING
             ]);

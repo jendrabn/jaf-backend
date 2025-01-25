@@ -9,6 +9,8 @@ use App\Http\Resources\{
     CartResource,
     UserAddressResource
 };
+use App\Http\Resources\EwalletResource;
+use App\Models\Ewallet;
 use App\Services\{OrderService, RajaOngkirService};
 use App\Models\{Bank, Cart};
 use Illuminate\Http\JsonResponse;
@@ -36,16 +38,20 @@ class CheckoutController extends Controller
 
         $shippingCosts = $userAddress
             ? $this->rajaOngkirService->getCosts($userAddress->city_id, $totalWeight)
-            : null;
+            : [];
 
         $banks = Bank::with(['media'])->get();
+        $ewallets = Ewallet::with(['media'])->get();
 
         return response()->json([
             'data' => [
                 'shipping_address' => $userAddress ? UserAddressResource::make($userAddress) : [],
                 'carts' => CartResource::collection($carts),
                 'shipping_methods' => $shippingCosts,
-                'payment_methods' => ['bank' => BankResource::collection($banks)],
+                'payment_methods' => [
+                    'bank' => BankResource::collection($banks),
+                    'ewallet' => EwalletResource::collection($ewallets)
+                ],
                 'total_quantity' => $totalQuantity,
                 'total_weight' => $totalWeight,
                 'total_price' => $totalPrice,

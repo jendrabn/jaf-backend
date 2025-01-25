@@ -21,6 +21,9 @@ class Payment extends Model
         self::STATUS_RELEASED => ['label' => 'Realeased'],
     ];
 
+    public const METHOD_BANK = 'bank';
+    public const METHOD_EWALLET = 'ewallet';
+
     protected $fillable = [
         'invoice_id',
         'method',
