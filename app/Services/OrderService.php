@@ -167,12 +167,7 @@ class OrderService
 
             $invoice = Invoice::create([
                 'order_id' => $order->id,
-                'number' => implode('/', [
-                    'INV',
-                    $order->created_at->format('YYMMDD'),
-                    Str::random(3),
-                    $order->id
-                ]),
+                'number' => 'INV' . $order->created_at->format('dmy') . strtoupper(Str::random(5)) . $order->id,
                 'amount' => $totalAmount,
                 'status' => Invoice::STATUS_UNPAID,
                 'due_date' => $order->created_at->addDays(1),
