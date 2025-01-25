@@ -45,7 +45,7 @@ class CheckoutController extends Controller
 
         return response()->json([
             'data' => [
-                'shipping_address' => $userAddress ? UserAddressResource::make($userAddress) : [],
+                'shipping_address' => $userAddress ? UserAddressResource::make($userAddress) : null,
                 'carts' => CartResource::collection($carts),
                 'shipping_methods' => $shippingCosts,
                 'payment_methods' => [
