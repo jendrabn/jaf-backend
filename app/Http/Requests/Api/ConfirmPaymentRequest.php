@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api;
 
+use App\Models\Payment;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ConfirmPaymentRequest extends FormRequest
@@ -21,25 +22,62 @@ class ConfirmPaymentRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => [
-                'required',
-                'string',
-                'min:1',
-                'max:50',
-            ],
-            'account_name' => [
-                'required',
-                'string',
-                'min:1',
-                'max:50',
-            ],
-            'account_number' => [
-                'required',
-                'string',
-                'min:1',
-                'max:50',
-            ]
-        ];
+        $paymentMethod = $this->route('order')->invoice->payment->method;
+
+        // Payment method bank
+        if ($paymentMethod === Payment::METHOD_BANK) {
+            return [
+                'name' => [
+                    'required',
+                    'string',
+                    'min:1',
+                    'max:50',
+                ],
+                'account_name' => [
+                    'required',
+                    'string',
+                    'min:1',
+                    'max:50',
+                ],
+                'account_number' => [
+                    'required',
+                    'string',
+                    'min:1',
+                    'max:50',
+                ]
+            ];
+        } else if ($paymentMethod === Payment::METHOD_EWALLET) {
+            return [
+                'name' => [
+                    'required',
+                    'string',
+                    'min:1',
+                    'max:50',
+                ],
+                'account_name' => [
+                    'required',
+                    'string',
+                    'min:1',
+                    'max:50',
+                ],
+                'account_username' => [
+                    'required',
+                    'string',
+                    'min:1',
+                    'max:50',
+                ],
+                'phone' => [
+                    'required',
+                    'string',
+                    'min:1',
+                    'max:50',
+                ]
+            ];
+        } else {
+            return [];
+        }
+
+
+
     }
 }

@@ -76,7 +76,18 @@ class OrderService
 
         try {
             DB::transaction(function () use ($order, $request) {
-                $order->invoice->payment->bank()->create($request->validated());
+                $paymentMethod = $order->invoice->payment->method;
+
+                if ($paymentMethod === Payment::METHOD_BANK) {
+                    $order->invoice->payment->bank()->create($request->validated());
+                } else if ($paymentMethod === Payment::METHOD_EWALLET) {
+                    $order->invoice->payment->ewallet()->create($request->validated());
+                } else {
+                    throw ValidationException::withMessages([
+                        'order_id' => 'Payment method not found.'
+                    ]);
+                }
+
                 $order->update(['status' => Order::STATUS_PENDING]);
             });
         } catch (QueryException $e) {
