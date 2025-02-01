@@ -23,7 +23,7 @@ trait MediaUploadingTrait
             request()->validate([
                 'file' => sprintf(
                     'image|dimensions:max_width=%s,max_height=%s',
-                    request()->input('width', 100000),
+                    request()->input('width', default: 100000),
                     request()->input('height', 100000)
                 ),
             ]);

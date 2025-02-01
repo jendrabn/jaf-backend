@@ -94,7 +94,7 @@
     <script>
         Dropzone.options.logoDropzone = {
             url: '{{ route('admin.ewallets.storeMedia') }}',
-            maxFilesize: 1, // MB
+            maxFilesize: 5, // MB
             acceptedFiles: '.jpeg,.jpg,.png',
             maxFiles: 1,
             addRemoveLinks: true,
@@ -102,9 +102,9 @@
                 'X-CSRF-TOKEN': "{{ csrf_token() }}"
             },
             params: {
-                size: 1,
-                width: 1000,
-                height: 1000
+                size: 5,
+                width: 5000,
+                height: 5000
             },
             success: function(file, response) {
                 $('form').find('input[name="logo"]').remove()

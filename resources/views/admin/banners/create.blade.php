@@ -64,7 +64,7 @@
     <script>
         Dropzone.options.imageDropzone = {
             url: '{{ route('admin.banners.storeMedia') }}',
-            maxFilesize: 5, // MB
+            maxFilesize: 10, // MB
             acceptedFiles: '.jpeg,.jpg,.png',
             maxFiles: 1,
             addRemoveLinks: true,
@@ -72,9 +72,9 @@
                 'X-CSRF-TOKEN': "{{ csrf_token() }}"
             },
             params: {
-                size: 5,
-                width: 10240,
-                height: 6144
+                size: 10,
+                width: 15000,
+                height: 10000
             },
             success: function(file, response) {
                 $('form').find('input[name="image"]').remove()

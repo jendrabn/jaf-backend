@@ -148,16 +148,16 @@
 
         Dropzone.options.imagesDropzone = {
             url: '{{ route('admin.blogs.storeMedia') }}',
-            maxFilesize: 2, // MB
+            maxFilesize: 10, // MB
             acceptedFiles: '.jpeg,.jpg,.png',
             addRemoveLinks: true,
             headers: {
                 'X-CSRF-TOKEN': "{{ csrf_token() }}"
             },
             params: {
-                size: 2,
-                width: 4000,
-                height: 3000
+                size: 10,
+                width: 10000,
+                height: 10000
             },
             maxFiles: 1,
             success: function(file, response) {
