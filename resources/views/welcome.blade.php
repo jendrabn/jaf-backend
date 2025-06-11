@@ -36,7 +36,7 @@
                     <a class="btn btn-primary btn-block btn-lg mb-2"
                        href="{{ route('auth.login') }}">Admin Panel</a>
                     <a class="btn btn-outline-primary btn-block btn-lg"
-                       href="https://jaf.zenby.fun">Shop</a>
+                       href="{{ config('shop.front_url') }}">Shop</a>
                 </div>
             </div>
         </div>
