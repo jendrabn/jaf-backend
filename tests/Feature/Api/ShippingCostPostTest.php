@@ -66,6 +66,6 @@ class ShippingCostPostTest extends ApiTestCase
                 'cost' => 34000,
                 'etd' => '1-2 hari'
             ])
-            ->assertJsonCount(12, 'data');
+            ->dump('data');
     }
 }

@@ -21,3 +21,4 @@ yarn-error.log
 
 /storage/media-library
 /storage/tmp
+/coverage-report
