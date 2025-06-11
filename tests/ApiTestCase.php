@@ -127,6 +127,7 @@ class ApiTestCase extends BaseTestCase
                 'id' => $data['id'],
                 'name' => $data['name'],
                 'slug' => $data['slug'],
+                'products_count' => $data['products_count'],
             ];
     }
 
@@ -138,6 +139,7 @@ class ApiTestCase extends BaseTestCase
                 'id' => $data['id'],
                 'name' => $data['name'],
                 'slug' => $data['slug'],
+                'products_count' => $data['products_count'],
             ];
     }
 

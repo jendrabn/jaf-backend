@@ -154,12 +154,17 @@ class OrderPostTest extends ApiTestCase
             'payment_method' => [
                 'required',
                 'string',
-                'in:bank',
+                'in:bank,ewallet',
             ],
             'bank_id' => [
-                'required',
+                'required_if:payment_method,bank',
                 'integer',
                 'exists:banks,id',
+            ],
+            'ewallet_id' => [
+                'required_if:payment_method,ewallet',
+                'integer',
+                'exists:ewallets,id'
             ],
             'notes' => [
                 'nullable',
@@ -242,7 +247,7 @@ class OrderPostTest extends ApiTestCase
 
         $this->assertDatabaseHas('invoices', [
             'order_id' => $response['data']['id'],
-            'number' => implode('/', ['INV', $order->created_at->format('YYYYMMDD'), $response['data']['id']]),
+            'number' => 'INV' . $order->created_at->format('dmy') . $response['data']['id'],
             'amount' => $totalAmount,
             'status' => Invoice::STATUS_UNPAID,
             'due_date' => $paymentDueDate,

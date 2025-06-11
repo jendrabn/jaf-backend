@@ -29,7 +29,7 @@ class HomePageGetTest extends ApiTestCase
         $expectedBanners = $banners->sortBy('id')->take(10);
         $expectedProducts = $products->sortByDesc('id')->take(10);
 
-        $response = $this->getJson('/api/home_page');
+        $response = $this->getJson('/api/landing');
 
         $response
             ->assertOk()

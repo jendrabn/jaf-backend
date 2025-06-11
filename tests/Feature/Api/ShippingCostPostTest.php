@@ -65,7 +65,6 @@ class ShippingCostPostTest extends ApiTestCase
                 'service_name' => 'Layanan Reguler',
                 'cost' => 34000,
                 'etd' => '1-2 hari'
-            ])
-            ->dump('data');
+            ]);
     }
 }

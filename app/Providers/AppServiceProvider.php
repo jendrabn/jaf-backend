@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
 
         ResetPassword::createUrlUsing(function (User $user, string $token) {
             if (request()->is('api/*')) {
-                return env('RESET_PASSWORD_URL') . '?email=' . $user->email . '&token=' . $token;
+                return config('shop.front_url') . "/auth/reset_password?email={$user->email}&token={$token}";
             } else {
                 return route('auth.reset_password', ['token' => $token, 'email' => $user->email]);
             }

@@ -294,8 +294,8 @@ class ProductGetTest extends ApiTestCase
         $expectedProducts = $products->whereBetween('price', [$min = 1000, $max = 5000])->sortByDesc('id');
 
         $response = $this->attemptToGetProductAndExpectOk([
-            'price_min' => $min,
-            'price_max' => $max
+            'min_price' => $min,
+            'max_price' => $max
         ]);
 
         $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
