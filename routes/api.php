@@ -66,6 +66,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/orders/{order}', 'get');
         Route::post('/orders/{order}/confirm_payment', 'confirmPayment');
         Route::put('/orders/{order}/confirm_order_delivered', 'confirmDelivered');
+        // Add Rating
+        Route::post('/orders/ratings', 'addRating');
     });
 
     // Wishlist

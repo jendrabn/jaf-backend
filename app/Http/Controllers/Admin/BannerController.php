@@ -50,7 +50,8 @@ class BannerController extends Controller
         $banner = Banner::create($request->validated());
 
         if ($request->input('image', false)) {
-            $banner->addMedia(storage_path('tmp/uploads/' . basename($request->input('image'))))->toMediaCollection(Banner::MEDIA_COLLECTION_NAME);
+            $banner->addMedia(storage_path('tmp/uploads/' . basename($request->input('image'))))
+            ->toMediaCollection(Banner::MEDIA_COLLECTION_NAME);
         }
 
         if ($media = $request->input('ck-media', false)) {

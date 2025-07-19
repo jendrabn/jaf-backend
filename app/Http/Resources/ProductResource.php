@@ -27,6 +27,7 @@ class ProductResource extends JsonResource
             'weight' => $this->weight,
             'sold_count' => $this->sold_count ?? 0,
             'is_wishlist' => $this->is_wishlist ?? false,
+            'rating_avg' => $this->ratingAvg ?? 0,
         ];
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Product extends Model implements HasMedia
@@ -43,6 +44,7 @@ class Product extends Model implements HasMedia
         'images',
         'is_wishlist',
         'sex_label',
+        'rating_avg',
     ];
 
     protected $casts = [
@@ -131,5 +133,20 @@ class Product extends Model implements HasMedia
     public function sexLabel(): Attribute
     {
         return Attribute::get(fn() => $this->attributes['sex'] ? self::SEX_SELECT[$this->attributes['sex']] : '');
+    }
+
+    public function productRatings(): HasManyThrough
+    {
+        return $this->hasManyThrough(ProductRating::class, OrderItem::class, 'product_id', 'order_item_id');
+    }
+
+    public function ratingAvg(): Attribute
+    {
+        return Attribute::get(function () {
+            $ratingAvg = $this->productRatings()->avg('rating');
+            $ratingAvg =  ceil($ratingAvg * 10) / 10;
+
+            return $ratingAvg;
+        });
     }
 }
