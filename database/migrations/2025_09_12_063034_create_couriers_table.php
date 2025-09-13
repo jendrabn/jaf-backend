@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('code');
-            $table->enum('status', ['active', 'inactive']);
+            $table->boolean('is_active')->default(true);
         });
     }
 

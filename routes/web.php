@@ -110,6 +110,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('blogs/ckmedia', [ProductController::class, 'storeCKEditorImages'])->name('blogs.storeCKEditorImages');
     Route::resource('blogs', BlogController::class);
 
+    Route::resource('couriers', \App\Http\Controllers\Admin\CourierController::class)->only(['index', 'update']);
 });
 
 Route::get('swagger', function () {

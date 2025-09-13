@@ -9,14 +9,18 @@ class Courier extends Model
     protected $fillable = [
         'id',
         'name',
-        'code'
+        'code',
+        'is_active',
     ];
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_INACTIVE = 'inactive';
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    public $timestamps = false;
 
     public function scopeActive($query)
     {
-        return $query->where('status', self::STATUS_ACTIVE);
+        return $query->where('is_active', true);
     }
 }
