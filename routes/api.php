@@ -32,7 +32,9 @@ Route::controller(ProductController::class)->group(function () {
 // Region
 Route::controller(RegionController::class)->group(function () {
     Route::get('/region/provinces', 'provinces');
-    Route::get('/region/cities/{province}', 'cities');
+    Route::get('/region/cities/{provinceId}', 'cities');
+    Route::get('/region/districts/{cityId}', 'districts');
+    Route::get('/region/sub-districts/{districtId}', 'subdistricts');
 });
 
 // Auth

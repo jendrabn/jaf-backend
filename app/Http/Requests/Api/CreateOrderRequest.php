@@ -47,18 +47,23 @@ class CreateOrderRequest extends FormRequest
                 'min:10',
                 'max:15',
             ],
+            'shipping_address.province_id' => [
+                'required',
+                'integer',
+            ],
             'shipping_address.city_id' => [
                 'required',
                 'integer',
-                'exists:cities,id',
             ],
-            'shipping_address.district' => [
+            'shipping_address.district_id' => [
                 'required',
-                'string',
-                'min:1',
-                'max:100',
+                'integer',
             ],
-            'shipping_address.postal_code' => [
+            'shipping_address.subdistrict_id' => [
+                'required',
+                'integer',
+            ],
+            'shipping_address.zip_code' => [
                 'required',
                 'string',
                 'min:5',
@@ -73,7 +78,7 @@ class CreateOrderRequest extends FormRequest
             'shipping_courier' => [
                 'required',
                 'string',
-                Rule::in(Shipping::COURIERS)
+                'exists:couriers,code'
             ],
             'shipping_service' => [
                 'required',

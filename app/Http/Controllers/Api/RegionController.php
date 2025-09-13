@@ -3,26 +3,41 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\{CityResource, ProvinceResource};
-use App\Models\Province;
+use App\Services\RajaOngkirService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 class RegionController extends Controller
 {
-  public function provinces(): JsonResponse
-  {
-    $provinces = Province::all();
 
-    return ProvinceResource::collection($provinces)
-      ->response()
-      ->setStatusCode(Response::HTTP_OK);
-  }
+    public function __construct(private readonly RajaOngkirService $rajaOngkirService) {}
 
-  public function cities(Province $province): JsonResponse
-  {
-    return CityResource::collection($province->cities)
-      ->response()
-      ->setStatusCode(Response::HTTP_OK);
-  }
+    public function provinces(): JsonResponse
+    {
+        $provinces = $this->rajaOngkirService->fetchProvinces();
+
+        return response()
+            ->json($provinces, Response::HTTP_OK);
+    }
+
+    public function cities(int $provinceId): JsonResponse
+    {
+        $cities = $this->rajaOngkirService->fetchCities($provinceId);
+
+        return response()->json($cities, Response::HTTP_OK);
+    }
+
+    public function districts(int $cityId): JsonResponse
+    {
+        $districts = $this->rajaOngkirService->fetchDistricts($cityId);
+
+        return response()->json($districts, Response::HTTP_OK);
+    }
+
+    public function subdistricts(int $districtId): JsonResponse
+    {
+        $subdistricts = $this->rajaOngkirService->fetchSubDistricts($districtId);
+
+        return response()->json($subdistricts, Response::HTTP_OK);
+    }
 }

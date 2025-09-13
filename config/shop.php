@@ -2,8 +2,9 @@
 
 return [
     'address' => [
-        'city_id' => 160,
-        'province_id' => 11,
+        'district_id' => 2533,
+        'city_id' => 256,
+        'province_id' => 18,
         'name' => 'JAF Parfum\'s',
         'city_name' => 'Jember',
         'province_name' => 'Jawa Timur',

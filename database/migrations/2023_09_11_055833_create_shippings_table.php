@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->text('address');
-            $table->enum('courier', ['jne', 'pos', 'tiki']);
+            $table->string('courier');
             $table->string('courier_name', 100)->nullable();
             $table->string('service', 50);
             $table->string('service_name', 100)->nullable();

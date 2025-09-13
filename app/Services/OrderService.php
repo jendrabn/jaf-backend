@@ -11,6 +11,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Str;
 
@@ -133,12 +134,14 @@ class OrderService
 
         $shippingAddress = $validatedData['shipping_address'];
         $totalWeight = $this->totalWeight($carts);
-        $shippingService = (new RajaOngkirService)->getService(
-            $validatedData['shipping_service'],
-            $shippingAddress['city_id'],
+
+        $shippingCosts = (new RajaOngkirService())->calculateCost(
+            $shippingAddress['district_id'],
             $totalWeight,
             $validatedData['shipping_courier']
         );
+
+        $shippingService = collect($shippingCosts)->firstWhere('service', '=', $validatedData['shipping_service']);
 
         throw_if(
             !$shippingService,
@@ -220,10 +223,11 @@ class OrderService
                 'address' => [
                     'name' => $userAddress->name,
                     'phone' => $userAddress->phone,
-                    'province' => $userAddress->city->province->name,
-                    'city' => $userAddress->city->name,
-                    'district' => $userAddress->district,
-                    'postal_code' => $userAddress->postal_code,
+                    'province' => $userAddress->province['name'] ?? '',
+                    'city' => $userAddress->city['name'] ?? '',
+                    'district' => $userAddress->district['name'] ?? '',
+                    'subdistrict' => $userAddress->subdistrict['name'] ?? '',
+                    'zip_code' => $userAddress->zip_code,
                     'address' => $userAddress->address
                 ],
                 'courier' => $shippingService['courier'],

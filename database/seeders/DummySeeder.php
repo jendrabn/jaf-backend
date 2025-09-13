@@ -18,6 +18,7 @@ use App\Models\PaymentBank;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
+
 class DummySeeder extends Seeder
 {
     /**
@@ -29,12 +30,11 @@ class DummySeeder extends Seeder
 
         $this->call([
             RolesAndPermissionsSeeder::class,
-            ProvinceSeeder::class,
-            CitySeeder::class,
             ProductCategorySeeder::class,
             ProductBrandSeeder::class,
             BankSeeder::class,
-            EwalletSeeder::class
+            EwalletSeeder::class,
+            CourierSeeder::class
         ]);
 
         User::create([
@@ -49,7 +49,7 @@ class DummySeeder extends Seeder
             'password' => 'password',
         ])->assignRole(User::ROLE_USER);
 
-        Product::factory(100)->hasImages(3)->create();
+        Product::factory(25)->hasImages(3)->create();
 
         for ($i = 0; $i < 25; $i++) {
             Order::factory()

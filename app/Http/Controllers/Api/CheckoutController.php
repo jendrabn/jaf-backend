@@ -18,9 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController extends Controller
 {
-    public function __construct(private RajaOngkirService $rajaOngkirService, private OrderService $orderService)
-    {
-    }
+    public function __construct(private RajaOngkirService $rajaOngkirService, private OrderService $orderService) {}
 
     public function checkout(CheckoutRequest $request): JsonResponse
     {
@@ -34,10 +32,10 @@ class CheckoutController extends Controller
         $totalQuantity = $this->orderService->totalQuantity($carts);
         $totalPrice = $this->orderService->totalPrice($carts);
 
-        $userAddress = auth()->user()->address?->load(['city', 'city.province']);
+        $userAddress = auth()->user()->address;
 
         $shippingCosts = $userAddress
-            ? $this->rajaOngkirService->getCosts($userAddress->city_id, $totalWeight)
+            ? $this->rajaOngkirService->calculateCost($userAddress->district_id, $totalWeight)
             : [];
 
         $banks = Bank::with(['media'])->get();
@@ -61,7 +59,7 @@ class CheckoutController extends Controller
 
     public function shippingCosts(ShippingCostRequest $request): JsonResponse
     {
-        $costs = $this->rajaOngkirService->getCosts(...$request->validated());
+        $costs = $this->rajaOngkirService->calculateCost($request->get('destination'), $request->get('weight'));
 
         return response()->json(['data' => $costs], Response::HTTP_OK);
     }
