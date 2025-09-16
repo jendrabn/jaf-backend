@@ -16,9 +16,9 @@ class CourierController extends Controller
      * Display a listing of the resource.
      *
      * @param CourierDataTable $dataTable
-     * @return View
+     * @return mixed
      */
-    public function index(CourierDataTable $dataTable): View
+    public function index(CourierDataTable $dataTable): mixed
     {
         return $dataTable->render('admin.couriers.index');
     }

@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Courier;
+use App\Models\CouponUsage;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class CourierDataTable extends DataTable
+class CouponUsageDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -22,26 +22,25 @@ class CourierDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('is_active', function ($courier) {
-                return '
-                    <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input toggle-status" id="courier-' . $courier->id . '" data-id="' . $courier->id . '" ' . ($courier->is_active ? 'checked' : '') . '>
-                        <label class="custom-control-label font-weight-normal" for="courier-' . $courier->id . '">
-                            ' . ($courier->is_active ? 'Active' : 'Inactive') . '
-                        </label>
-                    </div>
-               ';
+            ->addColumn('action', 'couponusage.action')
+            ->addColumn('order_id', function ($row) {
+                return $row->order->id . '<a href="' . route('admin.orders.show', $row->order->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+            })
+            ->addColumn('customer', function ($row) {
+                return $row->order->user->name . '<a href="' . route('admin.users.show', $row->order->user->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->setRowId('id')
-            ->rawColumns(['is_active']);
+            ->rawColumns(['action', 'order_id', 'customer']);
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(Courier $model): QueryBuilder
+    public function query(CouponUsage $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->newQuery()
+            ->with(['coupon', 'order', 'order.user'])
+            ->where('coupon_id', $this->coupon->id);
     }
 
     /**
@@ -50,11 +49,11 @@ class CourierDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('courier-table')
+            ->setTableId('datatable-couponusage')
             ->columns($this->getColumns())
             ->minifiedAjax()
             //->dom('Bfrtip')
-            ->orderBy(0, 'asc')
+            ->orderBy(0, 'desc')
             ->selectStyleSingle()
             ->buttons([]);
     }
@@ -66,13 +65,13 @@ class CourierDataTable extends DataTable
     {
         return [
             Column::make('id')
-                ->title('ID')
-                ->width(35)
-                ->addClass('text-center'),
-            Column::make('name')
-                ->title('NAME'),
-            Column::computed('is_active')
-                ->title('STATUS'),
+                ->title('ID'),
+            Column::make('order_id', 'order.id')
+                ->title('ORDER ID'),
+            Column::make('customer', 'order.user.name')
+                ->title('CUSTOMER'),
+            Column::make('created_at')
+                ->title('USED AT'),
         ];
     }
 
@@ -81,6 +80,6 @@ class CourierDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Courier_' . date('YmdHis');
+        return 'CouponUsage_' . date('YmdHis');
     }
 }

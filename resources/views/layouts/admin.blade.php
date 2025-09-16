@@ -10,7 +10,7 @@
     <meta content="{{ csrf_token() }}"
           name="csrf-token" />
 
-    <title>{{ $title }} | {{ config('app.name') }}</title>
+    <title>@yield('page_title') | {{ config('app.name') }}</title>
 
     <link href="{{ asset('img/favicon.ico') }}"
           rel="icon"
@@ -32,6 +32,8 @@
           rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css"
           rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css"
+          rel="stylesheet" />
     @vite('resources/scss/adminlte.scss')
     @yield('styles')
     @stack('styles')
@@ -51,6 +53,20 @@
         @include('partials.sidebar')
 
         <div class="content-wrapper">
+
+            <section class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1>@yield('page_title')</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            @yield('breadcrumb')
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <section class="content"
                      style="padding-top: 20px">
                 @if (session('message'))
@@ -164,6 +180,8 @@
             if (localStorage.getItem("pushmenu") === "true") {
                 document.body.classList.add("sidebar-collapse");
             }
+
+            $('[data-toggle="tooltip"]').tooltip()
         });
     </script>
 

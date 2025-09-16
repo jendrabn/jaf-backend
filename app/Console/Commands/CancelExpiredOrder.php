@@ -12,7 +12,7 @@ class CancelExpiredOrder extends Command
      *
      * @var string
      */
-    protected $signature = 'app:cancel-expired-order';
+    protected $signature = 'cancel-expired-order';
 
     /**
      * The console command description.
@@ -27,7 +27,7 @@ class CancelExpiredOrder extends Command
     public function handle()
     {
         $orders = Order::where('status', Order::STATUS_PENDING_PAYMENT)
-            ->whereHas('invoice', fn ($q) => $q->where('due_date', '<', now()))
+            ->whereHas('invoice', fn($q) => $q->where('due_date', '<', now()))
             ->get();
 
         if ($orders->isNotEmpty()) {

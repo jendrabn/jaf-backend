@@ -59,7 +59,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     // Checkout
-    Route::post('/checkout', [CheckoutController::class, 'checkout']);
+    Route::controller(CheckoutController::class)->group(function () {
+        Route::post('/checkout', 'checkout');
+        Route::post('/apply_coupon', 'applyCoupon');
+        Route::post('/remove_coupon', 'removeCoupon');
+    });
 
     // Order
     Route::controller(OrderController::class)->group(function () {

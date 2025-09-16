@@ -1,14 +1,21 @@
-@extends('layouts.admin', ['title' => 'Couriers'])
+@extends('layouts.admin')
+
+@section('page_title', 'Courier')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Courier' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
     <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Courier</h3>
-        </div>
-
         <div class="card-body">
             <div class="table-responsive">
-                {{ $dataTable->table(['class' => 'table table-striped table-bordered datatable ajaxTable']) }}
+                {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable']) }}
             </div>
         </div>
     </div>

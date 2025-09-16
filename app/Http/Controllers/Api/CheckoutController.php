@@ -12,7 +12,8 @@ use App\Http\Resources\{
 use App\Http\Resources\EwalletResource;
 use App\Models\Ewallet;
 use App\Services\{OrderService, RajaOngkirService};
-use App\Models\{Bank, Cart};
+use App\Models\{Bank, Cart, Coupon};
+use Flasher\Laravel\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -62,5 +63,54 @@ class CheckoutController extends Controller
         $costs = $this->rajaOngkirService->calculateCost($request->get('destination'), $request->get('weight'));
 
         return response()->json(['data' => $costs], Response::HTTP_OK);
+    }
+
+    public function applyCoupon(Request $request, Coupon $coupon): JsonResponse
+    {
+        // Validate if coupon is active
+        if (!$coupon->is_active) {
+            return response()->json([
+                'message' => 'This coupon is not active'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        // Check coupon validity period
+        $now = now();
+        if ($coupon->start_date && $now->lt($coupon->start_date)) {
+            return response()->json([
+                'message' => 'This coupon is not yet valid'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        if ($coupon->end_date && $now->gt($coupon->end_date)) {
+            return response()->json([
+                'message' => 'This coupon has expired'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        // Check usage limit
+        if ($coupon->limit && $coupon->usages()->count() >= $coupon->limit) {
+            return response()->json([
+                'message' => 'This coupon has reached its usage limit'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        // Store coupon in session for later use during checkout
+        session(['applied_coupon' => $coupon->id]);
+
+        return response()->json([
+            'message' => 'Coupon applied successfully',
+            'data' => $coupon
+        ], Response::HTTP_OK);
+    }
+
+    public function removeCoupon(Request $request, Coupon $coupon): JsonResponse
+    {
+        // Remove coupon from session
+        session()->forget('applied_coupon');
+
+        return response()->json([
+            'message' => 'Coupon removed successfully'
+        ], Response::HTTP_OK);
     }
 }

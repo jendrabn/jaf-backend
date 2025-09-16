@@ -110,7 +110,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('blogs/ckmedia', [ProductController::class, 'storeCKEditorImages'])->name('blogs.storeCKEditorImages');
     Route::resource('blogs', BlogController::class);
 
+    // Courier
     Route::resource('couriers', \App\Http\Controllers\Admin\CourierController::class)->only(['index', 'update']);
+
+    // Coupon
+    Route::resource('coupons', \App\Http\Controllers\Admin\CouponController::class);
+    Route::post('coupons/destroy', [\App\Http\Controllers\Admin\CouponController::class, 'massDestroy'])->name('coupons.massDestroy');
 });
 
 Route::get('swagger', function () {

@@ -15,18 +15,18 @@ class CourierSeeder extends Seeder
     {
 
         $couriers = [
-            ['name' => 'Wahana',                           'code' => 'wahana', 'status' => 'inactive'],
-            ['name' => 'Lion Parcel',                      'code' => 'lion',   'status' => 'active'],
-            ['name' => 'Citra Van Titipan Kilat (TIKI)',   'code' => 'tiki',   'status' => 'inactive'],
-            ['name' => 'ID Express',                       'code' => 'ide',    'status' => 'inactive'],
-            ['name' => 'J&T Express',                      'code' => 'jnt',    'status' => 'active'],
-            ['name' => 'Ninja Xpress',                     'code' => 'ninja',  'status' => 'inactive'],
-            ['name' => 'POS Indonesia (POS)',              'code' => 'pos',    'status' => 'active'],
-            ['name' => 'SiCepat Express',                  'code' => 'sicepat', 'status' => 'active'],
-            ['name' => 'Satria Antaran Prima',             'code' => 'sap',    'status' => 'inactive'],
-            ['name' => 'Royal Express Indonesia (REX)',    'code' => 'rex',    'status' => 'inactive'],
-            ['name' => 'Sentral Cargo',                    'code' => 'sentral', 'status' => 'inactive'],
-            ['name' => 'Jalur Nugraha Ekakurir (JNE)',     'code' => 'jne',    'status' => 'active'],
+            ['name' => 'Wahana',                           'code' => 'wahana', 'is_active' => 0],
+            ['name' => 'Lion Parcel',                      'code' => 'lion',   'is_active' => 1],
+            ['name' => 'Citra Van Titipan Kilat (TIKI)',   'code' => 'tiki',   'is_active' => 0],
+            ['name' => 'ID Express',                       'code' => 'ide',    'is_active' => 0],
+            ['name' => 'J&T Express',                      'code' => 'jnt',    'is_active' => 1],
+            ['name' => 'Ninja Xpress',                     'code' => 'ninja',  'is_active' => 0],
+            ['name' => 'POS Indonesia (POS)',              'code' => 'pos',    'is_active' => 1],
+            ['name' => 'SiCepat Express',                  'code' => 'sicepat', 'is_active' => 1],
+            ['name' => 'Satria Antaran Prima',             'code' => 'sap',    'is_active' => 0],
+            ['name' => 'Royal Express Indonesia (REX)',    'code' => 'rex',    'is_active' => 0],
+            ['name' => 'Sentral Cargo',                    'code' => 'sentral', 'is_active' => 0],
+            ['name' => 'Jalur Nugraha Ekakurir (JNE)',     'code' => 'jne',    'is_active' => 1],
         ];
 
         Courier::insert($couriers);

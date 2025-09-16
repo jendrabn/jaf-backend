@@ -15,7 +15,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('admin.home') ? 'active' : '' }}"
                        href="{{ route('admin.home') }}">
-                        <i class="nav-icon fa-solid fa-tachometer-alt">
+                        <i class="nav-icon bi bi-speedometer2">
                         </i>
                         <p>
                             Dashboard
@@ -26,9 +26,9 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('admin/users') || request()->is('admin/users/*') ? 'active' : '' }}"
                        href="{{ route('admin.users.index') }}">
-                        <i class="nav-icon fa-solid fa-users"></i>
+                        <i class="nav-icon bi bi-people"></i>
                         <p>
-                            Users
+                            User
                         </p>
                     </a>
                 </li>
@@ -36,9 +36,9 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('admin/orders') || request()->is('admin/orders/*') ? 'active' : '' }}"
                        href="{{ route('admin.orders.index') }}">
-                        <i class="nav-icon fa-solid fa-clipboard"></i>
+                        <i class="nav-icon bi bi-box-seam"></i>
                         <p>
-                            Orders
+                            Order
                             @php
                                 $orders_count = \App\Models\Order::where(['status' => 'pending'])->count();
                             @endphp
@@ -51,43 +51,63 @@
                 </li>
 
                 <li
-                    class="nav-item has-treeview {{ request()->is('admin/product-categories*') ? 'menu-open' : '' }} {{ request()->is('admin/product-brands*') ? 'menu-open' : '' }} {{ request()->is('admin/products*') ? 'menu-open' : '' }}">
-                    <a class="nav-link nav-dropdown-toggle {{ request()->is('admin/product-categories*') ? 'active' : '' }} {{ request()->is('admin/product-brands*') ? 'active' : '' }} {{ request()->is('admin/product*') ? 'active' : '' }}"
+                    class="nav-item has-treeview {{ request()->is('admin/product-categories*') ? 'menu-open' : '' }} {{ request()->is('admin/product-brands*') ? 'menu-open' : '' }} {{ request()->is('admin/products*') ? 'menu-open' : '' }} {{ request()->is('admin/couriers*') ? 'menu-open' : '' }} {{ request()->is('admin/coupons*') ? 'menu-open' : '' }}">
+                    <a class="nav-link nav-dropdown-toggle {{ request()->is('admin/product-categories*') ? 'active' : '' }} {{ request()->is('admin/product-brands*') ? 'active' : '' }} {{ request()->is('admin/product*') ? 'active' : '' }} {{ request()->is('admin/couriers*') ? 'active' : '' }} {{ request()->is('admin/coupons*') ? 'active' : '' }} "
                        href="#">
-                        <i class="nav-icon fa-solid fa-bag-shopping"></i>
+                        <i class="nav-icon bi bi-shop"></i>
                         <p>
-                            Product
-                            <i class="right fa fa-angle-left nav-icon"></i>
+                            Shop
+                            <i class="right bi bi-chevron-left nav-icon"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('admin/product-categories') || request()->is('admin/product-categories/*') ? 'active' : '' }}"
-                               href="{{ route('admin.product-categories.index') }}">
-                                <i class="nav-icon fa-regular fa-folder">
+                            <a class="nav-link {{ request()->is('admin/products') || request()->is('admin/products/*') ? 'active' : '' }}"
+                               href="{{ route('admin.products.index') }}">
+                                <i class="nav-icon bi bi-circle">
                                 </i>
                                 <p>
-                                    Categories
+                                    Product
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('admin/product-categories') || request()->is('admin/product-categories/*') ? 'active' : '' }}"
+                               href="{{ route('admin.product-categories.index') }}">
+                                <i class="nav-icon bi bi-circle">
+                                </i>
+                                <p>
+                                    Category
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('admin/product-brands') || request()->is('admin/product-brands/*') ? 'active' : '' }}"
                                href="{{ route('admin.product-brands.index') }}">
-                                <i class="nav-icon fa-regular fa-folder">
+                                <i class="nav-icon bi bi-circle">
                                 </i>
                                 <p>
-                                    Brands
+                                    Brand
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->is('admin/products') || request()->is('admin/products/*') ? 'active' : '' }}"
-                               href="{{ route('admin.products.index') }}">
-                                <i class="nav-icon fa-regular fa-folder">
+                            <a class="nav-link {{ request()->is('admin/couriers') || request()->is('admin/couriers/*') ? 'active' : '' }}"
+                               href="{{ route('admin.couriers.index') }}">
+                                <i class="nav-icon bi bi-circle">
                                 </i>
                                 <p>
-                                    Products
+                                    Courier
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {{ request()->is('admin/coupons') || request()->is('admin/coupons/*') ? 'active' : '' }}"
+                               href="{{ route('admin.coupons.index') }}">
+                                <i class="nav-icon bi bi-circle">
+                                </i>
+                                <p>
+                                    Coupon
                                 </p>
                             </a>
                         </li>
@@ -98,30 +118,30 @@
                     class="nav-item has-treeview {{ request()->is('admin/banks*') || request()->is('admin/ewallets*') ? 'menu-open' : '' }}">
                     <a class="nav-link nav-dropdown-toggle {{ request()->is('admin/banks*') || request()->is('admin/ewallets*') ? 'active' : '' }}"
                        href="#">
-                        <i class="nav-icon fa-solid fa-wallet"></i>
+                        <i class="nav-icon bi bi-wallet"></i>
                         <p>
                             Payment Method
-                            <i class="right fa fa-angle-left nav-icon"></i>
+                            <i class="right bi bi-chevron-left nav-icon"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('admin/banks') || request()->is('admin/banks/*') ? 'active' : '' }}"
                                href="{{ route('admin.banks.index') }}">
-                                <i class="nav-icon fa-regular fa-folder">
+                                <i class="nav-icon bi bi-circle">
                                 </i>
                                 <p>
-                                    Banks
+                                    Bank
                                 </p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('admin/ewallets') || request()->is('admin/ewallets/*') ? 'active' : '' }}"
                                href="{{ route('admin.ewallets.index') }}">
-                                <i class="nav-icon fa-regular fa-folder">
+                                <i class="nav-icon bi bi-circle">
                                 </i>
                                 <p>
-                                    E-Wallets
+                                    E-Wallet
                                 </p>
                             </a>
                         </li>
@@ -131,7 +151,7 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->is('admin/banners') || request()->is('admin/banners/*') ? 'active' : '' }}"
                        href="{{ route('admin.banners.index') }}">
-                        <i class="nav-icon fa-solid fa-image">
+                        <i class="nav-icon bi bi-card-image">
                         </i>
                         <p>
                             Banners
@@ -143,33 +163,32 @@
                     class="nav-item {{ request()->is('admin/blogs') || request()->is('admin/blogs/*') || request()->is('admin/blog-categories') || request()->is('admin/blog-categories/*') || request()->is('admin/blog-tags') || request()->is('admin/blog-tags/*') ? 'menu-open' : '' }}">
                     <a class="nav-link {{ request()->is('admin/blog-categories') || request()->is('admin/blog-categories/*') || request()->is('admin/blog-tags') || request()->is('admin/blog-tags/*') ? 'active' : '' }}"
                        href="#">
-                        <i class="nav-icon fa-solid fa-newspaper"></i>
+                        <i class="nav-icon bi bi-newspaper"></i>
                         <p>
                             Blog
-                            <i class="right fa fa-angle-left nav-icon"></i>
+                            <i class="right bi bi-chevron-left nav-icon"></i>
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
+                            <a class="nav-link {{ request()->is('admin/blogs') || request()->is('admin/blogs/*') ? 'active' : '' }}"
+                               href="{{ route('admin.blogs.index') }}">
+                                <i class="nav-icon bi bi-circle"></i>
+                                <p>Post</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ request()->is('admin/blog-categories') || request()->is('admin/blog-categories/*') ? 'active' : '' }}"
                                href="{{ route('admin.blog-categories.index') }}">
-                                <i class="fa-regular fa-folder nav-icon"></i>
-                                <p>Categories</p>
+                                <i class="nav-icon bi bi-circle"></i>
+                                <p>Category</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ request()->is('admin/blog-tags') || request()->is('admin/blog-tags/*') ? 'active' : '' }}"
                                href="{{ route('admin.blog-tags.index') }}">
-                                <i class="fa-regular fa-folder nav-icon"></i>
-                                <p>Tags</p>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->is('admin/blogs') || request()->is('admin/blogs/*') ? 'active' : '' }}"
-                               href="{{ route('admin.blogs.index') }}">
-                                <i class="fa-regular fa-folder nav-icon"></i>
-                                <p>Blogs</p>
+                                <i class="nav-icon bi bi-circle"></i>
+                                <p>Tag</p>
                             </a>
                         </li>
                     </ul>

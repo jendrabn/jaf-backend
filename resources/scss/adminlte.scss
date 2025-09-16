@@ -146,3 +146,21 @@ div.dt-button-collection {
 .btn {
     border-radius: 0 !important;
 }
+
+.promo-type-card {
+    transition: all 0.3s ease;
+    border: 2px solid #e9ecef;
+    box-shadow: none !important;
+
+    label {
+        cursor: pointer;
+    }
+
+    &:hover {
+        border-color: $primary !important;
+    }
+
+    &.selected {
+        border-color: $primary !important;
+    }
+}
