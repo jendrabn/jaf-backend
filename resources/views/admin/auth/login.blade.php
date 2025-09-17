@@ -63,6 +63,16 @@
                                 type="submit">Log In</button>
                     </div>
                     <!-- /.col -->
+                    {{-- login with Google --}}
+                    <div class="col-12 mt-2">
+                        <a class="btn btn-default btn-block"
+                           href="{{ route('auth.google.redirect') }}">
+                            <img alt="Google Logo"
+                                 src="https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg"
+                                 style="width: 22px; height: 22px; margin-right: 10px;">
+                            Login with Google
+                        </a>
+                    </div>
                 </div>
             </form>
 

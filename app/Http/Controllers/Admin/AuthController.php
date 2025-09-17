@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -138,5 +139,31 @@ class AuthController extends Controller
         toastr('Your password has been reset.', 'success');
 
         return to_route('auth.login');
+    }
+
+    public function googleRedirect(): RedirectResponse
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function googleCallback(): RedirectResponse
+    {
+        $user = Socialite::driver('google')->user();
+
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'email' => 'User not found.',
+            ]);
+        }
+
+        if (! $user->hasRole(User::ROLE_ADMIN)) {
+            throw ValidationException::withMessages([
+                'email' => 'You do not have access.',
+            ]);
+        }
+
+        auth()->login($user);
+
+        return redirect()->intended(route('admin.home', absolute: false));
     }
 }

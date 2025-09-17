@@ -38,6 +38,9 @@ Route::middleware('guest')->prefix('auth')->name('auth.')->group(function () {
     Route::post('forgot_password', [AuthController::class, 'sendResetPasswordLink'])->name('forgot_password.post');
     Route::get('reset_password', [AuthController::class, 'resetPassword'])->name('reset_password');
     Route::put('reset_password', [AuthController::class, 'resetPassword'])->name('reset_password.put');
+
+    Route::get('google/redirect', [AuthController::class, 'googleRedirect'])->name('google.redirect');
+    Route::get('google/callback', [AuthController::class, 'googleCallback'])->name('google.callback');
 });
 Route::middleware(['auth', 'role:admin|user'])->get('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
