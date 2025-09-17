@@ -1,4 +1,16 @@
-@extends('layouts.admin', ['title' => 'Order'])
+@extends('layouts.admin')
+
+@section('page_title', 'Order Detail - ' . $order->id)
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Order' => route('admin.orders.index'),
+            'Order Detail' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
     @php
@@ -7,312 +19,379 @@
         $shipping = $order->shipping;
     @endphp
 
-    <div class="container mt-5">
-        <div class="stepper-wrapper">
-            <div class="stepper-item completed">
-                <div class="step-counter"><i class="fas fa-receipt"></i></div>
-                <div class="step-name">Order Placed</div>
-                <div class="step-date">{{ $order->created_at }}</div>
-            </div>
-            <div
-                 class="step-line {{ $order->status === App\Models\Order::STATUS_PROCESSING || $order->invoice->status === App\Models\Invoice::STATUS_PAID ? 'active' : '' }}">
-            </div>
-            <div
-                 class="stepper-item {{ $order->status === App\Models\Order::STATUS_PROCESSING || $order->invoice->status === App\Models\Invoice::STATUS_PAID ? 'completed' : '' }}">
-                <div class="step-counter"><i class="fas fa-dollar-sign"></i></div>
-                <div class="step-name">Order Paid <br>(@Rp($order->invoice->amount))</div>
-                <div class="step-date">{{ $order->confirmed_at }}</div>
-            </div>
-            <div
-                 class="step-line {{ $order->status === App\Models\Order::STATUS_ON_DELIVERY || $order->shipping->status === App\Models\Shipping::STATUS_SHIPPED ? 'active' : '' }}">
-            </div>
-            <div
-                 class="stepper-item {{ $order->status === App\Models\Order::STATUS_ON_DELIVERY || $order->shipping->status === App\Models\Shipping::STATUS_SHIPPED ? 'completed' : '' }}">
-                <div class="step-counter"><i class="fas fa-truck"></i></div>
-                <div class="step-name">Order Shipped Out</div>
-                <div class="step-date">{{ $order->shipping->updated_at }}</div>
-            </div>
-            <div class="step-line {{ $order->status === App\Models\Order::STATUS_COMPLETED ? 'active' : '' }}"></div>
-            <div class="stepper-item {{ $order->status === App\Models\Order::STATUS_COMPLETED ? 'completed' : '' }}">
-                <div class="step-counter"><i class="fas fa-check"></i></div>
-                <div class="step-name">Order Completed</div>
-                <div class="step-date">{{ $order->completed_at }}</div>
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="stepper-wrapper">
+                <div class="stepper-item completed">
+                    <div class="step-counter"><i class="bi bi-receipt"></i></div>
+                    <div class="step-name">Order Placed</div>
+                    <div class="step-date">{{ $order->created_at }}</div>
+                </div>
+                <div
+                     class="step-line {{ $order->status === App\Models\Order::STATUS_PROCESSING || $order->invoice->status === App\Models\Invoice::STATUS_PAID ? 'active' : '' }}">
+                </div>
+                <div
+                     class="stepper-item {{ $order->status === App\Models\Order::STATUS_PROCESSING || $order->invoice->status === App\Models\Invoice::STATUS_PAID ? 'completed' : '' }}">
+                    <div class="step-counter"><i class="bi bi-currency-dollar"></i></div>
+                    <div class="step-name">Order Paid <br>(@Rp($order->invoice->amount))</div>
+                    <div class="step-date">{{ $order->confirmed_at }}</div>
+                </div>
+                <div
+                     class="step-line {{ $order->status === App\Models\Order::STATUS_ON_DELIVERY || $order->shipping->status === App\Models\Shipping::STATUS_SHIPPED ? 'active' : '' }}">
+                </div>
+                <div
+                     class="stepper-item {{ $order->status === App\Models\Order::STATUS_ON_DELIVERY || $order->shipping->status === App\Models\Shipping::STATUS_SHIPPED ? 'completed' : '' }}">
+                    <div class="step-counter"><i class="bi bi-truck"></i></div>
+                    <div class="step-name">Order Shipped Out</div>
+                    <div class="step-date">{{ $order->shipping->updated_at }}</div>
+                </div>
+                <div class="step-line {{ $order->status === App\Models\Order::STATUS_COMPLETED ? 'active' : '' }}"></div>
+                <div class="stepper-item {{ $order->status === App\Models\Order::STATUS_COMPLETED ? 'completed' : '' }}">
+                    <div class="step-counter"><i class="bi bi-check-all"></i></div>
+                    <div class="step-name">Order Completed</div>
+                    <div class="step-date">{{ $order->completed_at }}</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Payment Information</h3>
-            <span class="float-right font-weight-bold">
-                {{ App\Models\Payment::STATUSES[$payment->status]['label'] }}
-            </span>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-12 col-md-6">
-                    <p class="mb-2">Payment From (Buyer)</p>
-
-                    @if ($payment->method === 'bank' && $payment->bank)
-                        <table class="table table-sm table-borderless">
-                            <tbody>
-                                <tr>
-                                    <th>Bank</th>
-                                    <td>{{ $payment->bank?->name }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Name</th>
-                                    <td>{{ $payment->bank?->account_name }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Number</th>
-                                    <td>{{ $payment->bank?->account_number }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    @elseif ($payment->method === 'ewallet' && $payment->ewallet)
-                        <table class="table table-sm table-borderless">
-                            <tbody>
-                                <tr>
-                                    <th>E-Wallet</th>
-                                    <td>{{ $payment->ewallet?->name }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Name</th>
-                                    <td>{{ $payment->ewallet?->account_name }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Username</th>
-                                    <td>{{ $payment->ewallet?->account_username }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Phone Number</th>
-                                    <td>{{ $payment->ewallet?->phone }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    @endif
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <p class="mb-2">Payment To (Seller)</p>
-                    <table class="table table-sm table-borderless">
-                        <tbody>
-                            <tr>
-                                <th>Total Amount</th>
-                                <td>
-                                    <span class="h5">@Rp($order->invoice->amount)</span> <br>
-                                    @if (\App\Models\Order::STATUS_PENDING_PAYMENT === $order->status)
-                                        <span class="text-muted text-small">Due date at
-                                            {{ $order->invoice->due_date }}</span></span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @if ($payment->method === 'bank' && $payment->bank)
-                                <tr>
-                                    <th>Bank</th>
-                                    <td>{{ $payment->info['name'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Name</th>
-                                    <td>{{ $payment->info['account_name'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Number</th>
-                                    <td>{{ $payment->info['account_number'] }}</td>
-                                </tr>
-                            @elseif ($payment->method === 'ewallet' && $payment->ewallet)
-                                <tr>
-                                    <th>E-Wallet</th>
-                                    <td>{{ $payment->info['name'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Name</th>
-                                    <td>{{ $payment->info['account_name'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Account Username</th>
-                                    <td>{{ $payment->info['account_username'] }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Phone Number</th>
-                                    <td>{{ $payment->info['phone'] }}</td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
-
-                </div>
-            </div>
-
-            @if ($order->status === App\Models\Order::STATUS_PENDING)
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <button class="btn btn-primary mr-1"
-                                id="btn-accept-payment"
-                                type="button">
-                            <i class="fa-solid fa-check"></i>
-                            Accept
-                        </button>
-                        <button class="btn btn-danger"
-                                id="btn-reject-payment"
-                                type="button">
-                            <i class="fa-solid fa-times"></i>
-                            Reject
-                        </button>
+    <div class="row mb-3">
+        {{-- PAYMENT --}}
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Payment Information</h3>
+                    <div class="card-tools">
+                        <span class="badge badge-secondary badge-pill">
+                            {{ App\Models\Payment::STATUSES[$payment->status]['label'] }}
+                        </span>
                     </div>
                 </div>
-            @endif
-        </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Shipping Information</h3>
-            <span
-                  class="float-right font-weight-bold">{{ App\Models\Shipping::STATUSES[$shipping->status]['label'] }}</span>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-12 col-md-6">
-                    <table class="table table-sm table-borderless">
-                        <tr>
-                            <th>Courier</th>
-                            <td>
-                                {{ strtoupper($shipping->courier) }} -
-                                {{ $shipping->courier_name }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Courier Service</th>
-                            <td>
-                                {{ $shipping->service }}
-                                {{ $shipping->service_name ? ' - ' . $shipping->service_name : '' }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>Estimation</th>
-                            <td>{{ $shipping->etd }}</td>
-                        </tr>
-                        <tr>
-                            <th>Weight</th>
-                            <td>{{ (int) ceil($shipping->weight / 1000) }} kg</td>
-                        </tr>
-                        <tr>
-                            <th>Tracking Number</th>
-                            <td>{{ $shipping->tracking_number }}</td>
-                        </tr>
-                    </table>
+                <div class="card-body">
+                    <div class="row">
+                        {{-- FROM --}}
+                        <div class="col-12 col-md-6 mb-3 mb-md-0">
+                            <p class="section-label mb-2"><i class="bi bi-person mr-1"></i> Payment From</p>
 
-                    @if ($order->status === App\Models\Order::STATUS_PROCESSING)
-                        <button class="btn btn-primary"
-                                id="btn-confirm-shipping">
-                            <i class="fa-solid fa-plus"></i> Add Tracking Number
-                        </button>
+                            @if ($payment->method === 'bank' && $payment->bank)
+                                <table class="table table-borderless kv-table">
+                                    <tbody>
+                                        <tr>
+                                            <th>Bank</th>
+                                            <td>{{ $payment->bank?->name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Account Name</th>
+                                            <td>{{ $payment->bank?->account_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Account Number</th>
+                                            <td>{{ $payment->bank?->account_number }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            @elseif ($payment->method === 'ewallet' && $payment->ewallet)
+                                <table class="table table-borderless kv-table">
+                                    <tbody>
+                                        <tr>
+                                            <th>E-Wallet</th>
+                                            <td>{{ $payment->ewallet?->name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Account Name</th>
+                                            <td>{{ $payment->ewallet?->account_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Account Username</th>
+                                            <td>{{ $payment->ewallet?->account_username }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Phone Number</th>
+                                            <td>{{ $payment->ewallet?->phone }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            @endif
+                        </div>
+
+                        {{-- TO --}}
+                        <div class="col-12 col-md-6">
+                            <p class="section-label mb-2"><i class="bi bi-shop mr-1"></i> Payment To</p>
+
+                            <table class="table table-borderless kv-table">
+                                <tbody>
+                                    <tr>
+                                        <th>Total Amount</th>
+                                        <td>
+                                            <span class="h5 d-block mb-0">@Rp($order->invoice->amount)</span>
+                                            @if (\App\Models\Order::STATUS_PENDING_PAYMENT === $order->status)
+                                                <small class="text-muted d-block">
+                                                    Due date at {{ $order->invoice->due_date }}
+                                                </small>
+                                            @endif
+                                        </td>
+                                    </tr>
+
+                                    @if ($payment->method === 'bank' && $payment->bank)
+                                        <tr>
+                                            <th>Bank</th>
+                                            <td>{{ $payment->info['name'] }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Account Name</th>
+                                            <td>{{ $payment->info['account_name'] }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Account Number</th>
+                                            <td>{{ $payment->info['account_number'] }}</td>
+                                        </tr>
+                                    @elseif ($payment->method === 'ewallet' && $payment->ewallet)
+                                        <tr>
+                                            <th>E-Wallet</th>
+                                            <td>{{ $payment->info['name'] }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Account Name</th>
+                                            <td>{{ $payment->info['account_name'] }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Account Username</th>
+                                            <td>{{ $payment->info['account_username'] }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Phone Number</th>
+                                            <td>{{ $payment->info['phone'] }}</td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    @if ($order->status === App\Models\Order::STATUS_PENDING)
+                        <div class="mt-3">
+                            <button class="btn btn-primary btn-sm mr-1"
+                                    id="btn-accept-payment"
+                                    type="button">
+                                <i class="bi bi-check2-circle mr-1"></i> Accept
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm"
+                                    id="btn-reject-payment"
+                                    type="button">
+                                <i class="bi bi-x-lg mr-1"></i> Reject
+                            </button>
+                        </div>
                     @endif
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <p class="mb-2">
-                        Shipping Address
-                    </p>
-
-                    <address>
-                        <strong>{{ $shipping->address['name'] }}</strong><br />
-                        {{ $shipping->address['phone'] }}<br />
-                        {{ $shipping->address['address'] }},
-                        {{ $shipping->address['city'] }},
-                        {{ $shipping->address['district'] }},
-                        {{ $shipping->address['province'] }},
-                        {{ $shipping->address['postal_code'] }}
-                    </address>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Order Information</h3>
-
-            <span class="font-weight-bold float-right">{{ $order->invoice->number }}</span>
-        </div>
-        <div class="card-body">
-
-            <div class="row mb-3">
-                <div class="col-12 col-md-6">
-                    <strong>Order ID: </strong> {{ $order->id }}<br />
-                    <strong>Order Date: </strong>{{ $order->created_at }}<br />
-                    <strong>Order Status: </strong>
-                    <span
-                          class="badge badge-{{ \App\Models\Order::STATUSES[$order->status]['color'] }}">{{ \App\Models\Order::STATUSES[$order->status]['label'] }}</span><br />
-                    <strong>Buyer: </strong>
-                    @if ($order->user)
-                        <a class="text-body"
-                           href="{{ route('admin.users.show', $order->user->id) }}"
-                           target="_blank">{{ $order->user->name }}</a>
-                    @endif
+        {{-- SHIPPING --}}
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Shipping Information</h3>
+                    <div class="card-tools">
+                        <span class="badge badge-secondary badge-pill">
+                            {{ App\Models\Shipping::STATUSES[$shipping->status]['label'] }}
+                        </span>
+                    </div>
                 </div>
-            </div>
 
-            <div class="table-responsive">
-                <table class="table table-sm text-right table-borderless">
-                    <thead>
-                        <tr>
-                            <th class="text-center">#</th>
-                            <th class="text-left">Product(s)</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($order->items as $key => $item)
-                            <tr>
-                                <td class="text-center align-middle">{{ $loop->iteration }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="mr-1">
-                                            <div style="width: 50px; height: 50px">
-                                                <img class="img-fluid"
-                                                     src="{{ $item->product?->image->preview_url }}"
-                                                     style="object-fit: cover" />
-                                            </div>
-                                        </div>
-                                        <a class="text-body"
-                                           href=" {{ $item->product_id ? route('admin.products.show', $item->product_id) : 'javascript:;' }}"
+                <div class="card-body">
+                    <div class="row">
+                        {{-- FACTS --}}
+                        <div class="col-12 col-md-6 mb-3 mb-md-0">
+                            <table class="table table-sm table-borderless kv-table">
+                                <tr>
+                                    <th>Courier</th>
+                                    <td>{{ strtoupper($shipping->courier) }} - {{ $shipping->courier_name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Courier Service</th>
+                                    <td>{{ $shipping->service }}{{ $shipping->service_name ? ' - ' . $shipping->service_name : '' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Estimation</th>
+                                    <td>{{ $shipping->etd }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Weight</th>
+                                    <td>{{ (int) ceil($shipping->weight / 1000) }} kg</td>
+                                </tr>
+                                <tr>
+                                    <th>Tracking Number</th>
+                                    <td class="d-flex align-items-center">
+                                        <span>{{ $shipping->tracking_number }}</span>
+                                        <a class="icon-btn text-muted ml-2 small"
+                                           href=""
+                                           onclick="showTrackingModal(this);"
                                            target="_blank">
-                                            {{ $item->name }}
+                                            <i class="bi bi-box-arrow-up-right"></i>
                                         </a>
-                                    </div>
-                                </td>
-                                <td>@Rp($item->price)</td>
-                                <td>{{ $item->quantity }}</td>
-                                <td>@Rp((int) $item->price * (int) $item->quantity)</td>
-                            </tr>
-                        @endforeach
-                        <tr>
-                            <td class="text-right font-weight-bold"
-                                colspan="4">Total Price</td>
-                            <td>@Rp($order->total_price)</td>
-                        </tr>
-                        <tr>
-                            <td class="text-right font-weight-bold"
-                                colspan="4">Shipping Cost</td>
-                            <td>@Rp($order->shipping_cost)</td>
-                        </tr>
-                        <tr>
-                            <td class="text-right font-weight-bold"
-                                colspan="4">Total Amount</td>
-                            <td class="h3">@Rp($order->invoice->amount)</td>
-                        </tr>
-                        <tr>
-                            <td class="text-right font-weight-bold"
-                                colspan="4">Payment Method</td>
-                            <td>{{ strtoupper($payment->method) . ' - ' . $payment->info['name'] }}</td>
-                        </tr>
-                    </tbody>
-                </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            @if ($order->status === App\Models\Order::STATUS_PROCESSING)
+                                <button class="btn btn-outline-primary btn-sm"
+                                        id="btn-confirm-shipping">
+                                    <i class="bi bi-plus-lg mr-1"></i> Add Tracking Number
+                                </button>
+                            @endif
+                        </div>
+
+                        {{-- ADDRESS --}}
+                        <div class="col-12 col-md-6">
+                            <p class="section-label mb-2"><i class="bi bi-geo-alt mr-1"></i> Shipping Address</p>
+                            <address class="mb-0">
+                                <strong>{{ $shipping->address['name'] }}</strong><br>
+                                {{ $shipping->address['phone'] ?? '-' }}<br>
+                                {{ $shipping->address['address'] ?? '-' }},
+                                {{ $shipping->address['city'] ?? '-' }},
+                                {{ $shipping->address['district'] ?? '-' }},
+                                {{ $shipping->address['province'] ?? '-' }},
+                                {{ $shipping->address['postal_code'] ?? '-' }}
+                            </address>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid px-0">
+        <div class="card shadow-lg order-card rounded-0">
+            <div class="order-sheet">
+                <div class="order-body">
+                    {{-- Header --}}
+                    <div class="order-header">
+                        <div>
+                            <h4 class="mb-1 order-title">ORDER INFORMATION</h4>
+                            <div class="text-muted small">
+                                {{ config('app.name') }}
+                            </div>
+                        </div>
+                        <div class="order-meta">
+                            <span class="label">Order ID</span>
+                            <div class="order-ref mb-2">#{{ $order->id ?? '-' }}</div>
+
+                            <span class="label">Tanggal Order</span>
+                            <div class="mb-2">
+                                {{ optional($order->created_at)->format('d M Y H:i') ?? $order->created_at }}</div>
+
+                            <span class="label">Status</span>
+                            <div>
+                                <span
+                                      class="badge badge-{{ \App\Models\Order::STATUSES[$order->status]['color'] }} badge-pill">
+                                    {{ \App\Models\Order::STATUSES[$order->status]['label'] }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="hr-dashed">
+
+                    {{-- Bill to & Reference --}}
+                    <div class="row">
+                        <div class="col-12 col-md-7 mb-3">
+                            <div class="text-uppercase text-muted small mb-1">Customer</div>
+                            @if ($order->user)
+                                <div class="font-weight-bold d-flex align-items-center">
+                                    {{ $order->user->name }} <a class="icon-btn text-muted ml-1 small"
+                                       href="{{ route('admin.users.show', $order->user->id) }}"><i
+                                           class="bi bi-box-arrow-up-right"></i></a>
+                                </div>
+                            @else
+                                <div class="text-muted">—</div>
+                            @endif
+                        </div>
+                        <div class="col-12 col-md-5 text-md-right">
+                            <div class="text-uppercase text-muted small mb-1">Reference</div>
+                            <div class="font-weight-bold">
+                                {{ $order->invoice->number ? '#' . $order->invoice->number : '-' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Items --}}
+                    <div class="table-responsive mt-3">
+                        <table class="table table-sm table-bordered table-order">
+                            <thead>
+                                <tr>
+                                    <th class="text-center w-40">#</th>
+                                    <th>Product(s)</th>
+                                    <th class="text-right w-120 d-none d-sm-table-cell">Price</th>
+                                    <th class="text-center w-80">Quantity</th>
+                                    <th class="text-right w-140">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($order->items as $item)
+                                    <tr>
+                                        <td class="text-center">{{ $loop->iteration }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img alt=""
+                                                     class="thumb-44 rounded border mr-2 d-none d-sm-block"
+                                                     src="{{ $item->product?->image?->preview_url }}">
+
+                                                <span class="text-body product-name">
+                                                    {{ $item->name }} <a class="icon-btn text-muted ml-1 small"
+                                                       href="{{ $item->product_id ? route('admin.products.show', $item->product_id) : 'javascript:;' }}"
+                                                       target="{{ $item->product_id ? '_blank' : '_self' }}">
+                                                        <i class="bi bi-box-arrow-up-right"></i></a>
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="text-right d-none d-sm-table-cell">@Rp($item->price)</td>
+                                        <td class="text-center">{{ $item->quantity }}</td>
+                                        <td class="text-right">@Rp((int) $item->price * (int) $item->quantity)</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {{-- Totals (kanan) + Payment --}}
+                    <div class="row justify-content-end">
+                        <div class="col-12 col-md-6 col-lg-5">
+                            <table class="table table-sm table-borderless table-totals mb-2">
+                                <tbody>
+                                    <tr>
+                                        <td>Total Price</td>
+                                        <td>@Rp($order->total_price)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Shipping Cost</td>
+                                        <td>@Rp($order->shipping_cost)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="mr-2">Total Amount</span></td>
+                                        <td class="grand-total">@Rp($order->invoice->amount)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="text-right">
+                                <span class="text-uppercase mr-1 small text-muted">Payment Method:</span>
+                                <span class="">
+                                    {{ strtoupper($payment->method ?? '-') }}@if (!empty($payment->info['name']))
+                                        — {{ $payment->info['name'] }}
+                                    @endif
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Note (opsional) --}}
+                    <div class="mt-4">
+                        <div class="text-uppercase small text-muted mb-1">Note</div>
+                        <div>{{ $order->notes ?? '-' }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -329,7 +408,7 @@
                name="cancel_reason"
                type="text">
     </form>
-
+    {{--
     @if ($order->status === App\Models\Order::STATUS_PROCESSING)
         <form action="{{ route('admin.orders.confirm-shipping', $order->id) }}"
               id="form-confirm-shipping"
@@ -340,10 +419,147 @@
                    name="tracking_number"
                    type="text" />
         </form>
-    @endif
+    @endif --}}
 @endsection
 
 @section('styles')
+
+    {{-- ===== Order Information (invoice-like, Bootstrap 4.6, full width, single card) ===== --}}
+    <style>
+        /* Paper look */
+        .order-sheet {
+            width: 100%;
+            max-width: 100%;
+            background: #fff;
+            position: relative
+        }
+
+        .order-card {
+            border: 1px solid #e9ecef
+        }
+
+        .order-body {
+            padding: 1.25rem
+        }
+
+        @media (min-width:768px) {
+            .order-body {
+                padding: 2rem 2.25rem
+            }
+        }
+
+        /* Header */
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap
+        }
+
+        .order-title {
+            letter-spacing: .5px
+        }
+
+        .order-meta {
+            min-width: 260px;
+            text-align: right
+        }
+
+        .order-meta .label {
+            display: block;
+            font-size: .75rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: .06em
+        }
+
+        .order-ref {
+            font-weight: 600
+        }
+
+        /* Divider */
+        .hr-dashed {
+            border: 0;
+            border-top: 1px dashed #cfd8dc;
+            margin: .75rem 0 1.25rem
+        }
+
+        /* Table: items */
+        .table-order thead th {
+            background: #f8f9fa
+        }
+
+        .table-order td,
+        .table-order th {
+            vertical-align: middle
+        }
+
+        .table-order .w-40 {
+            width: 40px
+        }
+
+        .table-order .w-80 {
+            width: 80px
+        }
+
+        .table-order .w-120 {
+            width: 120px
+        }
+
+        .table-order .w-140 {
+            width: 140px
+        }
+
+        .thumb-44 {
+            width: 44px;
+            height: 44px;
+            object-fit: cover
+        }
+
+        .product-name {
+            max-width: 420px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        @media (max-width:575.98px) {
+            .product-name {
+                max-width: 220px
+            }
+        }
+
+        /* Totals (kanan) */
+        .table-totals td {
+            padding: .45rem .75rem
+        }
+
+        .table-totals td:first-child {
+            width: 60%;
+            text-align: right;
+            color: #6c757d
+        }
+
+        .table-totals td:last-child {
+            text-align: right
+        }
+
+        .table-totals tr:last-child td {
+            border-top: 1px solid #dee2e6;
+            font-weight: 600
+        }
+
+        .grand-total {
+            font-size: 1.25rem;
+            font-weight: 700
+        }
+
+        /* Small helpers */
+        .badge-pill {
+            vertical-align: middle
+        }
+    </style>
+
     <style>
         .stepper-wrapper {
             display: flex;
@@ -420,6 +636,49 @@
             }
         }
     </style>
+
+    <style>
+        .section-label {
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            font-size: .75rem;
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .kv-table th {
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            font-size: .75rem;
+            /* white-space: nowrap; */
+            color: #6c757d;
+            /* width: 40%; */
+            padding-right: .75rem;
+            vertical-align: middle !important;
+        }
+
+        .kv-table td {
+            color: #212529;
+            vertical-align: middle !important;
+        }
+
+        .kv-table th,
+        .kv-table td {
+            padding: .4rem .25rem;
+        }
+
+        @media (max-width: 576px) {
+
+            #btn-accept-payment,
+            #btn-reject-payment {
+                width: 100%;
+            }
+
+            #btn-accept-payment {
+                margin-bottom: .5rem;
+            }
+        }
+    </style>
 @endsection
 
 @section('scripts')
@@ -483,6 +742,13 @@
                     }
                 });
             });
+
+
+            function showTrackingModal(el) {
+                el.preventDefault();
+
+                alert("This feature is only available in RajaOngkir API premium");
+            }
         });
     </script>
 @endsection

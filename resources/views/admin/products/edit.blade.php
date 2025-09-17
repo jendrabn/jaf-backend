@@ -1,15 +1,26 @@
-@extends('layouts.admin', ['title' => 'Edit Product'])
+@extends('layouts.admin')
+
+@section('page_title', 'Edit Product')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Product' => route('admin.products.index'),
+            'Edit Product' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
-    <div class="card">
+    <div class="card shadow-lg">
         <div class="card-header">
-            <h3 class="card-title">Edit Product</h3>
+            <div class="card-tools">
+                <a class="btn btn-default"
+                   href="{{ route('admin.products.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to list</a>
+            </div>
         </div>
-
         <div class="card-body">
-            <a class="btn btn-default mb-3"
-               href="{{ route('admin.products.index') }}">Back to list</a>
-
             <form action="{{ route('admin.products.update', [$product->id]) }}"
                   enctype="multipart/form-data"
                   method="POST">
@@ -163,10 +174,14 @@
                     @endif
                 </div>
 
-                <button class="btn btn-primary"
-                        type="submit">
-                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
-                </button>
+                <div class="form-group mb-0">
+                    <a class="btn btn-default mr-2"
+                       href="{{ route('admin.products.index') }}"><i class="bi bi-x-circle mr-1"></i>Cancel</a>
+                    <button class="btn btn-primary"
+                            type="submit">
+                        <i class="bi bi-check-circle mr-1"></i>Save Changes
+                    </button>
+                </div>
             </form>
         </div>
     </div>

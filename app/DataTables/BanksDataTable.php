@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class BanksDataTable extends DataTable
@@ -22,10 +20,12 @@ class BanksDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', 'admin.banks.action')
+            ->addColumn('action', 'admin.banks.partials.action')
             ->editColumn('logo', function ($row) {
                 return sprintf(
-                    '<a href="%s" target="_blank"><img src="%s" width="50"></a>',
+                    '<a href="%s" target="_blank">
+                        <img src="%s" alt="" class="theme-avatar border border-2 border-primary rounded">
+                    </a>',
                     $row->logo?->url,
                     $row->logo?->preview_url
                 );
@@ -54,14 +54,18 @@ class BanksDataTable extends DataTable
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->buttons([
-                Button::make('create'),
-                Button::make('selectAll'),
-                Button::make('selectNone'),
-                Button::make('excel'),
-                Button::make('reset'),
-                Button::make('reload'),
-                Button::make('colvis'),
-                Button::make('bulkDelete'),
+                Button::make('create')
+                    ->text('Create Bank'),
+                Button::make('selectAll')
+                    ->text('Select All'),
+                Button::make('selectNone')
+                    ->text('Deselect All'),
+                Button::make('excel')
+                    ->text('Excel'),
+                Button::make('colvis')
+                    ->text('Columns'),
+                Button::make('bulkDelete')
+                    ->text('Delete Selected'),
             ]);
     }
 
@@ -80,25 +84,32 @@ class BanksDataTable extends DataTable
                 ->title('ID'),
 
             Column::computed('logo')
-                ->addClass('text-center'),
+                ->title('LOGO'),
 
             Column::make('name')
-                ->title('Bank Name'),
+                ->title('NAME'),
 
             Column::make('code')
-                ->title('Bank Code'),
+                ->title('CODE'),
 
-            Column::make('account_name'),
+            Column::make('account_name')
+                ->title('ACCOUNT NAME'),
 
-            Column::make('account_number'),
+            Column::make('account_number')
+                ->title('ACCOUNT NUMBER'),
 
             Column::make('created_at')
+                ->title('DATE & TIME CREATED')
                 ->visible(false),
 
-            Column::computed('action', 'Action')
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
+                ->visible(false),
+
+            Column::computed('action')
+                ->title('ACTION')
                 ->exportable(false)
-                ->printable(false)
-                ->addClass('text-center'),
+                ->printable(false),
         ];
     }
 
@@ -107,6 +118,6 @@ class BanksDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Banks_' . date('dmY');
+        return 'BANKS_' . date('dmY');
     }
 }

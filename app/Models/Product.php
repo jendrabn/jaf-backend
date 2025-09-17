@@ -144,7 +144,7 @@ class Product extends Model implements HasMedia
     public function ratingAvg(): Attribute
     {
         return Attribute::get(function () {
-            $ratingAvg = $this->productRatings()->avg('rating');
+            $ratingAvg = $this->productRatings->avg('rating');
             $ratingAvg =  ceil($ratingAvg * 10) / 10;
 
             return $ratingAvg;

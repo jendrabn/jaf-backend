@@ -20,5 +20,4 @@
        href="{{ route('admin.coupons.destroy', $id) }}') }}">
         <i class="bi bi-trash"></i>
     </a>
-
 </div>

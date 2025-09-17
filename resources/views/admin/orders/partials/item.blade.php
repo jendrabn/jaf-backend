@@ -1,13 +1,24 @@
-@foreach ($items as $item)
-    <div class="d-flex align-items-center justify-content-between mb-1">
-        <div class="d-flex align-items-center">
-            <div>
-                <img class="mr-1"
-                     src="{{ $item->product?->image->preview_url }}"
-                     style="width: 35px; height: 35px; object-fit: cover;">
+<div class="list-group list-group-flush">
+    @foreach ($items as $item)
+        <div class="list-group-item py-1 px-0 d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center flex-grow-1 min-w-0"
+                 style="font-size: 0.85rem;">
+                <span class="text-muted mr-2">{{ $loop->iteration }}.</span>
+
+                <span class="text-truncate">{{ $item->name }}</span>
+
+                <a class="ml-2 text-muted small icon-btn"
+                   href="{{ route('admin.products.show', $item->product) }}"
+                   rel="noopener"
+                   target="_blank">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                </a>
             </div>
-            {{ $item->name }}
+
+            <div class="d-flex align-items-center ml-3">
+                <span class="text-muted mr-1">&times;</span>
+                <span class="badge badge-default badge-pill">{{ $item->quantity }}</span>
+            </div>
         </div>
-        <div>x{{ $item->quantity }}</div>
-    </div>
-@endforeach
+    @endforeach
+</div>

@@ -1,62 +1,80 @@
-@extends('layouts.admin', ['title' => 'Edit Banner'])
+@extends('layouts.admin')
+
+@section('page_title', 'Edit Banner')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Banner' => route('admin.banners.index'),
+            'Edit Banner' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Edit Banner</h3>
-        </div>
-
-        <div class="card-body">
-            <a class="btn btn-default mb-3"
-               href="{{ route('admin.banners.index') }}">Back to list</a>
-
-            <form action="{{ route('admin.banners.update', [$banner->id]) }}"
-                  enctype="multipart/form-data"
-                  method="POST">
-                @method('PUT')
-                @csrf
-
-                <div class="form-group">
-                    <label class="required"
-                           for="_image">Image</label>
-                    <div class="needsclick dropzone {{ $errors->has('image') ? 'is-invalid' : '' }}"
-                         id="image-dropzone">
-                    </div>
-                    @if ($errors->has('image'))
-                        <span class="invalid-feedback">{{ $errors->first('image') }}</span>
-                    @endif
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label class="required">Image Description</label>
-                        <input class="form-control {{ $errors->has('image_description') ? 'is-invalid' : '' }}"
-                               name="image_description"
-                               required
-                               type="text"
-                               value="{{ old('image_description', $banner->image_description) }}">
-                        @if ($errors->has('image_description'))
-                            <span class="invalid-feedback">{{ $errors->first('image_description') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group">
-                        <label>Url</label>
-                        <input class="form-control {{ $errors->has('url') ? 'is-invalid' : '' }}"
-                               name="url"
-                               type="text"
-                               value="{{ old('url', $banner->url) }}">
-                        @if ($errors->has('url'))
-                            <span class="invalid-feedback">{{ $errors->first('url') }}</span>
-                        @endif
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    <div class="card-tools">
+                        <a class="btn btn-default"
+                           href="{{ route('admin.banners.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to list</a>
                     </div>
                 </div>
+                <div class="card-body">
 
-                <button class="btn btn-primary"
-                        type="submit">
-                    <i class="fa-solid fa-floppy-disk"></i> Update
-                </button>
-            </form>
+                    <form action="{{ route('admin.banners.update', [$banner->id]) }}"
+                          enctype="multipart/form-data"
+                          method="POST">
+                        @method('PUT')
+                        @csrf
+
+                        <div class="form-group">
+                            <label class="required"
+                                   for="_image">Image</label>
+                            <div class="needsclick dropzone {{ $errors->has('image') ? 'is-invalid' : '' }}"
+                                 id="image-dropzone">
+                            </div>
+                            @if ($errors->has('image'))
+                                <span class="invalid-feedback">{{ $errors->first('image') }}</span>
+                            @endif
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="required">Image Description</label>
+                                <input class="form-control {{ $errors->has('image_description') ? 'is-invalid' : '' }}"
+                                       name="image_description"
+                                       required
+                                       type="text"
+                                       value="{{ old('image_description', $banner->image_description) }}">
+                                @if ($errors->has('image_description'))
+                                    <span class="invalid-feedback">{{ $errors->first('image_description') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group">
+                                <label>Url</label>
+                                <input class="form-control {{ $errors->has('url') ? 'is-invalid' : '' }}"
+                                       name="url"
+                                       type="text"
+                                       value="{{ old('url', $banner->url) }}">
+                                @if ($errors->has('url'))
+                                    <span class="invalid-feedback">{{ $errors->first('url') }}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <a class="btn btn-default mr-2"
+                               href="{{ route('admin.banners.index') }}"><i class="bi bi-x-circle mr-1"></i>Cancel</a>
+                            <button class="btn btn-primary"
+                                    type="submit"><i class="bi bi-check2-circle mr-1"></i>Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

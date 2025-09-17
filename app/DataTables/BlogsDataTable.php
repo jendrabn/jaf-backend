@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class BlogsDataTable extends DataTable
@@ -26,7 +24,9 @@ class BlogsDataTable extends DataTable
             ->editColumn('is_publish', 'admin.blogs.partials.action-published')
             ->editColumn('featured_image', function ($row) {
                 return sprintf(
-                    '<a href="%s" target="_blank"><img src="%s" width="50"></a>',
+                    '<a href="%s" target="_blank">
+                        <img src="%s" alt="" class="theme-avatar border border-2 border-primary rounded">
+                    </a>',
                     $row->featured_image?->url,
                     $row->featured_image?->preview_url
                 );
@@ -84,24 +84,28 @@ class BlogsDataTable extends DataTable
             ->setTableId('blog-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            //->dom('Bfrtip')
             ->orderBy(1)
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->buttons([
-                Button::make('create'),
-                Button::make('selectAll'),
-                Button::make('selectNone'),
-                Button::make('excel'),
-                Button::make('reset'),
-                Button::make('reload'),
-                Button::make('colvis'),
-                Button::make('bulkDelete'),
+                Button::make('create')
+                    ->text('Create Blog'),
+                Button::make('selectAll')
+                    ->text('Select All'),
+                Button::make('selectNone')
+                    ->text('Deselect All'),
+                Button::make('excel')
+                    ->text('Excel'),
+                Button::make('colvis')
+                    ->text('Columns'),
+                Button::make('bulkDelete')
+                    ->text('Delete Selected'),
                 Button::make('filter')
+                    ->text('Filter'),
             ])
             ->ajax([
                 'data' =>
-                    'function (data) {
+                'function (data) {
                         $.each($("#form-filter").serializeArray(), function (key, val) {
                            data[val.name] = val.value;
                         });
@@ -124,38 +128,47 @@ class BlogsDataTable extends DataTable
                 ->title('ID'),
 
             Column::computed('featured_image')
-                ->addClass('text-center'),
+                ->title('IMAGE'),
 
-            Column::make('title'),
+            Column::make('title')
+                ->title('TITLE'),
 
             Column::make('slug')
+                ->title('SLUG')
                 ->visible(false),
 
             Column::make('author.name')
-                ->title('Author'),
+                ->title('AUTHOR'),
 
-            Column::computed('is_publish', 'Published')
-                ->addClass('text-center'),
+            Column::computed('is_publish')
+                ->title('PUBLISHED'),
 
             Column::make('category.name')
-                ->title('Category'),
+                ->title('CATEGORY'),
 
             Column::make('tags')
-                ->title('Tag(s)')
+                ->title('TAG(S)')
                 ->visible(false),
 
-            Column::make('views_count'),
+            Column::make('views_count')
+                ->title('VIEWS COUNT'),
 
             Column::make('min_read')
+                ->title('MIN READ')
                 ->visible(false),
 
             Column::make('created_at')
+                ->title('DATE & TIME CREATED')
                 ->visible(false),
 
-            Column::computed('action', 'Action')
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
+                ->visible(false),
+
+            Column::computed('action')
+                ->title('ACTION')
                 ->exportable(false)
                 ->printable(false)
-                ->addClass('text-center')
         ];
     }
 

@@ -1,15 +1,26 @@
-<div class="btn-group btn-group-xs"
-     role="group">
-    <a class="btn btn-primary"
-       href="{{ route('admin.products.show', $id) }}">
-        View
+<div class="d-flex"
+     style="gap: 5px">
+    <a class="btn btn-primary btn-sm btn-icon btn-view"
+       data-placement="top"
+       data-toggle="tooltip"
+       href="{{ route('admin.products.show', $id) }}"
+       title="View Product">
+        <i class="bi bi-eye"></i>
     </a>
-    <a class="btn btn-info"
-       href="{{ route('admin.products.edit', $id) }}">
-        Edit
+
+    <a class="btn btn-info btn-sm btn-icon btn-edit"
+       data-placement="top"
+       data-toggle="tooltip"
+       href="{{ route('admin.products.edit', $id) }}"
+       title="Edit Product">
+        <i class="bi bi-pencil"></i>
     </a>
-    <a class="btn btn-danger btn-delete"
-       href="{{ route('admin.products.destroy', $id) }}">
-        Delete
+
+    <a class="btn btn-danger btn-sm btn-icon btn-delete"
+       data-placement="top"
+       data-toggle="tooltip"
+       href="{{ route('admin.products.destroy', $id) }}"
+       title="Delete Product">
+        <i class="bi bi-trash"></i>
     </a>
 </div>

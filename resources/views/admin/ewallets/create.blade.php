@@ -1,89 +1,106 @@
-@extends('layouts.admin', ['title' => 'Create E-Wallet'])
+@extends('layouts.admin')
+
+@section('page_title', 'Create Blog')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Blog' => route('admin.blogs.index'),
+            'Create Blog' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Create E-Wallet</h3>
-        </div>
-
-        <div class="card-body">
-            <a class="btn btn-default mb-3"
-               href="{{ route('admin.ewallets.index') }}">Back to list</a>
-
-            <form action="{{ route('admin.ewallets.store') }}"
-                  enctype="multipart/form-data"
-                  method="POST">
-                @csrf
-
-                <div class="form-group">
-                    <label class="required">Logo</label>
-                    <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
-                         id="logo-dropzone">
-                    </div>
-                    @if ($errors->has('logo'))
-                        <span class="text-danger">{{ $errors->first('logo') }}</span>
-                    @endif
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label class="required">E-Wallet Name</label>
-                        <select autofocus
-                                class="form-control select2 {{ $errors->has('name') ? 'is-invalid' : '' }}"
-                                name="name"
-                                style="width: 100%">
-                            <option value="">---</option>
-                            @foreach (\App\Models\Ewallet::EWALLET_SELECT as $name)
-                                <option value="{{ $name }}">{{ $name }}</option>
-                            @endforeach
-                        </select>
-                        @if ($errors->has('name'))
-                            <span class="text-danger">{{ $errors->first('name') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label class="required">Account Name</label>
-                        <input class="form-control {{ $errors->has('account_name') ? 'is-invalid' : '' }}"
-                               name="account_name"
-                               required
-                               type="text"
-                               value="{{ old('account_name', '') }}">
-                        @if ($errors->has('account_name'))
-                            <span class="text-danger">{{ $errors->first('account_name') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label class="required">Account Username</label>
-                        <input class="form-control {{ $errors->has('account_username') ? 'is-invalid' : '' }}"
-                               name="account_username"
-                               required
-                               type="text"
-                               value="{{ old('account_username', '') }}">
-                        @if ($errors->has('account_username'))
-                            <span class="text-danger">{{ $errors->first('account_username') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label class="required">Phone Number</label>
-                        <input class="form-control {{ $errors->has('phone') ? 'is-invalid' : '' }}"
-                               name="phone"
-                               required
-                               type="text"
-                               value="{{ old('phone', '') }}">
-                        @if ($errors->has('phone'))
-                            <span class="text-danger">{{ $errors->first('phone') }}</span>
-                        @endif
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    <div class="card-tools">
+                        <a class="btn btn-default"
+                           href="{{ route('admin.ewallets.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to list</a>
                     </div>
                 </div>
+                <div class="card-body">
+                    <form action="{{ route('admin.ewallets.store') }}"
+                          enctype="multipart/form-data"
+                          method="POST">
+                        @csrf
 
-                <button class="btn btn-primary"
-                        type="submit">
-                    <i class="fa-solid fa-floppy-disk"></i> Save
-                </button>
-            </form>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="required">Name</label>
+                                <select autofocus
+                                        class="form-control select2 {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                                        name="name"
+                                        style="width: 100%">
+                                    <option value="">---</option>
+                                    @foreach (\App\Models\Ewallet::EWALLET_SELECT as $name)
+                                        <option value="{{ $name }}">{{ $name }}</option>
+                                    @endforeach
+                                </select>
+                                @if ($errors->has('name'))
+                                    <span class="text-danger">{{ $errors->first('name') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Account Name</label>
+                                <input class="form-control {{ $errors->has('account_name') ? 'is-invalid' : '' }}"
+                                       name="account_name"
+                                       required
+                                       type="text"
+                                       value="{{ old('account_name', '') }}">
+                                @if ($errors->has('account_name'))
+                                    <span class="text-danger">{{ $errors->first('account_name') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Account Username</label>
+                                <input class="form-control {{ $errors->has('account_username') ? 'is-invalid' : '' }}"
+                                       name="account_username"
+                                       required
+                                       type="text"
+                                       value="{{ old('account_username', '') }}">
+                                @if ($errors->has('account_username'))
+                                    <span class="text-danger">{{ $errors->first('account_username') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Phone Number</label>
+                                <input class="form-control {{ $errors->has('phone') ? 'is-invalid' : '' }}"
+                                       name="phone"
+                                       required
+                                       type="text"
+                                       value="{{ old('phone', '') }}">
+                                @if ($errors->has('phone'))
+                                    <span class="text-danger">{{ $errors->first('phone') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Logo</label>
+                                <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
+                                     id="logo-dropzone">
+                                </div>
+                                @if ($errors->has('logo'))
+                                    <span class="text-danger">{{ $errors->first('logo') }}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <a class="btn btn-default mr-2"
+                               href="{{ route('admin.ewallets.index') }}"><i class="bi bi-x-circle mr-1"></i>Cancel</a>
+                            <button class="btn btn-primary"
+                                    type="submit"><i class="bi bi-check2-circle mr-1"></i>Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

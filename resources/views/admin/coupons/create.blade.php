@@ -14,8 +14,14 @@
 
 @section('content')
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-md-12">
             <div class="card shadow-lg">
+                <div class="card-header">
+                    <div class="card-tools">
+                        <a class="btn btn-default"
+                           href="{{ route('admin.coupons.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to list</a>
+                    </div>
+                </div>
                 <div class="card-body">
                     <form action="{{ route('admin.coupons.store') }}"
                           method="post">
@@ -430,11 +436,15 @@
                         </div>
 
                         {{-- Action Buttons --}}
-                        <div class="form-group">
-                            <a class="btn btn-default mr-1"
-                               href="{{ route('admin.coupons.index') }}">Cancel</a>
+                        <div class="form-group mb-0">
+                            <a class="btn btn-default mr-2"
+                               href="{{ route('admin.coupons.index') }}">
+                                <i class="bi bi-arrow-left mr-1"></i>Cancel
+                            </a>
                             <button class="btn btn-primary"
-                                    type="submit">Create</button>
+                                    type="submit">
+                                <i class="bi bi-check2-circle mr-1"></i>Save
+                            </button>
                         </div>
                     </form>
                 </div>

@@ -67,10 +67,11 @@ class CourierDataTable extends DataTable
         return [
             Column::make('id')
                 ->title('ID')
-                ->width(35)
-                ->addClass('text-center'),
+                ->width(35),
+
             Column::make('name')
                 ->title('NAME'),
+
             Column::computed('is_active')
                 ->title('STATUS'),
         ];

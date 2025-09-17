@@ -64,11 +64,13 @@ class CouponDataTable extends DataTable
             ->selectSelector('td:first-child')
             ->buttons([
                 Button::make('create')
-                    ->text('Create'),
+                    ->text('Create Coupon'),
                 Button::make('selectAll')
                     ->text('Select All'),
                 Button::make('selectNone')
                     ->text('Deselect All'),
+                Button::make('excel')
+                    ->text('Excel'),
                 Button::make('colvis')
                     ->text('Columns'),
                 Button::make('bulkDelete')
@@ -86,35 +88,54 @@ class CouponDataTable extends DataTable
                 ->exportable(false)
                 ->printable(false)
                 ->width(30),
+
             Column::make('id')
                 ->title('ID')
                 ->width(30),
+
             Column::make('name')
                 ->title('NAME'),
+
             Column::make('code')
                 ->title('CODE'),
+
             Column::make('discount_amount')
                 ->title('DISCOUNT (%/FLAT)'),
+
             Column::make('promo_type')
                 ->title('PROMO TYPE'),
+
             Column::make('limit')
                 ->title('LIMIT'),
+
             Column::make('limit_per_user')
                 ->title('LIMIT PER USER'),
+
             Column::make('start_date')
                 ->title('VALID FROM'),
+
             Column::make('end_date')
                 ->title('VALID UNTIL'),
+
             Column::computed('available_coupons')
                 ->title('AVAILABLE COUPONS'),
+
             Column::make('is_active')
                 ->title('STATUS'),
+
+            Column::make('created_at')
+                ->title('DATE & TIME CREATED')
+                ->visible(false),
+
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
+                ->visible(false),
+
             Column::computed('action')
                 ->title('ACTION')
                 ->exportable(false)
                 ->printable(false)
-                ->width(60)
-                ->addClass('text-center'),
+                ->width(60),
         ];
     }
 

@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class EwalletsDataTable extends DataTable
@@ -22,10 +20,12 @@ class EwalletsDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', 'admin.ewallets.action')
+            ->addColumn('action', 'admin.ewallets.partials.action')
             ->editColumn('logo', function ($row) {
                 return sprintf(
-                    '<a href="%s" target="_blank"><img src="%s" width="50"></a>',
+                    '<a href="%s" target="_blank">
+                        <img src="%s" alt="" class="theme-avatar border border-2 border-primary rounded">
+                    </a>',
                     $row->logo?->url,
                     $row->logo?->preview_url
                 );
@@ -51,19 +51,22 @@ class EwalletsDataTable extends DataTable
             ->setTableId('dataTable-ewallets')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            //->dom('Bfrtip')
             ->orderBy(1)
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->buttons([
-                Button::make('create'),
-                Button::make('selectAll'),
-                Button::make('selectNone'),
-                Button::make('excel'),
-                Button::make('reset'),
-                Button::make('reload'),
-                Button::make('colvis'),
-                Button::make('bulkDelete'),
+                Button::make('create')
+                    ->text('Create Ewallet'),
+                Button::make('selectAll')
+                    ->text('Select All'),
+                Button::make('selectNone')
+                    ->text('Deselect All'),
+                Button::make('excel')
+                    ->text('Excel'),
+                Button::make('colvis')
+                    ->text('Columns'),
+                Button::make('bulkDelete')
+                    ->text('Delete Selected'),
             ]);
     }
 
@@ -80,27 +83,34 @@ class EwalletsDataTable extends DataTable
                 ->title('ID'),
 
             Column::computed('logo')
+                ->title('LOGO')
                 ->exportable(false)
-                ->printable(false)
-                ->addClass('text-center'),
+                ->printable(false),
 
             Column::make('name')
-                ->title('E-Wallet Name'),
+                ->title('NAME'),
 
-            Column::make('account_name'),
+            Column::make('account_name')
+                ->title('ACCOUNT NAME'),
 
-            Column::make('account_username'),
+            Column::make('account_username')
+                ->title('ACCOUNT USERNAME'),
 
             Column::make('phone')
-                ->title('Phone Number'),
+                ->title('PHONE NUMBER'),
 
             Column::make('created_at')
+                ->title('DATE & TIME CREATED')
                 ->visible(false),
 
-            Column::computed('action', 'Action')
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
+                ->visible(false),
+
+            Column::computed('action')
+                ->title('ACTION')
                 ->exportable(false)
-                ->printable(false)
-                ->addClass('text-center'),
+                ->printable(false),
         ];
     }
 

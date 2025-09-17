@@ -66,12 +66,20 @@ class CouponUsageDataTable extends DataTable
         return [
             Column::make('id')
                 ->title('ID'),
+
             Column::make('order_id', 'order.id')
                 ->title('ORDER ID'),
+
             Column::make('customer', 'order.user.name')
                 ->title('CUSTOMER'),
+
             Column::make('created_at')
-                ->title('USED AT'),
+                ->title('DATE & TIME CREATED')
+                ->visible(false),
+
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
+                ->visible(false),
         ];
     }
 

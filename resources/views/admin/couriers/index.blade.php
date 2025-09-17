@@ -12,7 +12,7 @@
 @endsection
 
 @section('content')
-    <div class="card">
+    <div class="card shadow-lg">
         <div class="card-body">
             <div class="table-responsive">
                 {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable']) }}

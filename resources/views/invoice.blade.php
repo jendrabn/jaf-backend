@@ -113,10 +113,13 @@
                     <strong>To:</strong><br>
                     <div class="address-section">
                         <strong>{{ $order->shipping->address['name'] }}</strong><br>
-                        {{ $order->shipping->address['phone'] }}<br>
-                        {{ $order->shipping->address['address'] }}, {{ $order->shipping->address['city'] }},
-                        {{ $order->shipping->address['district'] }}, {{ $order->shipping->address['province'] }},
-                        {{ $order->shipping->address['postal_code'] }}
+                        {{ $order->shipping->address['phone'] ?? '-' }}<br>
+                        {{ $order->shipping->address['address'] ?? '-' }},
+                        {{ $order->shipping->address['sub_district'] ?? '-' }},
+                        {{ $order->shipping->address['district'] ?? '-' }},
+                        {{ $order->shipping->address['city'] ?? '-' }},
+                        {{ $order->shipping->address['province'] ?? '-' }},
+                        {{ $order->shipping->address['zip_code'] ?? '-' }}
                     </div>
                 </td>
             </tr>

@@ -1,51 +1,69 @@
-@extends('layouts.admin', ['title' => 'Edit Product Brand'])
+@extends('layouts.admin')
+
+@section('page_title', 'Edit Product Brand')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Product Brand' => route('admin.product-brands.index'),
+            'Edit Product Brand' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Edit Product Brand</h3>
-        </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <a class="btn btn-default mb-3"
+                       href="{{ route('admin.product-brands.index') }}">
+                        Back to list
+                    </a>
 
-        <div class="card-body">
-            <a class="btn btn-default mb-3"
-               href="{{ route('admin.product-brands.index') }}">
-                Back to list
-            </a>
+                    <form action="{{ route('admin.product-brands.update', [$productBrand->id]) }}"
+                          enctype="multipart/form-data"
+                          method="POST">
+                        @method('PUT')
+                        @csrf
 
-            <form action="{{ route('admin.product-brands.update', [$productBrand->id]) }}"
-                  enctype="multipart/form-data"
-                  method="POST">
-                @method('PUT')
-                @csrf
+                        <div class="form-group">
+                            <label class="required">Brand Name</label>
+                            <input autofocus
+                                   class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                                   name="name"
+                                   required
+                                   type="text"
+                                   value="{{ old('name', $productBrand->name) }}">
+                            @if ($errors->has('name'))
+                                <span class="invalid-feedback">{{ $errors->first('name') }}</span>
+                            @endif
+                        </div>
 
-                <div class="form-group">
-                    <label class="required">Brand Name</label>
-                    <input autofocus
-                           class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
-                           name="name"
-                           required
-                           type="text"
-                           value="{{ old('name', $productBrand->name) }}">
-                    @if ($errors->has('name'))
-                        <span class="invalid-feedback">{{ $errors->first('name') }}</span>
-                    @endif
+                        <div class="form-group">
+                            <label>Logo</label>
+                            <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
+                                 id="logo-dropzone">
+                            </div>
+                            @if ($errors->has('logo'))
+                                <span class="invalid-feedback">{{ $errors->first('logo') }}</span>
+                            @endif
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <a class="btn btn-default mr-2"
+                               href="{{ route('admin.product-brands.index') }}">
+                                <i class="bi bi-x-circle mr-1"></i>Cancel
+                            </a>
+                            <button class="btn btn-primary"
+                                    type="submit">
+                                <i class="bi bi-check2-circle mr-1"></i>Save
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="form-group">
-                    <label>Logo</label>
-                    <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
-                         id="logo-dropzone">
-                    </div>
-                    @if ($errors->has('logo'))
-                        <span class="invalid-feedback">{{ $errors->first('logo') }}</span>
-                    @endif
-                </div>
-
-                <button class="btn btn-primary"
-                        type="submit">
-                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
-                </button>
-            </form>
+            </div>
         </div>
     </div>
 @endsection

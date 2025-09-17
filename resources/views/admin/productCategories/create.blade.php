@@ -1,47 +1,70 @@
-@extends('layouts.admin', ['title' => 'Create Product Category'])
+@extends('layouts.admin')
+
+@section('page_title', 'Create Product Category')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Product Category' => route('admin.product-categories.index'),
+            'Create Product Category' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Create Product Category</h3>
-        </div>
-
-        <div class="card-body">
-            <a class="btn btn-default mb-3"
-               href="{{ route('admin.product-categories.index') }}">Back to list</a>
-
-            <form action="{{ route('admin.product-categories.store') }}"
-                  enctype="multipart/form-data"
-                  method="POST">
-                @csrf
-                <div class="form-group">
-                    <label class="required">Category Name</label>
-                    <input autofocus
-                           class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
-                           name="name"
-                           required
-                           type="text"
-                           value="{{ old('name', '') }}">
-                    @if ($errors->has('name'))
-                        <span class="text-danger">{{ $errors->first('name') }}</span>
-                    @endif
-                </div>
-
-                <div class="form-group">
-                    <label>Logo</label>
-                    <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
-                         id="logo-dropzone">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    <div class="card-tools">
+                        <a class="btn btn-default"
+                           href="{{ route('admin.product-categories.index') }}">
+                            <i class="bi bi-arrow-left mr-1"></i>Back to list
+                        </a>
                     </div>
-                    @if ($errors->has('logo'))
-                        <span class="text-danger">{{ $errors->first('logo') }}</span>
-                    @endif
                 </div>
+                <div class="card-body">
+                    <form action="{{ route('admin.product-categories.store') }}"
+                          enctype="multipart/form-data"
+                          method="POST">
+                        @csrf
+                        <div class="form-group">
+                            <label class="required">Name</label>
+                            <input autofocus
+                                   class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                                   name="name"
+                                   required
+                                   type="text"
+                                   value="{{ old('name', '') }}">
+                            @if ($errors->has('name'))
+                                <span class="text-danger">{{ $errors->first('name') }}</span>
+                            @endif
+                        </div>
 
-                <button class="btn btn-primary"
-                        type="submit">
-                    <i class="fa-solid fa-floppy-disk"></i> Save
-                </button>
-            </form>
+                        <div class="form-group">
+                            <label>Logo</label>
+                            <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
+                                 id="logo-dropzone">
+                            </div>
+                            @if ($errors->has('logo'))
+                                <span class="text-danger">{{ $errors->first('logo') }}</span>
+                            @endif
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <a class="btn btn-default mr-2"
+                               href="{{ route('admin.product-categories.index') }}">
+                                <i class="bi bi-x-circle mr-1"></i>Cancel
+                            </a>
+                            <button class="btn btn-primary"
+                                    type="submit">
+                                <i class="bi bi-check2-circle mr-1"></i>Save
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

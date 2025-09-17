@@ -4,13 +4,10 @@ namespace App\DataTables;
 
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
-use Illuminate\Support\Carbon;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class OrdersDataTable extends DataTable
@@ -24,6 +21,9 @@ class OrdersDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.orders.partials.action')
+            ->addColumn('customer', function ($row) {
+                return $row->user->name . '<a class="ml-2 text-muted small icon-btn" href="' . route('admin.users.show', $row->user->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+            })
             ->editColumn(
                 'items',
                 fn($row) => view('admin.orders.partials.item', ['items' => $row->items])
@@ -45,8 +45,12 @@ class OrdersDataTable extends DataTable
                 'shipping',
                 fn($row) => $row->shipping ? strtoupper($row->shipping->courier) . '/' . $row->shipping->tracking_number : ''
             )
+            ->addColumn(
+                'payment_method',
+                fn($row) => strtoupper($row->invoice->payment->method)
+            )
             ->setRowId('id')
-            ->rawColumns(['action', 'items', 'status']);
+            ->rawColumns(['action', 'customer', 'items', 'status']);
     }
 
     /**
@@ -96,15 +100,20 @@ class OrdersDataTable extends DataTable
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->buttons([
-                Button::make('selectAll'),
-                Button::make('selectNone'),
-                Button::make('excel'),
-                Button::make('reset'),
-                Button::make('reload'),
-                Button::make('colvis'),
-                Button::make('bulkDelete'),
-                Button::make('filter'),
-                Button::make('printInvoice'),
+                Button::make('selectAll')
+                    ->text('Select All'),
+                Button::make('selectNone')
+                    ->text('Deselect All'),
+                Button::make('excel')
+                    ->text('Excel'),
+                Button::make('colvis')
+                    ->text('Columns'),
+                Button::make('bulkDelete')
+                    ->text('Delete Selected'),
+                Button::make('filter')
+                    ->text('Filter'),
+                Button::make('printInvoice')
+                    ->text('Print Invoice'),
             ])
             ->ajax([
                 'data' => '
@@ -116,8 +125,7 @@ class OrdersDataTable extends DataTable
                         let status = $("#nav-pills-status .nav-link.active").data("status");
                         d["status"] = status;
                     }'
-            ])
-        ;
+            ]);
     }
 
     /**
@@ -135,41 +143,52 @@ class OrdersDataTable extends DataTable
                 ->title('ID'),
 
             Column::make('invoice.number', 'invoice.number')
+                ->title('INVOICE')
                 ->visible(false),
 
-            Column::make('user.name', 'user.name')
-                ->title('Buyer'),
+            Column::make('customer', 'user.name')
+                ->title('CUSTOMER'),
 
             Column::make('items', 'items.name')
-                ->title('Product(s)')
+                ->title('PRODUCT(S)')
                 ->orderable(false),
 
-            Column::make('amount', 'invoice.amount'),
+            Column::make('amount', 'invoice.amount')
+                ->title('AMOUNT'),
 
-            Column::make('invoice.payment.method', 'invoice.payment.method')
-                ->title('Payment Method')
-                ->visible(false),
+            Column::make('payment_method', 'invoice.payment.method')
+                ->title('PAYMENT METHOD'),
 
-            Column::make('shipping', 'shipping.tracking_number'),
+            Column::make('shipping', 'shipping.tracking_number')
+                ->title('SHIPPING'),
 
-            Column::make('status'),
+            Column::make('status')
+                ->title('STATUS'),
 
             Column::make('created_at')
+                ->title('DATE & TIME CREATED')
+                ->visible(false),
+
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
                 ->visible(false),
 
             Column::make('confirmed_at')
+                ->title('DATE & TIME CONFIRMED')
                 ->visible(false),
 
             Column::make('completed_at')
+                ->title('DATE & TIME COMPLETED')
                 ->visible(false),
 
             Column::make('cancelled_at')
+                ->title('DATE & TIME CANCELLED')
                 ->visible(false),
 
-            Column::computed('action', 'Action')
+            Column::computed('action')
+                ->title('ACTION')
                 ->exportable(false)
-                ->printable(false)
-                ->addClass('text-center'),
+                ->printable(false),
         ];
     }
 

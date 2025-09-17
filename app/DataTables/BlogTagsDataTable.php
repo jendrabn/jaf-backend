@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class BlogTagsDataTable extends DataTable
@@ -43,19 +41,22 @@ class BlogTagsDataTable extends DataTable
             ->setTableId('blogtag-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            //->dom('Bfrtip')
             ->orderBy(1)
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->buttons([
-                Button::make('create'),
-                Button::make('selectAll'),
-                Button::make('selectNone'),
-                Button::make('excel'),
-                Button::make('reset'),
-                Button::make('reload'),
-                Button::make('colvis'),
-                Button::make('bulkDelete'),
+                Button::make('create')
+                    ->text('Create Tag'),
+                Button::make('selectAll')
+                    ->text('Select All'),
+                Button::make('selectNone')
+                    ->text('Deselect All'),
+                Button::make('excel')
+                    ->text('Excel'),
+                Button::make('colvis')
+                    ->text('Columns'),
+                Button::make('bulkDelete')
+                    ->text('Delete Selected'),
             ]);
     }
 
@@ -74,20 +75,27 @@ class BlogTagsDataTable extends DataTable
                 ->title('ID'),
 
             Column::make('name')
-                ->title('Tag Name'),
+                ->title('NAME'),
 
             Column::make('slug')
+                ->title('SLUG')
                 ->visible(false),
 
-            Column::make('blogs_count'),
+            Column::make('blogs_count')
+                ->title('BLOGS COUNT'),
 
             Column::make('created_at')
+                ->title('DATE & TIME CREATED')
                 ->visible(false),
 
-            Column::computed('action', 'Action')
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
+                ->visible(false),
+
+            Column::computed('action')
+                ->title('ACTION')
                 ->exportable(false)
-                ->printable(false)
-                ->addClass('text-center'),
+                ->printable(false),
         ];
     }
 

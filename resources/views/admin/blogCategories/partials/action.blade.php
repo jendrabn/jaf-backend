@@ -1,11 +1,17 @@
-<div class="btn-group btn-group-xs"
-     role="group">
-    <button class="btn btn-info btn-edit"
-            data-url="{{ route('admin.blog-categories.update', $id) }}">
-        Edit
+<div class="d-flex"
+     style="gap: 5px">
+    <button class="btn btn-info btn-sm btn-icon btn-edit"
+            data-placement="top"
+            data-toggle="tooltip"
+            data-url="{{ route('admin.blog-categories.update', $id) }}"
+            title="Edit Blog Category">
+        <i class="bi bi-pencil"></i>
     </button>
-    <button class="btn btn-danger btn-delete"
-            data-url="{{ route('admin.blog-categories.destroy', $id) }}">
-        Delete
+
+    <button data-placement="top"
+            data-toggle="tooltip"class="btn btn-danger btn-sm btn-icon btn-delete"
+            data-url="{{ route('admin.blog-categories.destroy', $id) }}"
+            title="Delete Blog Category">
+        <i class="bi bi-trash"></i>
     </button>
 </div>

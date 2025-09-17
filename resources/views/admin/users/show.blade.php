@@ -1,72 +1,100 @@
-@extends('layouts.admin', ['title' => 'Show User'])
+@extends('layouts.admin')
+
+@section('page_title', 'User Detail')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'User' => route('admin.users.index'),
+            'User Detail' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Show User</h3>
-        </div>
-        <div class="card-body">
-            <a class="btn btn-default mb-3"
-               href="{{ route('admin.users.index') }}">Back to list</a>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    <div class="card-tools">
+                        <a class="btn btn-default"
+                           href="{{ route('admin.users.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to list</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th>ID</th>
+                                <td>{{ $user->id }}</td>
+                            </tr>
 
-            <table class="table table-bordered table-sm table-striped">
-                <tbody>
-                    <tr>
-                        <th>ID</th>
-                        <td>{{ $user->id }}</td>
-                    </tr>
+                            <tr>
+                                <th>NAME</th>
+                                <td>{{ $user->name }}</td>
+                            </tr>
 
-                    <tr>
-                        <th>Name</th>
-                        <td>{{ $user->name }}</td>
-                    </tr>
+                            <tr>
+                                <th>EMAIL</th>
+                                <td>
+                                    {{ $user->email }}
+                                    <a class="ml-1 text-muted small icon-btn"
+                                       href="mailto:{{ $user->email }}"><i class="bi bi-box-arrow-up-right"></i></a>
+                                </td>
+                            </tr>
 
-                    <tr>
-                        <th>Email</th>
-                        <td><a href="mailto:{{ $user->email }}">{{ $user->email }}</a></td>
-                    </tr>
+                            <tr>
+                                <th>EMAIL VERIFIED AT</th>
+                                <td>{{ $user->email_verified_at }}</td>
+                            </tr>
 
-                    <tr>
-                        <th>Email verified at</th>
-                        <td>{{ $user->email_verified_at }}</td>
-                    </tr>
+                            <tr>
+                                <th>ROLE</th>
+                                <td>
+                                    @foreach ($user->roles as $role)
+                                        {{ strtoupper($role->name) }}
+                                    @endforeach
+                                </td>
+                            </tr>
 
-                    <tr>
-                        <th>Role</th>
-                        <td>
-                            @foreach ($user->roles as $role)
-                                <span class="badge badge-info rounded-0">{{ $role->name }}</span>
-                            @endforeach
-                        </td>
-                    </tr>
+                            <tr>
+                                <th>PHONE NUMBER</th>
+                                <td>{{ $user->phone }}
+                                    <a class="ml-1 text-muted small icon-btn"
+                                       href="https://wa.me/{{ $user->phone }}"
+                                       target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+                                </td>
+                            </tr>
 
-                    <tr>
-                        <th>Phone Number</th>
-                        <td><a href="https://wa.me/{{ $user->phone }}"
-                               target="_blank">{{ $user->phone }}</a></td>
-                    </tr>
+                            <tr>
+                                <th>GENDER</th>
+                                <td>{{ $user->sex_label }}</td>
+                            </tr>
 
-                    <tr>
-                        <th>Gender</th>
-                        <td>{{ $user->sex_label }}</td>
-                    </tr>
+                            <tr>
+                                <th>BIRTH DATE</th>
+                                <td>{{ $user->birth_date }}</td>
+                            </tr>
 
-                    <tr>
-                        <th>Birth Date</th>
-                        <td>{{ $user->birth_date }}</td>
-                    </tr>
+                            <tr>
+                                <th>ORDERS COUNT</th>
+                                <td>{{ $user->orders_count }}</td>
+                            </tr>
 
-                    <tr>
-                        <th>Orders Count</th>
-                        <td>{{ $user->orders_count }}</td>
-                    </tr>
+                            <tr>
+                                <th>DATE & TIME CREATED</th>
+                                <td>{{ $user->created_at }}</td>
+                            </tr>
 
-                    <tr>
-                        <th>Crated At</th>
-                        <td>{{ $user->created_at }}</td>
-                    </tr>
-                </tbody>
-            </table>
+                            <tr>
+                                <th>DATE & TIME UPDATED</th>
+                                <td>{{ $user->updated_at }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

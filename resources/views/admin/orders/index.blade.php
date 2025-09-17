@@ -1,31 +1,52 @@
-@extends('layouts.admin', ['title' => 'Order List'])
+@extends('layouts.admin')
+
+@section('page_title', 'Order')
+
+@section('page_title', 'Order')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Order' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Order List</h3>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <ul class="nav nav-pills nav-fill"
+                        id="nav-pills-status">
+                        <li class="nav-item">
+                            <a class="nav-link active"
+                               data-status=""
+                               href="#">All </a>
+                        </li>
+                        @foreach (\App\Models\Order::STATUSES as $key => $status)
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   data-status="{{ $key }}"
+                                   href="#">{{ $status['label'] }}
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
         </div>
+    </div>
 
-        <div class="card-body">
-            <ul class="nav nav-pills nav-fill mb-3 border-bottom"
-                id="nav-pills-status">
-                <li class="nav-item">
-                    <a class="nav-link active"
-                       data-status=""
-                       href="#">All </a>
-                </li>
-                @foreach (\App\Models\Order::STATUSES as $key => $status)
-                    <li class="nav-item">
-                        <a class="nav-link"
-                           data-status="{{ $key }}"
-                           href="#">{{ $status['label'] }}
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
-
-            <div class="table-responsive">
-                {{ $dataTable->table(['class' => 'table table-sm table-striped table-bordered datatable ajaxTable']) }}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable']) }}
+                    </div>
+                </div>
             </div>
         </div>
     </div>

@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class ProductsDataTable extends DataTable
@@ -25,7 +23,9 @@ class ProductsDataTable extends DataTable
             ->addColumn('action', 'admin.products.partials.action')
             ->editColumn('image', function ($row) {
                 return sprintf(
-                    '<a href="%s" target="_blank"><img src="%s" width="50"></a>',
+                    '<a href="%s" target="_blank">
+                        <img src="%s" alt="" class="theme-avatar border border-2 border-primary rounded">
+                    </a>',
                     $row->image?->url,
                     $row->image?->preview_url
                 );
@@ -40,8 +40,11 @@ class ProductsDataTable extends DataTable
                     $row->is_publish ? 'checked' : ''
                 );
             })
+            ->addColumn('product_info', function ($product) {
+                return view('admin.products.partials.product-column', compact('product'));
+            })
             ->setRowId('id')
-            ->rawColumns(['action', 'image', 'is_publish']);
+            ->rawColumns(['action', 'image', 'is_publish', 'product_info']);
     }
 
     /**
@@ -50,7 +53,7 @@ class ProductsDataTable extends DataTable
     public function query(Product $model): QueryBuilder
     {
         $model = $model->newQuery()
-            ->with(['category', 'brand', 'media'])
+            ->with(['category', 'brand', 'media', 'productRatings', 'coupons'])
             ->select('products.*');
 
         $filter_keys = ['product_category_id', 'product_brand_id', 'sex', 'is_publish'];
@@ -74,19 +77,24 @@ class ProductsDataTable extends DataTable
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->buttons([
-                Button::make('create'),
-                Button::make('selectAll'),
-                Button::make('selectNone'),
-                Button::make('excel'),
-                Button::make('reset'),
-                Button::make('reload'),
-                Button::make('colvis'),
-                Button::make('bulkDelete'),
-                Button::make('filter'),
+                Button::make('create')
+                    ->text('Create Product'),
+                Button::make('selectAll')
+                    ->text('Select All'),
+                Button::make('selectNone')
+                    ->text('Select None'),
+                Button::make('excel')
+                    ->text('Excel'),
+                Button::make('colvis')
+                    ->text('Columns'),
+                Button::make('bulkDelete')
+                    ->text('Delete Selected'),
+                Button::make('filter')
+                    ->text('Filter'),
             ])
             ->ajax([
                 'data' =>
-                    'function (data) {
+                'function (data) {
                         $.each($("#form-filter").serializeArray(), function (key, val) {
                            data[val.name] = val.value;
                         });
@@ -108,47 +116,53 @@ class ProductsDataTable extends DataTable
             Column::make('id')
                 ->title('ID'),
 
-            Column::computed('image')
-                ->exportable(false)
-                ->printable(false)
-                ->addClass('text-center'),
-
-            Column::make('name')
-                ->title('Product Name'),
+            Column::make('product_info', 'name')
+                ->title('PRODUCT'),
 
             Column::make('slug')
+                ->title('SLUG')
                 ->visible(false),
 
             Column::make('category.name', 'category.name')
-                ->title('Category'),
+                ->title('CATEGORY'),
 
             Column::make('brand.name', 'brand.name')
-                ->title('Brand'),
+                ->title('BRAND'),
 
-            Column::computed('sex_label', 'Sex')
+            Column::computed('sex_label')
+                ->title('SEX')
                 ->visible(false),
 
-            Column::make('price'),
+            Column::make('price')
+                ->title('PRICE'),
 
-            Column::make('stock'),
+            Column::make('stock')
+                ->title('STOCK'),
 
             Column::make('weight')
+                ->title('WEIGHT')
                 ->visible(false),
 
-            Column::computed('is_publish', 'Published')
+            Column::computed('is_publish')
+                ->title('PUBLISHED')
                 ->visible(false),
 
             Column::make('sold_count')
-                ->title('Sales')
+                ->title('SALES')
                 ->searchable(false),
 
             Column::make('created_at')
+                ->title('DATE & TIME CREATED')
                 ->visible(false),
 
-            Column::computed('action', 'Action')
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
+                ->visible(false),
+
+            Column::computed('action')
+                ->title('ACTION')
                 ->exportable(false)
-                ->printable(false)
-                ->addClass('text-center'),
+                ->printable(false),
         ];
     }
 

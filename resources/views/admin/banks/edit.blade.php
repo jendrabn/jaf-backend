@@ -1,87 +1,108 @@
-@extends('layouts.admin', ['title' => 'Edit Bank'])
+@extends('layouts.admin')
+
+@section('page_title', 'Edit Bank')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Bank' => route('admin.banks.index'),
+            'Edit Bank' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Edit Bank</h3>
-        </div>
-
-        <div class="card-body">
-            <a class="btn btn-default mb-3"
-               href="{{ route('admin.banks.index') }}">Back to list</a>
-
-            <form action="{{ route('admin.banks.update', [$bank->id]) }}"
-                  enctype="multipart/form-data"
-                  method="POST">
-                @method('PUT')
-                @csrf
-
-                <div class="form-group">
-                    <label>Logo</label>
-                    <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
-                         id="logo-dropzone">
-                    </div>
-                    @if ($errors->has('logo'))
-                        <span class="invalid-feedback">{{ $errors->first('logo') }}</span>
-                    @endif
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label class="required">Bank Name</label>
-                        <input autofocus
-                               class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
-                               name="name"
-                               required
-                               type="text"
-                               value="{{ old('name', $bank->name) }}">
-                        @if ($errors->has('name'))
-                            <span class="invalid-feedback">{{ $errors->first('name') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label class="required">Bank Code</label>
-                        <input class="form-control {{ $errors->has('code') ? 'is-invalid' : '' }}"
-                               name="code"
-                               required
-                               type="text"
-                               value="{{ old('code', $bank->code) }}">
-                        @if ($errors->has('code'))
-                            <span class="invalid-feedback">{{ $errors->first('code') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label class="required">Account Name</label>
-                        <input class="form-control {{ $errors->has('account_name') ? 'is-invalid' : '' }}"
-                               name="account_name"
-                               required
-                               type="text"
-                               value="{{ old('account_name', $bank->account_name) }}">
-                        @if ($errors->has('account_name'))
-                            <span class="invalid-feedback">{{ $errors->first('account_name') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label class="required">Account Number</label>
-                        <input class="form-control {{ $errors->has('account_number') ? 'is-invalid' : '' }}"
-                               name="account_number"
-                               required
-                               type="text"
-                               value="{{ old('account_number', $bank->account_number) }}">
-                        @if ($errors->has('account_number'))
-                            <span class="invalid-feedback">{{ $errors->first('account_number') }}</span>
-                        @endif
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    <div class="card-tools">
+                        <a class="btn btn-default"
+                           href="{{ route('admin.banks.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to list</a>
                     </div>
                 </div>
+                <div class="card-body">
+                    <form action="{{ route('admin.banks.update', [$bank->id]) }}"
+                          enctype="multipart/form-data"
+                          method="POST">
+                        @method('PUT')
+                        @csrf
 
-                <button class="btn btn-primary"
-                        type="submit">
-                    <i class="fa-solid fa-floppy-disk"></i> Save Changes
-                </button>
-            </form>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="required">Name</label>
+                                <input autofocus
+                                       class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                                       name="name"
+                                       required
+                                       type="text"
+                                       value="{{ old('name', $bank->name) }}">
+                                @if ($errors->has('name'))
+                                    <span class="invalid-feedback">{{ $errors->first('name') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Code</label>
+                                <input class="form-control {{ $errors->has('code') ? 'is-invalid' : '' }}"
+                                       name="code"
+                                       required
+                                       type="text"
+                                       value="{{ old('code', $bank->code) }}">
+                                @if ($errors->has('code'))
+                                    <span class="invalid-feedback">{{ $errors->first('code') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Account Name</label>
+                                <input class="form-control {{ $errors->has('account_name') ? 'is-invalid' : '' }}"
+                                       name="account_name"
+                                       required
+                                       type="text"
+                                       value="{{ old('account_name', $bank->account_name) }}">
+                                @if ($errors->has('account_name'))
+                                    <span class="invalid-feedback">{{ $errors->first('account_name') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Account Number</label>
+                                <input class="form-control {{ $errors->has('account_number') ? 'is-invalid' : '' }}"
+                                       name="account_number"
+                                       required
+                                       type="text"
+                                       value="{{ old('account_number', $bank->account_number) }}">
+                                @if ($errors->has('account_number'))
+                                    <span class="invalid-feedback">{{ $errors->first('account_number') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label>Logo</label>
+                                <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
+                                     id="logo-dropzone">
+                                </div>
+                                @if ($errors->has('logo'))
+                                    <span class="invalid-feedback">{{ $errors->first('logo') }}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <a class="btn btn-default mr-2"
+                               href="{{ route('admin.banks.index') }}">
+                                <i class="bi bi-x-circle mr-1"></i>Cancel
+                            </a>
+                            <button class="btn btn-primary"
+                                    type="submit">
+                                <i class="bi bi-check2-circle mr-1"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 @endsection

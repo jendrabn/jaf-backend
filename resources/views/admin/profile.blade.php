@@ -1,12 +1,20 @@
-@extends('layouts.admin', ['title' => 'Profile'])
+@extends('layouts.admin')
+
+@section('page_title', 'Profile')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Profile' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
     <div class="row">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Profile</h3>
-                </div>
                 <div class="card-body">
                     <form action="{{ route('admin.profile.update') }}"
                           enctype="multipart/form-data"
@@ -47,7 +55,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Email Verified At</label>
+                            <label>Date & Time Verified</label>
                             <input class="form-control"
                                    readonly
                                    type="text"
@@ -58,7 +66,8 @@
                             <label>Roles</label>
                             <select class="form-control select2"
                                     disabled
-                                    multiple>
+                                    multiple
+                                    style="width: 100%;">
                                 @foreach ($roles as $id => $role)
                                     <option @selected(in_array($id, old('roles', [])) || $user->roles->contains($id))
                                             value="{{ $role }}">
@@ -81,7 +90,8 @@
                         <div class="form-group">
                             <label>Gender</label>
                             <select class="form-control select2 {{ $errors->has('sex') ? 'is-invalid' : '' }}"
-                                    name="sex">
+                                    name="sex"
+                                    style="width: 100%;">
                                 <option disabled
                                         value>---</option>
                                 @foreach (App\Models\User::SEX_SELECT as $key => $label)
@@ -115,7 +125,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Created At</label>
+                            <label>Date & Time Created</label>
                             <input class="form-control"
                                    readonly
                                    type="text"
@@ -123,7 +133,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Updated At</label>
+                            <label>Date & Time Updated</label>
                             <input class="form-control"
                                    readonly
                                    type="text"
@@ -132,7 +142,7 @@
 
                         <button class="btn btn-primary"
                                 type="submit">
-                            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                            <i class="bi bi-check2-circle mr-1"></i>Save Changes
                         </button>
                     </form>
                 </div>
@@ -182,7 +192,7 @@
 
                         <button class="btn btn-primary"
                                 type="submit">
-                            <i class="fa-solid fa-floppy-disk"></i> Change Password
+                            <i class="bi bi-check2-circle mr-1"></i>Change Password
                         </button>
                     </form>
                 </div>

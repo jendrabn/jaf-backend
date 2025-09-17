@@ -3,7 +3,7 @@
      id="modal-filter">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header border-bottom-0">
                 <h5 class="modal-title">
                     Filter Product
                 </h5>
@@ -11,7 +11,9 @@
                         class="close"
                         data-dismiss="modal"
                         type="button">
-                    <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">
+                        <i class="bi bi-x-lg"></i>
+                    </span>
                 </button>
             </div>
             <div class="modal-body">
@@ -65,21 +67,20 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary"
+            <div class="modal-footer border-top-0">
+                <button class="btn btn-secondary mr-2"
                         data-dismiss="modal"
                         type="button">
-                    <i class="fa-solid fa-xmark"></i>
-                    Close
+                    <i class="bi bi-x-circle mr-1"></i>Cancel
                 </button>
-                <button class="btn btn-default"
+                <button class="btn btn-default mr-2"
                         id="btn-reset-filter">
-                    <i class="fa-solid fa-rotate"></i> Reset
+                    <i class="bi bi-arrow-repeat mr-1"></i>Reset
                 </button>
                 <button class="btn btn-primary"
                         id="btn-filter"
                         type="button">
-                    <i class="fa-solid fa-filter"></i> Save Changes
+                    <i class="bi bi-filter-circle mr-1"></i>Apply
                 </button>
             </div>
         </div>

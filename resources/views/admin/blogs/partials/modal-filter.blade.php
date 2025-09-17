@@ -3,14 +3,16 @@
      tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header border-bottom-0">
                 <h5 class="modal-title"
                     id="exampleModalLabel">Filter Blog</h5>
                 <button aria-label="Close"
                         class="close"
                         data-dismiss="modal"
                         type="button">
-                    <span aria-hidden="true">&times;</span>
+                    <span aria-hidden="true">
+                        <i class="bi bi-x-lg"></i>
+                    </span>
                 </button>
             </div>
             <form id="form-filter">
@@ -57,23 +59,23 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer border-top-0">
                     <button class="btn btn-secondary"
                             data-dismiss="modal"
                             type="button">
-                        <i class="fa-solid fa-xmark"></i> Close
+                        <i class="bi bi-x-circle mr-1"></i>Cancel
                     </button>
 
                     <button class="btn btn-default"
                             id="btn-reset-filter"
                             type="button">
-                        <i class="fa-solid fa-rotate"></i> Reset
+                        <i class="bi bi-arrow-repeat mr-1"></i>Reset
                     </button>
 
                     <button class="btn btn-primary"
                             id="btn-filter"
                             type="button">
-                        <i class="fa-solid fa-filter"></i> Apply Filter
+                        <i class="bi bi-filter-circle mr-1"></i>Apply
                     </button>
                 </div>
             </form>

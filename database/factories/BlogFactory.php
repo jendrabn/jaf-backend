@@ -32,12 +32,12 @@ class BlogFactory extends Factory
         ];
     }
 
-    public function configure()
-    {
-        return $this->afterCreating(function (Blog $blog) {
-            $blog->tags()->attach(BlogTag::inRandomOrder()->take(3)->pluck('id'));
+    // public function configure()
+    // {
+    //     return $this->afterCreating(function (Blog $blog) {
+    //         $blog->tags()->attach(BlogTag::inRandomOrder()->take(3)->pluck('id'));
 
-            $blog->addMediaFromUrl('https://picsum.photos/640/480')->toMediaCollection(Blog::MEDIA_COLLECTION_NAME);
-        });
-    }
+    //         $blog->addMediaFromUrl('https://picsum.photos/640/480')->toMediaCollection(Blog::MEDIA_COLLECTION_NAME);
+    //     });
+    // }
 }

@@ -9,8 +9,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class UsersDataTable extends DataTable
@@ -23,30 +21,21 @@ class UsersDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', 'admin.users.action')
+            ->addColumn('action', 'admin.users.partials.action')
             ->editColumn('roles', function ($row) {
                 $roles = [];
 
                 $row->roles->each(function ($role) use (&$roles) {
-                    $roles[] = '<span class="badge badge-info rounded-0">' . $role->name . '</span>';
+                    $roles[] = strtoupper($role->name);
                 });
 
                 return implode(' ', $roles);
-
             })
             ->editColumn('email', function ($row) {
-                return sprintf(
-                    '<a href="mailto:%s" class="text-body">%s</a>',
-                    $row->email,
-                    $row->email
-                );
+                return $row->email . '<a class="ml-1 icon-btn text-muted small" href="mailto:' . $row->email . '"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->editColumn('phone', function ($row) {
-                return sprintf(
-                    '<a href="https://wa.me/%s" target="_blank" class="text-body">%s</a>',
-                    $row->phone,
-                    $row->phone
-                );
+                return $row->phone . '<a class="ml-1 icon-btn text-muted small" href="https://wa.me/' . $row->phone . '"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->setRowId('id')
             ->rawColumns(['action', 'roles', 'email', 'phone']);
@@ -77,18 +66,19 @@ class UsersDataTable extends DataTable
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->buttons([
-                Button::make('create'),
-                Button::make('selectAll'),
-                Button::make('selectNone'),
-                Button::make('excel'),
-                Button::make('reset'),
-                Button::make('reload'),
-                Button::make('colvis'),
-                Button::make('bulkDelete'),
-            ])
-
-
-        ;
+                Button::make('create')
+                    ->text('Create User'),
+                Button::make('selectAll')
+                    ->text('Select All'),
+                Button::make('selectNone')
+                    ->text('Deselect All'),
+                Button::make('excel')
+                    ->text('Excel'),
+                Button::make('colvis')
+                    ->text('Columns'),
+                Button::make('bulkDelete')
+                    ->text('Delete Selected'),
+            ]);
     }
 
     /**
@@ -105,36 +95,47 @@ class UsersDataTable extends DataTable
             Column::make('id')
                 ->title('ID'),
 
-            Column::make('name'),
+            Column::make('name')
+                ->title('NAME'),
 
-            Column::make('email'),
+            Column::make('email')
+                ->title('EMAIL'),
 
             Column::make('email_verified_at')
+                ->title('DATE & TIME VERIFIED')
                 ->visible(false),
 
             Column::make('roles', 'roles.name')
+                ->title('ROLES')
                 ->orderable(false),
 
             Column::make('phone')
-                ->title('Phone Number'),
+                ->title('PHONE NUMBER'),
 
             Column::make('sex_label', 'sex')
-                ->title('Sex')
+                ->title('SEX')
                 ->visible(false),
 
             Column::make('birth_date')
+                ->title('BIRTH DATE')
                 ->visible(false),
 
             Column::make('orders_count')
+                ->title('ORDERS COUNT')
                 ->searchable(false),
 
             Column::make('created_at')
+                ->title('DATE & TIME CREATED')
                 ->visible(false),
 
-            Column::computed('action', 'Action')
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
+                ->visible(false),
+
+            Column::computed('action')
+                ->title('ACTION')
                 ->exportable(false)
-                ->printable(false)
-                ->addClass('text-center'),
+                ->printable(false),
         ];
     }
 

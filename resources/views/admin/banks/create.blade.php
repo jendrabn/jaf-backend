@@ -1,86 +1,104 @@
-@extends('layouts.admin', ['title' => 'Create Bank'])
+@extends('layouts.admin')
+
+@section('page_title', 'Create Bank')
+
+@section('breadcrumb')
+    @include('partials.breadcrumb', [
+        'items' => [
+            'Dashboard' => route('admin.home'),
+            'Bank' => route('admin.banks.index'),
+            'Create Bank' => null,
+        ],
+    ])
+@endsection
 
 @section('content')
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Create Bank</h3>
-        </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <a class="btn btn-default mb-3"
+                       href="{{ route('admin.banks.index') }}">Back to list</a>
 
-        <div class="card-body">
-            <a class="btn btn-default mb-3"
-               href="{{ route('admin.banks.index') }}">Back to list</a>
+                    <form action="{{ route('admin.banks.store') }}"
+                          enctype="multipart/form-data"
+                          method="POST">
+                        @csrf
 
-            <form action="{{ route('admin.banks.store') }}"
-                  enctype="multipart/form-data"
-                  method="POST">
-                @csrf
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label class="required">Name</label>
+                                <input autofocus
+                                       class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                                       name="name"
+                                       required
+                                       type="text"
+                                       value="{{ old('name', '') }}">
+                                @if ($errors->has('name'))
+                                    <span class="text-danger">{{ $errors->first('name') }}</span>
+                                @endif
+                            </div>
 
-                <div class="form-group">
-                    <label class="required">Logo</label>
-                    <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
-                         id="logo-dropzone">
-                    </div>
-                    @if ($errors->has('logo'))
-                        <span class="text-danger">{{ $errors->first('logo') }}</span>
-                    @endif
+                            <div class="form-group col-md-6">
+                                <label class="required">Code</label>
+                                <input class="form-control {{ $errors->has('code') ? 'is-invalid' : '' }}"
+                                       name="code"
+                                       required
+                                       type="text"
+                                       value="{{ old('code', '') }}">
+                                @if ($errors->has('code'))
+                                    <span class="text-danger">{{ $errors->first('code') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Account Name</label>
+                                <input class="form-control {{ $errors->has('account_name') ? 'is-invalid' : '' }}"
+                                       name="account_name"
+                                       required
+                                       type="text"
+                                       value="{{ old('account_name', '') }}">
+                                @if ($errors->has('account_name'))
+                                    <span class="text-danger">{{ $errors->first('account_name') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Account Number</label>
+                                <input class="form-control {{ $errors->has('account_number') ? 'is-invalid' : '' }}"
+                                       name="account_number"
+                                       required
+                                       type="text"
+                                       value="{{ old('account_number', '') }}">
+                                @if ($errors->has('account_number'))
+                                    <span class="text-danger">{{ $errors->first('account_number') }}</span>
+                                @endif
+                            </div>
+
+                            <div class="form-group col-md-6">
+                                <label class="required">Logo</label>
+                                <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
+                                     id="logo-dropzone">
+                                </div>
+                                @if ($errors->has('logo'))
+                                    <span class="text-danger">{{ $errors->first('logo') }}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <a class="btn btn-default mr-2"
+                               href="{{ route('admin.banks.index') }}">
+                                <i class="bi bi-x-circle mr-1"></i>Cancel
+                            </a>
+                            <button class="btn btn-primary"
+                                    type="submit">
+                                <i class="bi bi-check2-circle mr-1"></i>Save
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label class="required">Bank Name</label>
-                        <input autofocus
-                               class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
-                               name="name"
-                               required
-                               type="text"
-                               value="{{ old('name', '') }}">
-                        @if ($errors->has('name'))
-                            <span class="text-danger">{{ $errors->first('name') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label class="required">Bank Code</label>
-                        <input class="form-control {{ $errors->has('code') ? 'is-invalid' : '' }}"
-                               name="code"
-                               required
-                               type="text"
-                               value="{{ old('code', '') }}">
-                        @if ($errors->has('code'))
-                            <span class="text-danger">{{ $errors->first('code') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label class="required">Account Name</label>
-                        <input class="form-control {{ $errors->has('account_name') ? 'is-invalid' : '' }}"
-                               name="account_name"
-                               required
-                               type="text"
-                               value="{{ old('account_name', '') }}">
-                        @if ($errors->has('account_name'))
-                            <span class="text-danger">{{ $errors->first('account_name') }}</span>
-                        @endif
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label class="required">Account Number</label>
-                        <input class="form-control {{ $errors->has('account_number') ? 'is-invalid' : '' }}"
-                               name="account_number"
-                               required
-                               type="text"
-                               value="{{ old('account_number', '') }}">
-                        @if ($errors->has('account_number'))
-                            <span class="text-danger">{{ $errors->first('account_number') }}</span>
-                        @endif
-                    </div>
-                </div>
-
-                <button class="btn btn-primary"
-                        type="submit">
-                    <i class="fa-solid fa-floppy-disk"></i> Save
-                </button>
-            </form>
+            </div>
         </div>
     </div>
 @endsection
