@@ -16,7 +16,7 @@
 
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"
           rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css"
           rel="stylesheet" />
 
     @vite('resources/scss/adminlte.scss')
@@ -34,9 +34,12 @@
                              src="{{ asset('img/logo.png') }}">
                     </div>
                     <a class="btn btn-primary btn-block btn-lg mb-2"
-                       href="{{ route('auth.login') }}">Admin Panel</a>
+                       href="{{ route('auth.login') }}">Go to Back Office <i
+                           class="bi bi-box-arrow-in-right ml-2"></i></a>
                     <a class="btn btn-outline-primary btn-block btn-lg"
-                       href="{{ config('shop.front_url') }}">Shop</a>
+                       href="{{ config('shop.front_url') }}">
+                        Go to Shop <i class="bi bi-box-arrow-in-right ml-2"></i>
+                    </a>
                 </div>
             </div>
         </div>

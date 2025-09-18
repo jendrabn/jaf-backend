@@ -234,22 +234,22 @@
                         <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'day' ? 'active' : '' }}">
                             <input {{ $default_grain === 'day' ? 'checked' : '' }}
                                    data-grain="day"
-                                   type="radio"> Harian
+                                   type="radio"> Daily
                         </label>
                         <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'week' ? 'active' : '' }}">
                             <input {{ $default_grain === 'week' ? 'checked' : '' }}
                                    data-grain="week"
-                                   type="radio"> Mingguan
+                                   type="radio"> Weeekly
                         </label>
                         <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'month' ? 'active' : '' }}">
                             <input {{ $default_grain === 'month' ? 'checked' : '' }}
                                    data-grain="month"
-                                   type="radio"> Bulanan
+                                   type="radio"> Monthly
                         </label>
                         <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'year' ? 'active' : '' }}">
                             <input {{ $default_grain === 'year' ? 'checked' : '' }}
                                    data-grain="year"
-                                   type="radio"> Tahunan
+                                   type="radio"> Yearly
                         </label>
                     </div>
                 </div>

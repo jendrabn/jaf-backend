@@ -49,7 +49,7 @@ class DummySeeder extends Seeder
             'password' => 'password',
         ])->assignRole(User::ROLE_USER);
 
-        Product::factory(25)->hasImages(3)->create();
+        Product::factory(25)->create();
 
         for ($i = 0; $i < 25; $i++) {
             Order::factory()

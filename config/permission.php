@@ -183,4 +183,63 @@ return [
 
         'store' => 'default',
     ],
+
+    'permissions' =>  [
+        // Backoffice
+        'backoffice' => ['access'],
+
+        // Dashboard & Profile
+        'dashboard' => ['view'],                         // GET admin.home
+        'profile'   => ['view', 'update', 'update_password'], // index, updateProfile, updatePassword
+
+        // Users (resource + massDestroy)
+        'users' => ['view', 'show', 'create', 'edit', 'delete', 'mass_delete'],
+
+        // Orders (custom + massDestroy + generate invoice)
+        'orders' => [
+            'view',
+            'show',
+            'delete',
+            'mass_delete',
+            'confirm_shipping',
+            'confirm_payment',
+            'generate_invoice'
+        ],
+
+        // Product Categories (resource except show + storeMedia + massDestroy)
+        'product_categories' => ['view', 'create', 'edit', 'delete', 'upload_media', 'mass_delete'],
+
+        // Product Brands (resource except show + storeMedia + massDestroy)
+        'product_brands' => ['view', 'create', 'edit', 'delete', 'upload_media', 'mass_delete'],
+
+        // Banks (resource except show + storeMedia + ckmedia + massDestroy)
+        'banks' => ['view', 'create', 'edit', 'delete', 'upload_media', 'upload_ckeditor', 'mass_delete'],
+
+        // E-Wallets (resource except show + storeMedia + ckmedia + massDestroy)
+        'ewallets' => ['view', 'create', 'edit', 'delete', 'upload_media', 'upload_ckeditor', 'mass_delete'],
+
+        // Banners (resource except show + storeMedia + ckmedia + massDestroy)
+        'banners' => ['view', 'create', 'edit', 'delete', 'upload_media', 'upload_ckeditor', 'mass_delete'],
+
+        // Products (resource + storeMedia + ckmedia + massDestroy)
+        'products' => ['view', 'show', 'create', 'edit', 'delete', 'upload_media', 'upload_ckeditor', 'mass_delete'],
+
+        // Blog Tags (resource except show, edit + massDestroy)
+        'blog_tags' => ['view', 'create', 'delete', 'mass_delete'],
+
+        // Blog Categories (resource except show, edit + massDestroy)
+        'blog_categories' => ['view', 'create', 'delete', 'mass_delete'],
+
+        // Blogs (resource + published + storeMedia + ckmedia + massDestroy)
+        'blogs' => ['view', 'show', 'create', 'edit', 'delete', 'published', 'upload_media', 'upload_ckeditor', 'mass_delete'],
+
+        // Couriers (only index & update)
+        'couriers' => ['view', 'update'],
+
+        // Coupons (resource + custom massDestroy)
+        'coupons' => ['view', 'show', 'create', 'edit', 'delete', 'mass_delete'],
+
+        // Roles (resource)
+        'roles' => ['view', 'show', 'create', 'edit', 'delete'],
+    ]
 ];
