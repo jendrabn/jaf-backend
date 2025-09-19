@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->string('account_username');
             $table->string('phone');
             $table->timestamps();
+            $table->unique('payment_id', 'uniq_payment_ewallets_payment_id');
         });
     }
 

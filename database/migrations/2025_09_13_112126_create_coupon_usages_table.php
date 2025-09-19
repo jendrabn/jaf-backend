@@ -18,6 +18,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
             $table->timestamps();
+            $table->unique(['coupon_id', 'order_id'], 'uniq_coupon_usages_coupon_order');
+            $table->index(['coupon_id', 'user_id'], 'idx_coupon_usages_coupon_user');
         });
     }
 

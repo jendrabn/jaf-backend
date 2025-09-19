@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->string('account_name', 100);
             $table->string('account_number', 100);
             $table->timestamps();
+            $table->unique('payment_id', 'uniq_payment_banks_payment_id');
         });
     }
 

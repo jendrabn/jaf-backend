@@ -17,11 +17,14 @@ return new class extends Migration {
             $table->longText('content')->nullable();
             $table->integer('min_read')->nullable()->default(0);
             $table->text('featured_image_description')->nullable();
-            $table->boolean('is_publish')->default(true);
+            $table->boolean('is_publish')->default(true)->index('idx_blogs_is_publish');
             $table->integer('views_count')->default(0);
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('blog_category_id')->nullable()->constrained()->nullOnDelete();
             $table->timestamps();
+            $table->index(['blog_category_id', 'is_publish'], 'idx_blogs_category_publish');
+            $table->index(['user_id', 'created_at'], 'idx_blogs_user_created_at');
+            $table->index('views_count', 'idx_blogs_views_count');
         });
     }
 

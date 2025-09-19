@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->bigInteger('price');
             $table->integer('quantity');
             $table->timestamps();
+            $table->index(['order_id', 'product_id'], 'idx_order_items_order_product');
         });
     }
 

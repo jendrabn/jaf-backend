@@ -13,11 +13,12 @@ return new class extends Migration {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('invoice_id')->constrained()->cascadeOnDelete();
-            $table->enum('method', ['bank', 'ewallet']);
+            $table->enum('method', ['bank', 'ewallet'])->index('idx_payments_method');
             $table->text('info');
             $table->bigInteger('amount');
-            $table->enum('status', ['pending', 'cancelled', 'realeased']);
+            $table->enum('status', ['pending', 'cancelled', 'realeased'])->index('idx_payments_status');
             $table->timestamps();
+            $table->index('created_at', 'idx_payments_created_at');
         });
     }
 

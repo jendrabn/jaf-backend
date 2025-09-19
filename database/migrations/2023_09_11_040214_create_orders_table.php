@@ -25,11 +25,14 @@ return new class extends Migration {
                 'on_delivery',
                 'completed',
                 'cancelled'
-            ]);
+            ])->index('idx_orders_status');
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
+            $table->index('created_at', 'idx_orders_created_at');
+            $table->index(['status', 'created_at'], 'idx_orders_status_created_at'); // frequent status filter with date range
+            $table->index(['user_id', 'created_at'], 'idx_orders_user_created_at');
         });
 
         // if (env('DB_CONNECTION') === 'mysql') {

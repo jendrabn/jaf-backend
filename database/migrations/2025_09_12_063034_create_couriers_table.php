@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('couriers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('code');
-            $table->boolean('is_active')->default(true);
+            $table->string('code')->unique('uniq_couriers_code');
+            $table->boolean('is_active')->default(true)->index('idx_couriers_is_active');
         });
     }
 

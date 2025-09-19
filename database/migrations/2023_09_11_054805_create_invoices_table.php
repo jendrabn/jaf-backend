@@ -15,9 +15,10 @@ return new class extends Migration {
             $table->foreignId('order_id')->constrained()->cascadeOnDelete();
             $table->string('number')->unique();
             $table->bigInteger('amount');
-            $table->enum('status', ['paid', 'unpaid']);
-            $table->timestamp('due_date');
+            $table->enum('status', ['paid', 'unpaid'])->index('idx_invoices_status');
+            $table->timestamp('due_date')->index('idx_invoices_due_date');
             $table->timestamps();
+            $table->index('created_at', 'idx_invoices_created_at');
         });
     }
 

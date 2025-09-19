@@ -25,8 +25,9 @@ return new class extends Migration {
                 'pending',
                 'processing',
                 'shipped',
-            ]);
+            ])->index('idx_shippings_status');
             $table->timestamps();
+            $table->index('created_at', 'idx_shippings_created_at');
         });
     }
 

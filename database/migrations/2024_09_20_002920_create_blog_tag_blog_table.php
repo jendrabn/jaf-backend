@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->foreignId('blog_tag_id')->constrained()->cascadeOnDelete();
             $table->foreignId('blog_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
+            $table->unique(['blog_tag_id', 'blog_id'], 'uniq_blog_tag_blog_tag_blog');
         });
     }
 

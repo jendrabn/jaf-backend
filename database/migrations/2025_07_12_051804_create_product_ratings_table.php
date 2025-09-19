@@ -17,8 +17,9 @@ return new class extends Migration
             $table->integer('rating');
             $table->mediumText('comment')->nullable();
             $table->boolean('is_anonymous')->default(false);
-            $table->boolean('is_publish')->default(true);
+            $table->boolean('is_publish')->default(true)->index('idx_product_ratings_is_publish');
             $table->timestamps();
+            $table->unique('order_item_id', 'uniq_product_ratings_order_item_id');
         });
     }
 
