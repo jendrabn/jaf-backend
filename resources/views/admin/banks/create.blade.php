@@ -15,16 +15,19 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <div class="card shadow-lg">
-                <div class="card-body">
-                    <a class="btn btn-default mb-3"
-                       href="{{ route('admin.banks.index') }}">Back to list</a>
+            <form action="{{ route('admin.banks.store') }}"
+                  enctype="multipart/form-data"
+                  method="POST">
+                @csrf
 
-                    <form action="{{ route('admin.banks.store') }}"
-                          enctype="multipart/form-data"
-                          method="POST">
-                        @csrf
-
+                <div class="card shadow-lg">
+                    <div class="card-header">
+                        <div class="card-tools">
+                            <a class="btn btn-default mb-3"
+                               href="{{ route('admin.banks.index') }}">Back to list</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
                         <div class="form-row">
                             <div class="form-group col-md-6">
                                 <label class="required">Name</label>
@@ -85,20 +88,19 @@
                                 @endif
                             </div>
                         </div>
-
-                        <div class="form-group mb-0">
-                            <a class="btn btn-default mr-2"
-                               href="{{ route('admin.banks.index') }}">
-                                <i class="bi bi-x-circle mr-1"></i>Cancel
-                            </a>
-                            <button class="btn btn-primary"
-                                    type="submit">
-                                <i class="bi bi-check2-circle mr-1"></i>Save
-                            </button>
-                        </div>
-                    </form>
+                    </div>
+                    <div class="card-footer d-flex justify-content-end">
+                        <a class="btn btn-light mr-2"
+                           href="{{ route('admin.banks.index') }}">
+                            <i class="bi bi-x-circle mr-1"></i>Cancel
+                        </a>
+                        <button class="btn btn-primary"
+                                type="submit">
+                            <i class="bi bi-check2-circle mr-1"></i>Save
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 @endsection

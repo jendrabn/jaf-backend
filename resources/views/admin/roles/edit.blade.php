@@ -171,7 +171,8 @@
                            href="{{ route('admin.roles.index') }}">
                             <i class="bi bi-x-circle mr-1"></i>Cancel
                         </a>
-                        <button class="btn btn-primary">
+                        <button class="btn btn-primary"
+                                type="submit">
                             <i class="bi bi-check2-circle mr-1"></i>Save Changes
                         </button>
                     </div>
