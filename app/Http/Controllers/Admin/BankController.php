@@ -117,7 +117,24 @@ class BankController extends Controller
      */
     public function massDestroy(BankRequest $request): JsonResponse
     {
-        Bank::whereIn('id', $request->validated('ids'))->delete();
+        $ids = $request->validated('ids');
+        $count = count($ids);
+
+        Bank::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_banks',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' banks']
+            ],
+            subjectId: null,
+            subjectType: \App\Models\Bank::class
+        );
 
         return response()->json(['message' => 'Bank deleted successfully.'], Response::HTTP_OK);
     }

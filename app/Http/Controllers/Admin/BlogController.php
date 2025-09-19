@@ -166,7 +166,24 @@ class BlogController extends Controller
      */
     public function massDestroy(BlogRequest $request): JsonResponse
     {
-        Blog::whereIn('id', $request->validated('ids'))->delete();
+        $ids = $request->validated('ids');
+        $count = count($ids);
+
+        Blog::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_blogs',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' blogs']
+            ],
+            subjectId: null,
+            subjectType: \App\Models\Blog::class
+        );
 
         return response()->json(['message' => 'Blogs deleted successfully.'], Response::HTTP_OK);
     }

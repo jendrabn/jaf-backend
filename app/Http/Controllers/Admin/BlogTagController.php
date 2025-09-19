@@ -70,7 +70,24 @@ class BlogTagController extends Controller
      */
     public function massDestroy(BlogTagRequest $request): JsonResponse
     {
-        BlogTag::whereIn('id', $request->validated('ids'))->delete();
+        $ids = $request->validated('ids');
+        $count = count($ids);
+
+        BlogTag::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_blog_tags',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' blog tags.'],
+            ],
+            subjectId: null,
+            subjectType: \App\Models\BlogTag::class
+        );
 
         return response()->json(['message' => 'Blog Tag deleted successfully.'], Response::HTTP_OK);
     }

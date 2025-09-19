@@ -124,7 +124,24 @@ class ProductBrandController extends Controller
      */
     public function massDestroy(ProductBrandRequest $request): JsonResponse
     {
-        ProductBrand::whereIn('id', $request->validated('ids'))->delete();
+        $ids = $request->validated('ids');
+        $count = count($ids);
+
+        ProductBrand::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_product_brands',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' product brands.'],
+            ],
+            subjectId: null,
+            subjectType: \App\Models\ProductBrand::class
+        );
 
         return response()->json(['message' => 'Product brands deleted successfully.']);
     }

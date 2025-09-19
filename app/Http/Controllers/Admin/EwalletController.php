@@ -123,7 +123,24 @@ class EwalletController extends Controller
      */
     public function massDestroy(EwalletRequest $request): JsonResponse
     {
+        $ids = $request->validated('ids');
+        $count = count($ids);
+
         Ewallet::whereIn('id', $request->validated('ids'))->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_ewallets',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' ewallets.'],
+            ],
+            subjectId: null,
+            subjectType: \App\Models\Ewallet::class
+        );
 
         return response()->json(['message' => 'Ewallet deleted successfully.'], Response::HTTP_OK);
     }

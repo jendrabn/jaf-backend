@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Shipping extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     public const STATUS_PENDING = 'pending';
     public const STATUS_PROCESSING = 'processing';

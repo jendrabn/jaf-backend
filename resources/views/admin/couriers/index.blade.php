@@ -32,13 +32,14 @@
                 $('.toggle-status').change(function() {
                     let isActive = $(this).is(':checked') ? 'active' : 'inactive';
                     let courierId = $(this).data('id');
+                    let url = $(this).data('url');
 
                     $.ajax({
                         headers: {
                             'x-csrf-token': _token
                         },
                         method: 'POST',
-                        url: `/admin/couriers/${courierId}`,
+                        url: url,
                         data: {
                             is_active: isActive,
                             _method: 'PUT'

@@ -244,6 +244,17 @@
                     </li>
                 @endcanany
 
+                {{-- Audit Log --}}
+                @can('audit_logs.view')
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center {{ request()->is('admin/audit-logs') || request()->is('admin/audit-logs/*') ? 'active' : '' }}"
+                           href="{{ route('admin.audit-logs.index') }}">
+                            <i class="nav-icon bi bi-clock-history mr-2"></i>
+                            <p class="mb-0">Audit Log</p>
+                        </a>
+                    </li>
+                @endcan
+
             </ul>
         </nav>
     </div>

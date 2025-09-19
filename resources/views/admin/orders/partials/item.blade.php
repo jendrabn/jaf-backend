@@ -7,12 +7,14 @@
 
                 <span class="text-truncate">{{ $item->name }}</span>
 
-                <a class="ml-2 text-muted small icon-btn"
-                   href="{{ route('admin.products.show', $item->product) }}"
-                   rel="noopener"
-                   target="_blank">
-                    <i class="bi bi-box-arrow-up-right"></i>
-                </a>
+                @if ($item->product)
+                    <a class="ml-2 text-muted small icon-btn"
+                       href="{{ route('admin.products.show', $item->product) }}"
+                       rel="noopener"
+                       target="_blank">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </a>
+                @endif
             </div>
 
             <div class="d-flex align-items-center ml-3">

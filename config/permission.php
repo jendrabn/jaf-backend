@@ -241,5 +241,8 @@ return [
 
         // Roles (resource)
         'roles' => ['view', 'show', 'create', 'edit', 'delete'],
+
+        // Audit Logs (resource)
+        'audit_logs' => ['view', 'show', 'delete', 'mass_delete'],
     ]
 ];

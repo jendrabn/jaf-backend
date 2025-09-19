@@ -118,7 +118,24 @@ class UserController extends Controller
      */
     public function massDestroy(UserRequest $request): JsonResponse
     {
-        User::whereIn('id', $request->ids)->delete();
+        $ids = $request->ids;
+        $count = count($ids);
+
+        User::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_audit_logs',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' users']
+            ],
+            subjectId: null,
+            subjectType: \App\Models\User::class
+        );
 
         return response()->json(['message' => 'Users deleted successfully.']);
     }

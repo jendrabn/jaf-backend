@@ -73,7 +73,24 @@ class BlogCategoryController extends Controller
      */
     public function massDestroy(BlogCategoryRequest $request): JsonResponse
     {
-        BlogCategory::whereIn('id', $request->validated('ids'))->delete();
+        $ids = $request->validated('ids');
+        $count = count($ids);
+
+        BlogCategory::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_blog_categories',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' blog categories']
+            ],
+            subjectId: null,
+            subjectType: \App\Models\BlogCategory::class
+        );
 
         return response()->json(['message' => 'Blog Categories deleted successfully.'], Response::HTTP_OK);
     }

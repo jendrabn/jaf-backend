@@ -122,7 +122,24 @@ class ProductController extends Controller
 
     public function massDestroy(ProductRequest $request)
     {
-        Product::whereIn('id', $request->validated('ids'))->delete();
+        $ids = $request->validated('ids');
+        $count = count($ids);
+
+        Product::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_products',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' products.'],
+            ],
+            subjectId: null,
+            subjectType: \App\Models\Product::class
+        );
 
         return response()->json(['message' => 'Products deleted successfully.']);
     }

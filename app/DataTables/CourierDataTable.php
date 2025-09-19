@@ -25,7 +25,7 @@ class CourierDataTable extends DataTable
             ->addColumn('is_active', function ($courier) {
                 return '
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" class="custom-control-input toggle-status" id="courier-' . $courier->id . '" data-id="' . $courier->id . '" ' . ($courier->is_active ? 'checked' : '') . '>
+                        <input type="checkbox" data-url="' . route('admin.couriers.update', $courier->id) . '" class="custom-control-input toggle-status" id="courier-' . $courier->id . '" data-id="' . $courier->id . '" ' . ($courier->is_active ? 'checked' : '') . '>
                         <label class="custom-control-label font-weight-normal" for="courier-' . $courier->id . '">
                             ' . ($courier->is_active ? 'Active' : 'Inactive') . '
                         </label>

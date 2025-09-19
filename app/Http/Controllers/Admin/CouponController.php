@@ -162,12 +162,29 @@ class CouponController extends Controller
 
     public function massDestroy(Request $request)
     {
+        $ids = $request->ids;
+        $count = count($ids);
+
         $request->validate([
             'ids'   => 'required|array',
             'ids.*' => 'exists:coupons,id',
         ]);
 
-        Coupon::whereIn('id', $request->ids)->delete();
+        Coupon::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_coupons',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' coupons.'],
+            ],
+            subjectId: null,
+            subjectType: \App\Models\Coupon::class
+        );
 
         return response(null, 204);
     }

@@ -51,7 +51,7 @@ class BannerController extends Controller
 
         if ($request->input('image', false)) {
             $banner->addMedia(storage_path('tmp/uploads/' . basename($request->input('image'))))
-            ->toMediaCollection(Banner::MEDIA_COLLECTION_NAME);
+                ->toMediaCollection(Banner::MEDIA_COLLECTION_NAME);
         }
 
         if ($media = $request->input('ck-media', false)) {
@@ -120,7 +120,24 @@ class BannerController extends Controller
      */
     public function massDestroy(BannerRequest $request)
     {
-        Banner::whereIn('id', $request->validated('ids'))->delete();
+        $ids = $request->validated('ids');
+        $count = count($ids);
+
+        Banner::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_banners',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' banners']
+            ],
+            subjectId: null,
+            subjectType: \App\Models\Banner::class
+        );
 
         return response()->json(['message' => 'Banners deleted successfully.'], Response::HTTP_OK);
     }

@@ -22,6 +22,10 @@ class OrdersDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.orders.partials.action')
             ->addColumn('customer', function ($row) {
+                if (!$row->user) {
+                    return '';
+                }
+
                 return $row->user->name . '<a class="ml-2 text-muted small icon-btn" href="' . route('admin.users.show', $row->user->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->editColumn(

@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Traits\Auditable;
 use DateTimeInterface;
 use Spatie\Image\Enums\Fit;
 use Illuminate\Support\Carbon;
@@ -22,7 +23,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements CanResetPassword, HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, InteractsWithMedia;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, InteractsWithMedia, Auditable;
 
     public const ROLE_ADMIN = 'admin';
     public const ROLE_USER = 'user';
@@ -86,8 +87,11 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
 
     public function sexLabel(): Attribute
     {
-        return Attribute::get(fn() => $this->attributes['sex'] ? self::SEX_SELECT[$this->attributes['sex']] : '');
+        return Attribute::make(
+            get: fn($value, $attributes) => self::SEX_SELECT[$attributes['sex'] ?? null] ?? ''
+        );
     }
+
 
     public function delete(): void
     {
@@ -117,8 +121,6 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
             }
 
             return $file;
-
         });
     }
-
 }

@@ -124,7 +124,24 @@ class ProductCategoryController extends Controller
      */
     public function massDestroy(ProductCategoryRequest $request): JsonResponse
     {
-        ProductCategory::whereIn('id', $request->validated('ids'))->delete();
+        $ids = $request->validated('ids');
+        $count = count($ids);
+
+        ProductCategory::whereIn('id', $ids)->delete();
+
+        audit_log(
+            event: 'bulk_deleted',
+            description: 'admin:bulk_delete_product_categories',
+            before: null,
+            after: null,
+            extra: [
+                'changed'    => ['ids' => $ids, 'count' => $count],
+                'properties' => ['count' => $count],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' product categories.'],
+            ],
+            subjectId: null,
+            subjectType: \App\Models\ProductCategory::class
+        );
 
         return response()->json(['message' => 'Product categories deleted successfully.']);
     }
