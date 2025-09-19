@@ -89,19 +89,26 @@ class BlogsDataTable extends DataTable
             ->selectSelector('td:first-child')
             ->buttons([
                 Button::make('create')
-                    ->text('Create Blog'),
+                    ->className('btn btn-success')
+                    ->text('<i class="bi bi-plus-circle me-1"></i> Create Blog'),
                 Button::make('selectAll')
-                    ->text('Select All'),
+                    ->className('btn btn-primary')
+                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
                 Button::make('selectNone')
-                    ->text('Deselect All'),
+                    ->className('btn btn-primary')
+                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
                 Button::make('excel')
-                    ->text('Excel'),
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-file-earmark-excel me-1"></i> Excel'),
                 Button::make('colvis')
-                    ->text('Columns'),
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
                 Button::make('bulkDelete')
-                    ->text('Delete Selected'),
+                    ->className('btn btn-danger')
+                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
                 Button::make('filter')
-                    ->text('Filter'),
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-funnel me-1"></i> Filter'),
             ])
             ->ajax([
                 'data' =>

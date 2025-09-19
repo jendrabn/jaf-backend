@@ -141,14 +141,30 @@ class AuditLogDataTable extends DataTable
                 'language'    => [],
             ])
             ->buttons([
-                Button::make('selectAll')->text('Select All'),
-                Button::make('selectNone')->text('Deselect All'),
-                Button::make('colvis')->text('Columns'),
-                Button::make('copy')->text('Copy'),
-                Button::make('csv')->text('CSV'),
-                Button::make('excel')->text('Excel'),
-                Button::make('print')->text('Print'),
-                Button::make('bulkDelete')->text('Delete Selected'),
+                Button::make('selectAll')
+                    ->className('btn btn-primary')
+                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                Button::make('selectNone')
+                    ->className('btn btn-primary')
+                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                Button::make('colvis')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                Button::make('copy')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-clipboard-check me-1"></i> Copy'),
+                Button::make('csv')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-filetype-csv me-1"></i> CSV'),
+                Button::make('excel')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-file-earmark-excel me-1"></i> Excel'),
+                Button::make('print')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-printer me-1"></i> Print'),
+                Button::make('bulkDelete')
+                    ->className('btn btn-danger')
+                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
             ]);
     }
 

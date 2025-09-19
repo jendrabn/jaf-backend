@@ -68,11 +68,14 @@ class RoleDataTable extends DataTable
             ->orderBy(0, 'desc')
             ->buttons([
                 Button::make('create')
-                    ->text('Create Role'),
+                    ->className('btn btn-success')
+                    ->text('<i class="bi bi-plus-circle me-1"></i> Create Role'),
                 Button::make('excel')
-                    ->text('Excel'),
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-file-earmark-excel me-1"></i> Excel'),
                 Button::make('colvis')
-                    ->text('Columns'),
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
             ]);
     }
 
