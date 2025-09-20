@@ -14,152 +14,157 @@
 @section('content')
     <div class="card shadow-lg">
         <div class="card-body">
-            <div class="table-responsive">
-                {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable']) }}
-            </div>
+            {!! $dataTable->table(['class' => 'table table-bordered table-striped w-100'], true) !!}
         </div>
     </div>
 
-    @include('admin.blogCategories.partials.modal-create')
-    @include('admin.blogCategories.partials.modal-edit')
-@endSection
+    <div class="modal fade" id="blogTagModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content"></div>
+        </div>
+    </div>
+@endsection
 
 @section('scripts')
-    {{ $dataTable->scripts(attributes: ['type' => 'text/javascript']) }}
-
+    {!! $dataTable->scripts() !!}
     <script>
-        $(document).ready(function() {
-            const table = window.LaravelDataTables["blogtag-table"];
-
-            $.fn.dataTable.ext.buttons.create = {
-                text: "Create",
-                action: function(e, dt, node, config) {
-                    $('#modal-create form input[name=name]').val('');
-                    $('#modal-create').modal('show')
-                },
-            }
+        $(function () {
+            const table = window.LaravelDataTables && window.LaravelDataTables['blogtag-table']
+                ? window.LaravelDataTables['blogtag-table']
+                : $('#blogtag-table').DataTable();
+            const $modal = $('#blogTagModal');
 
             $.fn.dataTable.ext.buttons.bulkDelete = {
-                text: "Delete selected",
-                url: "{{ route('admin.blog-tags.massDestroy') }}",
-                action: function(e, dt, node, config) {
-                    let ids = $.map(
-                        dt
-                        .rows({
-                            selected: true,
-                        })
-                        .data(),
-                        function(entry) {
-                            return entry.id;
-                        }
-                    );
+                text: '<i class="bi bi-trash3 mr-1"></i> Delete Selected',
+                action: function (e, dt) {
+                    const ids = $.map(dt.rows({ selected: true }).data(), function (row) {
+                        return row.id;
+                    });
 
-                    if (ids.length === 0) {
-                        toastr.warning("No rows selected", 'Warning');
+                    if (!ids.length) {
+                        if (window.toastr) {
+                            toastr.warning('No rows selected.');
+                        }
 
                         return;
                     }
 
-                    Swal.fire({
-                        title: "Are you sure?",
-                        text: "You won't be able to revert this!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Delete",
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                headers: {
-                                    "x-csrf-token": _token,
-                                },
-                                method: "POST",
-                                url: config.url,
-                                data: {
-                                    ids: ids,
-                                    _method: "DELETE",
-                                },
-                                success: function(data) {
-                                    toastr.success(data.message);
-                                    dt.ajax.reload();
-                                },
-                            });
+                    if (!confirm('Delete selected tags?')) {
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "{{ route('admin.blog-tags.massDestroy') }}",
+                        method: 'POST',
+                        data: {
+                            ids: ids,
+                            _method: 'DELETE',
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function (response) {
+                            dt.ajax.reload(null, false);
+                            if (window.toastr) {
+                                toastr.success(response?.message ?? 'Deleted successfully.');
+                            }
+                        },
+                        error: function () {
+                            if (window.toastr) {
+                                toastr.error('Delete failed.');
+                            }
                         }
                     });
-                },
+                }
             };
 
-            table.on('click', '.btn-edit', function(e) {
-                const data = table.row($(this).parents('tr')).data();
-
-                $('#modal-edit form').attr('action', $(this).data('url'));
-                $('#modal-edit form input[name=name]').val(data.name);
-                $('#modal-edit').modal('show');
+            $modal.on('hidden.bs.modal', function () {
+                $(this).find('.modal-content').empty();
             });
 
-            table.on('click', '.btn-delete', function(e) {
-                const data = table.row($(this).parents('tr')).data();
+            $(document).on('click', '.buttons-create', function (e) {
+                e.preventDefault();
 
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to revert this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Delete",
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            headers: {
-                                "x-csrf-token": _token,
-                            },
-                            method: "POST",
-                            url: $(this).data('url'),
-                            data: {
-                                _method: "DELETE",
-                            },
-                            success: function(data) {
-                                toastr.success(data.message);
-                                table.ajax.reload();
-                            },
-                        });
+                $.get("{{ route('admin.blog-tags.create') }}", function (html) {
+                    $modal.find('.modal-content').html(html);
+                    $modal.modal('show');
+                });
+            });
+
+            $(document).on('click', '.btn-edit-blog-tag', function () {
+                const url = $(this).data('url');
+
+                $.get(url, function (html) {
+                    $modal.find('.modal-content').html(html);
+                    $modal.modal('show');
+                });
+            });
+
+            $(document).on('submit', '#blogTagForm', function (e) {
+                e.preventDefault();
+
+                const $form = $(this);
+                const action = $form.attr('action');
+                const method = $form.find('input[name="_method"]').val() || 'POST';
+                const data = $form.serialize();
+
+                $form.find('.is-invalid').removeClass('is-invalid');
+                $form.find('.invalid-feedback').addClass('d-none').text('');
+
+                $.ajax({
+                    url: action,
+                    method: method,
+                    data: data,
+                    success: function (response) {
+                        $modal.modal('hide');
+                        table.ajax.reload(null, false);
+                        if (window.toastr) {
+                            toastr.success(response?.message ?? 'Saved successfully.');
+                        }
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+
+                            Object.keys(errors).forEach(function (field) {
+                                const $input = $form.find('[name="' + field + '"]');
+                                $input.addClass('is-invalid');
+                                $input.siblings('.invalid-feedback').removeClass('d-none').text(errors[field][0]);
+                            });
+                        } else {
+                            if (window.toastr) {
+                                toastr.error('An error occurred.');
+                            }
+                        }
                     }
                 });
             });
 
-            $('#modal-create form').on('submit', function(e) {
-                e.preventDefault();
+            $(document).on('click', '.btn-delete-blog-tag', function () {
+                if (!confirm('Delete this tag?')) {
+                    return;
+                }
+
+                const url = $(this).data('url');
 
                 $.ajax({
-                    headers: {
-                        "x-csrf-token": _token,
+                    url: url,
+                    method: 'POST',
+                    data: {
+                        _method: 'DELETE',
+                        _token: '{{ csrf_token() }}'
                     },
-                    method: "POST",
-                    url: "{{ route('admin.blog-tags.store') }}",
-                    data: $(this).serialize(),
-                    success: function(data) {
-                        $('#modal-create').modal('hide');
-                        toastr.success(data.message);
-                        table.ajax.reload();
+                    success: function (response) {
+                        table.ajax.reload(null, false);
+                        if (window.toastr) {
+                            toastr.success(response?.message ?? 'Deleted successfully.');
+                        }
                     },
+                    error: function () {
+                        if (window.toastr) {
+                            toastr.error('Delete failed.');
+                        }
+                    }
                 });
             });
-
-            $('#modal-edit form').on('submit', function(e) {
-                e.preventDefault();
-
-                $.ajax({
-                    headers: {
-                        "x-csrf-token": _token,
-                    },
-                    method: "PUT",
-                    url: $(this).attr('action'),
-                    data: $(this).serialize(),
-                    success: function(data) {
-                        $('#modal-edit').modal('hide');
-                        toastr.success(data.message);
-                        table.ajax.reload();
-                    },
-                });
-            });
-        })
+        });
     </script>
-@endSection
+@endsection

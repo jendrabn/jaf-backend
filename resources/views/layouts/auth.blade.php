@@ -18,7 +18,7 @@
           rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
           rel="stylesheet" />
-    @vite('resources/scss/adminlte.scss')
+    @vite('resources/scss/style.scss')
 </head>
 
 <body class="hold-transition login-page">

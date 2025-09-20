@@ -224,11 +224,11 @@ return [
         // Products (resource + storeMedia + ckmedia + massDestroy)
         'products' => ['view', 'show', 'create', 'edit', 'delete', 'upload_media', 'upload_ckeditor', 'mass_delete'],
 
-        // Blog Tags (resource except show, edit + massDestroy)
-        'blog_tags' => ['view', 'create', 'delete', 'mass_delete'],
+        // Blog Tags (resource + massDestroy)
+        'blog_tags' => ['view', 'create', 'edit', 'delete', 'mass_delete'],
 
-        // Blog Categories (resource except show, edit + massDestroy)
-        'blog_categories' => ['view', 'create', 'delete', 'mass_delete'],
+        // Blog Categories (resource + massDestroy)
+        'blog_categories' => ['view', 'create', 'edit', 'delete', 'mass_delete'],
 
         // Blogs (resource + published + storeMedia + ckmedia + massDestroy)
         'blogs' => ['view', 'show', 'create', 'edit', 'delete', 'published', 'upload_media', 'upload_ckeditor', 'mass_delete'],

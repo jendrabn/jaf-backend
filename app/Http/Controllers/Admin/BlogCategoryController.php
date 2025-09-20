@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BlogCategoryRequest;
 use App\Models\BlogCategory;
 use App\Traits\MediaUploadingTrait;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -14,37 +15,40 @@ class BlogCategoryController extends Controller
 {
     use MediaUploadingTrait;
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param BlogCategoriesDataTable $dataTable
-     * @return mixed
-     */
     public function index(BlogCategoriesDataTable $dataTable): mixed
     {
         return $dataTable->render('admin.blogCategories.index');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param BlogCategoryRequest $request
-     * @return JsonResponse
-     */
+    public function create(): View
+    {
+        return view('admin.blogCategories.partials.modal', [
+            'mode' => 'create',
+            'category' => null,
+            'action' => route('admin.blog-categories.store'),
+            'method' => 'POST',
+            'title' => 'Create Blog Category',
+        ]);
+    }
+
     public function store(BlogCategoryRequest $request): JsonResponse
     {
         BlogCategory::create($request->validated());
 
-        return response()->json(['message' => 'Blog Category created successfully.'], Response::HTTP_OK);
+        return response()->json(['message' => 'Blog Category created successfully.'], Response::HTTP_CREATED);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param BlogCategoryRequest $request
-     * @param BlogCategory $blogCategory
-     * @return JsonResponse
-     */
+    public function edit(BlogCategory $blogCategory): View
+    {
+        return view('admin.blogCategories.partials.modal', [
+            'mode' => 'edit',
+            'category' => $blogCategory,
+            'action' => route('admin.blog-categories.update', $blogCategory),
+            'method' => 'PUT',
+            'title' => 'Edit Blog Category',
+        ]);
+    }
+
     public function update(BlogCategoryRequest $request, BlogCategory $blogCategory): JsonResponse
     {
         $blogCategory->update($request->validated());
@@ -52,12 +56,6 @@ class BlogCategoryController extends Controller
         return response()->json(['message' => 'Blog Category updated successfully.'], Response::HTTP_OK);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param BlogCategory $blogCategory
-     * @return JsonResponse
-     */
     public function destroy(BlogCategory $blogCategory): JsonResponse
     {
         $blogCategory->delete();
@@ -65,12 +63,6 @@ class BlogCategoryController extends Controller
         return response()->json(['message' => 'Blog Category deleted successfully.'], status: Response::HTTP_OK);
     }
 
-    /**
-     * Remove the specified resources from storage.
-     *
-     * @param BlogCategoryRequest $request
-     * @return JsonResponse
-     */
     public function massDestroy(BlogCategoryRequest $request): JsonResponse
     {
         $ids = $request->validated('ids');

@@ -1,5 +1,4 @@
-<div class="d-flex"
-     style="gap: 5px">
+<div class="d-flex gap-1">
     <button class="btn btn-info btn-sm btn-icon btn-edit-tax"
             data-url="{{ route('admin.taxes.edit', $id) }}"
             type="button">

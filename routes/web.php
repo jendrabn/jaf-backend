@@ -400,6 +400,11 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->name('blog-tags.store')
             ->middleware('permission:blog_tags.create');
 
+        Route::get('blog-tags/{blog_tag}/edit', [BlogTagController::class, 'edit'])
+            ->whereNumber('blog_tag')
+            ->name('blog-tags.edit')
+            ->middleware('permission:blog_tags.edit');
+
         Route::put('blog-tags/{blog_tag}', [BlogTagController::class, 'update'])
             ->whereNumber('blog_tag')
             ->name('blog-tags.update')
@@ -426,6 +431,11 @@ Route::middleware(['auth', 'permission:backoffice.access'])
         Route::post('blog-categories', [BlogCategoryController::class, 'store'])
             ->name('blog-categories.store')
             ->middleware('permission:blog_categories.create');
+
+        Route::get('blog-categories/{blog_category}/edit', [BlogCategoryController::class, 'edit'])
+            ->whereNumber('blog_category')
+            ->name('blog-categories.edit')
+            ->middleware('permission:blog_categories.edit');
 
         Route::put('blog-categories/{blog_category}', [BlogCategoryController::class, 'update'])
             ->whereNumber('blog_category')
@@ -586,3 +596,8 @@ Route::middleware(['auth', 'permission:backoffice.access'])
 Route::get('swagger', function () {
     return view('docs');
 });
+
+
+
+
+

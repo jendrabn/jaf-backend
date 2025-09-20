@@ -47,22 +47,23 @@ class BlogTagsDataTable extends DataTable
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
-                    ->text('<i class="bi bi-plus-circle me-1"></i> Create Tag'),
+                    ->text('<i class="bi bi-plus-circle mr-1"></i> Create Tag')
+                    ->action('function (e, dt, node, config) { return false; }'),
                 Button::make('selectAll')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                    ->text('<i class="bi bi-check2-all mr-1"></i> Select All'),
                 Button::make('selectNone')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                    ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
                 Button::make('excel')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-file-earmark-excel me-1"></i> Excel'),
+                    ->text('<i class="bi bi-file-earmark-excel mr-1"></i> Excel'),
                 Button::make('colvis')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                    ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
-                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
+                    ->text('<i class="bi bi-trash3 mr-1"></i> Delete Selected'),
             ]);
     }
 
@@ -113,3 +114,4 @@ class BlogTagsDataTable extends DataTable
         return 'BlogTag_' . date('dmY');
     }
 }
+

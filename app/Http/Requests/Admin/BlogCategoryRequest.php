@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BlogCategoryRequest extends FormRequest
@@ -28,7 +27,8 @@ class BlogCategoryRequest extends FormRequest
                     'required',
                     'string',
                     'min:3',
-                    'max:50'
+                    'max:50',
+                    'unique:blog_categories,name'
                 ],
                 'slug' => [
                     'required',
@@ -69,7 +69,7 @@ class BlogCategoryRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->whenFilled('name', function ($value) {
-            $this->merge(['slug' => Str::slug($value . '-' . Str::random(3))]);
+            $this->merge(['slug' => str()->slug($value)]);
         });
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Str;
 
 
 class ProductBrandRequest extends FormRequest
@@ -30,13 +29,14 @@ class ProductBrandRequest extends FormRequest
                     'string',
                     'min:1',
                     'max:100',
-                    'unique:product_brands'
+                    'unique:product_brands,name'
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:1',
-                    'max:255'
+                    'max:255',
+                    'unique:product_brands,slug'
                 ],
             ];
         } else if ($this->routeIs('admin.product-brands.update')) {
@@ -52,7 +52,8 @@ class ProductBrandRequest extends FormRequest
                     'required',
                     'string',
                     'min:1',
-                    'max:255'
+                    'max:255',
+                    'unique:product_brands,slug,' . $this->id,
                 ],
             ];
         } else if ($this->routeIs('admin.product-brands.massDestroy')) {
@@ -69,13 +70,12 @@ class ProductBrandRequest extends FormRequest
         } else {
             return [];
         }
-
     }
 
     public function prepareForValidation(): void
     {
         $this->merge([
-            'slug' => Str::slug($this->name),
+            'slug' => str()->slug($this->name),
         ]);
     }
 }

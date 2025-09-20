@@ -1,5 +1,4 @@
-<div class="d-flex"
-     style="gap: 5px">
+<div class="d-flex gap-1">
     <a class="btn btn-primary btn-sm btn-icon"
        data-placement="top"
        data-toggle="tooltip"
@@ -13,6 +12,6 @@
        data-toggle="tooltip"
        href="{{ route('admin.audit-logs.destroy', $id) }}"
        title="Delete Audit Log">
-        <i class="bi bi-trash"></i>
+        <i class="bi bi-trash3"></i>
     </a>
 </div>

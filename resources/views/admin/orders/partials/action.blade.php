@@ -1,5 +1,4 @@
-<div class="d-flex"
-     style="gap: 5px">
+<div class="d-flex gap-1">
     <a class="btn btn-primary btn-sm btn-icon btn-view"
        data-placement="top"
        data-toggle="tooltip"
@@ -10,6 +9,6 @@
 
     <a class="btn btn-danger btn-sm btn-icon btn-delete"
        href="{{ route('admin.orders.destroy', $id) }}') }}">
-        <i class="bi bi-trash"></i>
+        <i class="bi bi-trash3"></i>
     </a>
 </div>

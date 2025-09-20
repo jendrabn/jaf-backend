@@ -1,5 +1,4 @@
-<div class="d-flex"
-     style="gap: 5px">
+<div class="d-flex gap-1">
     <a class="btn btn-info btn-sm btn-icon btn-edit"
        data-placement="top"
        data-toggle="tooltip"
@@ -13,6 +12,6 @@
        data-toggle="tooltip"
        href="{{ route('admin.product-brands.destroy', $id) }}"
        title="Delete Product Brand">
-        <i class="bi bi-trash"></i>
+        <i class="bi bi-trash3"></i>
     </a>
 </div>

@@ -32,7 +32,7 @@
           rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.13.1/font/bootstrap-icons.min.css"
           rel="stylesheet" />
-    @vite('resources/scss/adminlte.scss')
+    @vite('resources/scss/style.scss')
     @yield('styles')
     @stack('styles')
 

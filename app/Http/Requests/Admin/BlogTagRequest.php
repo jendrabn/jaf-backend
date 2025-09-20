@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BlogTagRequest extends FormRequest
@@ -28,7 +27,8 @@ class BlogTagRequest extends FormRequest
                     'required',
                     'string',
                     'min:3',
-                    'max:50'
+                    'max:50',
+                    'unique:blog_tags,name'
                 ],
                 'slug' => [
                     'required',
@@ -44,7 +44,8 @@ class BlogTagRequest extends FormRequest
                     'required',
                     'string',
                     'min:3',
-                    'max:50'
+                    'max:50',
+                    'unique:blog_tags,name,' . $this->id
                 ],
                 'slug' => [
                     'required',
@@ -69,7 +70,7 @@ class BlogTagRequest extends FormRequest
     public function prepareForValidation(): void
     {
         $this->whenFilled('name', function ($value) {
-            $this->merge(['slug' => Str::slug($value . '-' . Str::random(3))]);
+            $this->merge(['slug' => str()->slug($value)]);
         });
     }
 }

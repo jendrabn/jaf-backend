@@ -29,7 +29,7 @@ class ProductCategoryRequest extends FormRequest
                     'string',
                     'min:1',
                     'max:100',
-                    'unique:product_categories'
+                    'unique:product_categories,name'
                 ],
                 'slug' => [
                     'required',
@@ -51,7 +51,8 @@ class ProductCategoryRequest extends FormRequest
                     'required',
                     'string',
                     'min:1',
-                    'max:255'
+                    'max:255',
+                    'unique:product_categories,slug,' . $this->route('product_category')->id,
                 ],
             ];
         } else if ($this->routeIs('admin.product-categories.massDestroy')) {
