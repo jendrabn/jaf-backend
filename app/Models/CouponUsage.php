@@ -14,6 +14,7 @@ class CouponUsage extends Model
     protected $fillable = [
         'coupon_id',
         'order_id',
+        'user_id'
     ];
 
     public function coupon(): BelongsTo

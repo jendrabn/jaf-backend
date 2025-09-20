@@ -117,7 +117,7 @@ class OrderDetailGetTest extends ApiTestCase
                         'tracking_number' => $order->shipping->tracking_number,
                         'status' => $order->shipping->status
                     ],
-                    'notes' => $order->notes,
+                    'note' => $order->note,
                     'cancel_reason' => $order->cancel_reason,
                     'status' => $order->status,
                     'total_quantity' => $order->items->reduce(fn($carry, $item) => $carry + $item->quantity),
@@ -164,7 +164,7 @@ class OrderDetailGetTest extends ApiTestCase
             ->assertJsonStructure(['message']);
 
         // Invalid order id
-        $response2 = $this->getJson('/api/orders/' . $order->id + 1, );
+        $response2 = $this->getJson('/api/orders/' . $order->id + 1,);
 
         $response2->assertNotFound()
             ->assertJsonStructure(['message']);

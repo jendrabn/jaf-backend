@@ -62,7 +62,7 @@ class OrderPostTest extends ApiTestCase
             'shipping_service' => 'REG',
             'payment_method' => 'bank',
             'bank_id' => $this->bank->id,
-            'notes' => fake()->sentence()
+            'note' => fake()->sentence()
         ];
     }
 
@@ -166,7 +166,7 @@ class OrderPostTest extends ApiTestCase
                 'integer',
                 'exists:ewallets,id'
             ],
-            'notes' => [
+            'note' => [
                 'nullable',
                 'string',
                 'max:200',
@@ -221,7 +221,7 @@ class OrderPostTest extends ApiTestCase
             'id' => $response['data']['id'],
             'total_price' => $totalPrice,
             'shipping_cost' => $shippingCost,
-            'notes' => $this->data['notes'],
+            'note' => $this->data['note'],
             'status' => Order::STATUS_PENDING_PAYMENT,
         ]);
 

@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\Api\{ConfirmPaymentRequest, CreateOrderRequest};
-use App\Models\{Bank, Cart, Invoice, Order, OrderItem, Payment, Shipping};
+use App\Models\{Bank, Cart, Coupon, Invoice, Order, OrderItem, Payment, Shipping};
 use App\Models\Ewallet;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -132,6 +132,51 @@ class OrderService
 
         $this->validateBeforeCreateOrder($carts);
 
+        $coupon = null;
+
+        // coupon validation
+        if ($validatedData['coupon_code']) {
+            $coupon = Coupon::where('code', $validatedData['coupon_code'])
+                ->where('is_active', true)
+                ->first();
+
+            throw_if(
+                !$coupon,
+                ValidationException::withMessages([
+                    'coupon_code' => 'The coupon code is invalid.'
+                ])
+            );
+
+            if ($coupon->promo_type === 'limit') {
+                throw_if(
+                    $coupon->limit !== null && $coupon->usages()->count() >= $coupon->limit,
+                    ValidationException::withMessages([
+                        'coupon_code' => 'The coupon code has reached its usage limit.'
+                    ])
+                );
+
+                throw_if(
+                    $coupon->limit_per_user !== null && $coupon->usages()->where('user_id', $user->id)->count() >= $coupon->limit_per_user,
+                    ValidationException::withMessages([
+                        'coupon_code' => 'You have reached the usage limit for this coupon code.'
+                    ])
+                );
+            } elseif ($coupon->promo_type === 'period') {
+                $today = now()->startOfDay();
+                throw_if(
+                    ($coupon->start_date && $today->lt($coupon->start_date)) ||
+                        ($coupon->end_date && $today->gt($coupon->end_date)),
+                    ValidationException::withMessages([
+                        'coupon_code' => 'The coupon code is not valid at this time.'
+                    ])
+                );
+            } else {
+                throw ValidationException::withMessages([
+                    'coupon_code' => 'The coupon code has an invalid promo type.'
+                ]);
+            }
+        }
+
         $shippingAddress = $validatedData['shipping_address'];
         $totalWeight = $this->totalWeight($carts);
 
@@ -152,7 +197,20 @@ class OrderService
 
         $totalPrice = $this->totalPrice($carts);
         $shippingCost = $shippingService['cost'];
-        $totalAmount = $totalPrice + $shippingCost;
+        $discount = 0;
+
+        // calculate discount
+        if (isset($coupon)) {
+            if ($coupon->discount_type === 'fixed') {
+                $discount = $coupon->discount_amount;
+            } elseif ($coupon->discount_type === 'percentage') {
+                $discount = ($coupon->discount_amount / 100) * $totalPrice;
+            }
+
+            $discount = min($discount, $totalPrice);
+        }
+
+        $totalAmount = ($totalPrice + $shippingCost) - $discount;
 
         DB::beginTransaction();
 
@@ -160,9 +218,10 @@ class OrderService
             $order = Order::create([
                 'user_id' => $user->id,
                 'total_price' => $totalPrice,
+                'discount' => $discount,
                 'shipping_cost' => $shippingCost,
                 'status' => Order::STATUS_PENDING_PAYMENT,
-                'notes' => $validatedData['notes'],
+                'note' => $validatedData['note'],
             ]);
 
             foreach ($carts as $item) {
@@ -238,6 +297,13 @@ class OrderService
                 'weight' => $totalWeight,
                 'status' => Shipping::STATUS_PENDING,
             ]);
+
+            if (isset($coupon)) {
+                $coupon->usages()->create([
+                    'user_id' => $user->id,
+                    'order_id' => $order->id
+                ]);
+            }
 
             DB::commit();
         } catch (QueryException $e) {

@@ -389,7 +389,7 @@
                     {{-- Note (opsional) --}}
                     <div class="mt-4">
                         <div class="text-uppercase small text-muted mb-1">Note</div>
-                        <div>{{ $order->notes ?? '-' }}</div>
+                        <div>{{ $order->note ?? '-' }}</div>
                     </div>
                 </div>
             </div>

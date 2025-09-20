@@ -99,11 +99,16 @@ class CreateOrderRequest extends FormRequest
                 'integer',
                 'exists:ewallets,id'
             ],
-            'notes' => [
+            'note' => [
                 'nullable',
                 'string',
                 'max:200',
-            ]
+            ],
+            'coupon_code' => [
+                'nullable',
+                'string',
+                'exists:coupons,code'
+            ],
         ];
     }
 }

@@ -13,8 +13,8 @@ use App\Http\Resources\EwalletResource;
 use App\Models\Ewallet;
 use App\Services\{OrderService, RajaOngkirService};
 use App\Models\{Bank, Cart, Coupon};
-use Flasher\Laravel\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class CheckoutController extends Controller
@@ -65,8 +65,22 @@ class CheckoutController extends Controller
         return response()->json(['data' => $costs], Response::HTTP_OK);
     }
 
-    public function applyCoupon(Request $request, Coupon $coupon): JsonResponse
+    public function applyCoupon(Request $request): JsonResponse
     {
+        $request->validate([
+            'code' => 'required|string',
+            'cart_ids' => 'required|array',
+            'cart_ids.*' => 'integer|exists:carts,id',
+        ]);
+
+        $coupon = Coupon::query()->where('code', $request->get('code'))->first();
+
+        if (!$coupon) {
+            return response()->json([
+                'message' => 'Invalid coupon code'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         // Validate if coupon is active
         if (!$coupon->is_active) {
             return response()->json([

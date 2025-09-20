@@ -20,8 +20,9 @@ class OrderFactory extends Factory
         return [
             'user_id' => User::inRandomOrder()->first()->id,
             'total_price' => fake()->numberBetween(100000, 1000000),
+            'discount' => fake()->numberBetween(0, 50000),
             'shipping_cost' => fake()->numberBetween(5000, 50000),
-            'notes' => fake()->text(),
+            'note' => fake()->text(),
             'cancel_reason' => '',
             'status' => fake()->randomElement([
                 'pending_payment',

@@ -57,4 +57,11 @@ class Coupon extends Model
     {
         return $query->where('is_active', true);
     }
+
+    public function code(): Attribute
+    {
+        return Attribute::make(
+            set: fn($value) => str_replace(' ', '', $value),
+        );
+    }
 }

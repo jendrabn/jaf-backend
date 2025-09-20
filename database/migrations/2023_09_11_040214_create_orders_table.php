@@ -15,8 +15,10 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->bigInteger('total_price');
+            $table->bigInteger('discount')->default(0);
+            $table->bigInteger('tax')->default(0);
             $table->bigInteger('shipping_cost');
-            $table->string('notes', 200)->nullable();
+            $table->string('note', 200)->nullable();
             $table->string('cancel_reason', 200)->nullable();
             $table->enum('status', [
                 'pending_payment',

@@ -1884,7 +1884,7 @@
                                     "bank_id": {
                                         "type": "integer"
                                     },
-                                    "notes": {
+                                    "note": {
                                         "type": "string",
                                         "nullable": true,
                                         "maxLength": 200
@@ -1897,7 +1897,7 @@
                                     "shipping_service",
                                     "payment_method",
                                     "bank_id",
-                                    "notes"
+                                    "note"
                                 ]
                             }
                         }
@@ -2193,7 +2193,7 @@
                                                 "status"
                                             ]
                                         },
-                                        "notes": {
+                                        "note": {
                                             "type": "string"
                                         },
                                         "cancel_reason": {
@@ -2245,7 +2245,7 @@
                                         "payment",
                                         "shipping_address",
                                         "shipping",
-                                        "notes",
+                                        "note",
                                         "status",
                                         "cancel_reason",
                                         "total_quantity",
