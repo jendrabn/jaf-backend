@@ -408,9 +408,10 @@
                name="cancel_reason"
                type="text">
     </form>
-    {{--
+
     @if ($order->status === App\Models\Order::STATUS_PROCESSING)
         <form action="{{ route('admin.orders.confirm-shipping', $order->id) }}"
+              hidden
               id="form-confirm-shipping"
               method="POST">
             @method('PUT') @csrf
@@ -419,7 +420,7 @@
                    name="tracking_number"
                    type="text" />
         </form>
-    @endif --}}
+    @endif
 @endsection
 
 @section('styles')

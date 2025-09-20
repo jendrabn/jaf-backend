@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ProductBrandController;
 use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\TaxController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -250,6 +251,12 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->whereNumber('bank')
             ->name('banks.destroy')
             ->middleware('permission:banks.delete');
+
+        // -------- Taxes (resource + massDestroy) --------
+        Route::delete('taxes/destroy', [TaxController::class, 'massDestroy'])
+            ->name('taxes.massDestroy');
+
+        Route::resource('taxes', TaxController::class)->except(['show']);
 
         // -------- E-Wallets (except show) + storeMedia + ckmedia + massDestroy --------
         Route::delete('ewallets/destroy', [EwalletController::class, 'massDestroy'])

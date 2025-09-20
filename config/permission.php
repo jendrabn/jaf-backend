@@ -242,7 +242,10 @@ return [
         // Roles (resource)
         'roles' => ['view', 'show', 'create', 'edit', 'delete'],
 
-        // Audit Logs (resource)
+        // Audit Logs (resource + massDestroy)
         'audit_logs' => ['view', 'show', 'delete', 'mass_delete'],
+
+        // Tax (resource + massDestroy)
+        'taxes' => ['view', 'create', 'edit', 'delete', 'mass_delete'],
     ]
 ];
