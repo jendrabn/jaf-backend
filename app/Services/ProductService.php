@@ -36,10 +36,14 @@ class ProductService
 
         $products->when($request->has('search'), function ($q) use ($request) {
             $searchTerm = $request->get('search');
-
-            $q->where('name', 'like', "%{$searchTerm}%")
-                ->orWhereHas('category', fn($q) => $q->where('name', 'like', "%{$searchTerm}%"))
-                ->orWhereHas('brand', fn($q) => $q->where('name', 'like', "%{$searchTerm}%"));
+            // Gunakan fulltext search jika search term tidak kosong
+            if (!empty($searchTerm)) {
+                $q->whereRaw('MATCH(name, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerm]);
+            } else {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                    ->orWhereHas('category', fn($q) => $q->where('name', 'like', "%{$searchTerm}%"))
+                    ->orWhereHas('brand', fn($q) => $q->where('name', 'like', "%{$searchTerm}%"));
+            }
         });
 
         $products->when(
