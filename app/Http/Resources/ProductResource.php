@@ -18,7 +18,7 @@ class ProductResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'image' => $this->image?->url,
+            'image' => $this->image->url ?? asset('images/default-product.jpg'),
             'category' => ProductCategoryResource::make($this->category),
             'brand' => $this->whenNotNull(ProductBrandResource::make($this->brand)),
             'sex' => $this->sex,
@@ -28,6 +28,10 @@ class ProductResource extends JsonResource
             'sold_count' => $this->sold_count ?? 0,
             'is_wishlist' => $this->is_wishlist ?? false,
             'rating_avg' => $this->ratingAvg ?? 0,
+            'discount' => $this->discount,
+            'is_discounted' => $this->is_discounted,
+            'discount_in_percent' => $this->discount_in_percent,
+            'price_after_discount' => $this->price_after_discount,
         ];
     }
 }

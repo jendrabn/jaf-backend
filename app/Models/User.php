@@ -43,6 +43,7 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
         'phone',
         'sex',
         'birth_date',
+        'google_id',
     ];
 
     protected $hidden = [
@@ -91,7 +92,6 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
             get: fn($value, $attributes) => self::SEX_SELECT[$attributes['sex'] ?? null] ?? ''
         );
     }
-
 
     public function delete(): void
     {

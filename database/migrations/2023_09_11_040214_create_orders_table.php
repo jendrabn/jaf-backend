@@ -16,7 +16,9 @@ return new class extends Migration {
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->bigInteger('total_price');
             $table->bigInteger('discount')->default(0);
-            $table->bigInteger('tax')->default(0);
+            $table->string('discount_name')->nullable();
+            $table->bigInteger('tax_amount')->default(0);
+            $table->string('tax_name')->nullable();
             $table->bigInteger('shipping_cost');
             $table->string('note', 200)->nullable();
             $table->string('cancel_reason', 200)->nullable();

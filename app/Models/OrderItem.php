@@ -18,6 +18,8 @@ class OrderItem extends Model
         'name',
         'weight',
         'price',
+        'discount_in_percent',
+        'price_after_discount',
         'quantity',
     ];
 

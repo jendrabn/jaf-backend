@@ -419,14 +419,20 @@
                                                 style="width: 100%;">
                                             @foreach ($products as $product)
                                                 <option {{ collect(old('product_ids', $coupon->products->pluck('id')->toArray()))->contains($product->id) ? 'selected' : '' }}
+                                                        data-id="{{ $product->id }}"
+                                                        data-image="{{ $product->image?->url ?? asset('images/default-product.jpg') }}"
+                                                        data-name="{{ $product->name }}"
+                                                        data-price="{{ number_format($product->price, 0, ',', '.') }}"
                                                         value="{{ $product->id }}">
-                                                    {{ $product->name }}
+                                                    [{{ $product->id }}] {{ $product->name }}
                                                 </option>
                                             @endforeach
                                         </select>
                                         @error('product_ids')
                                             <span class="invalid-feedback">{{ $message }}</span>
                                         @enderror
+                                        <small class="form-text text-muted">Pilih produk, pencarian tersedia. Setiap produk
+                                            tampil ID, foto, nama, dan harga.</small>
                                     </div>
                                 </div>
                             </div>
@@ -474,6 +480,49 @@
         function generateCouponCode(selector) {
             const code = Math.random().toString(36).substring(2, 10).toUpperCase();
             $(selector).val(code);
+        }
+
+        $(document).ready(function() {
+            $('#product-ids').select2({
+                templateResult: formatProductOption,
+                templateSelection: formatProductSelection,
+                escapeMarkup: function(markup) {
+                    return markup;
+                },
+                width: '100%',
+                placeholder: 'Cari produk...'
+            });
+        });
+
+        function formatProductOption(product) {
+            if (!product.id) {
+                return product.text;
+            }
+            let $option = $(product.element);
+            let image = $option.data('image');
+            let name = $option.data('name');
+            let price = $option.data('price');
+            let id = $option.data('id');
+
+            return `
+                <div class="d-flex align-items-center">
+                    <img src="${image}" alt="${name}" style="width:40px;height:40px;object-fit:cover;border-radius:6px;margin-right:10px;">
+                    <div>
+                        <div><strong>[${id}] ${name}</strong></div>
+                        <div class="text-muted">Rp ${price}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatProductSelection(product) {
+            if (!product.id) {
+                return product.text;
+            }
+            var $option = $(product.element);
+            var name = $option.data('name');
+            var id = $option.data('id');
+            return `[${id}] ${name}`;
         }
 
         if (selectedPromoType) {

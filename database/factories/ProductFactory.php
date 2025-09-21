@@ -25,7 +25,7 @@ class ProductFactory extends Factory
             'product_brand_id' => ProductBrand::inRandomOrder()->first()->id ?? null,
             'name' => fake()->sentence(),
             'slug' => fake()->unique()->slug(),
-            'weight' => fake()->numberBetween(1000, 5000),
+            'weight' => fake()->numberBetween(350, 1250),
             'price' => fake()->numberBetween(50000, 1000000),
             'stock' => fake()->numberBetween(100, 1000),
             'description' => fake()->paragraph(),

@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->string('phone', 50)->nullable();
             $table->enum('sex', [1, 2])->comment('1:male, 2:female')->nullable();
             $table->date('birth_date')->nullable();
+            $table->string('google_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

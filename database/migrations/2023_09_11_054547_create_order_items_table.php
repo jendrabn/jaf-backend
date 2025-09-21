@@ -17,6 +17,8 @@ return new class extends Migration {
             $table->string('name', 200);
             $table->integer('weight');
             $table->bigInteger('price');
+            $table->integer('discount_in_percent')->default(0);
+            $table->bigInteger('price_after_discount')->nullable();
             $table->integer('quantity');
             $table->timestamps();
             $table->index(['order_id', 'product_id'], 'idx_order_items_order_product');

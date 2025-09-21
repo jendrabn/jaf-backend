@@ -7,12 +7,13 @@ use App\Http\Requests\Api\{CheckoutRequest, ShippingCostRequest};
 use App\Http\Resources\{
     BankResource,
     CartResource,
+    TaxResource,
     UserAddressResource
 };
 use App\Http\Resources\EwalletResource;
 use App\Models\Ewallet;
 use App\Services\{OrderService, RajaOngkirService};
-use App\Models\{Bank, Cart, Coupon};
+use App\Models\{Bank, Cart, Coupon, Tax};
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,6 +33,7 @@ class CheckoutController extends Controller
         $totalWeight = $this->orderService->totalWeight($carts);
         $totalQuantity = $this->orderService->totalQuantity($carts);
         $totalPrice = $this->orderService->totalPrice($carts);
+        $totalTax = $this->orderService->totalTax($carts);
 
         $userAddress = auth()->user()->address;
 
@@ -41,6 +43,7 @@ class CheckoutController extends Controller
 
         $banks = Bank::with(['media'])->get();
         $ewallets = Ewallet::with(['media'])->get();
+        $taxes = Tax::all();
 
         return response()->json([
             'data' => [
@@ -51,9 +54,11 @@ class CheckoutController extends Controller
                     'bank' => BankResource::collection($banks),
                     'ewallet' => EwalletResource::collection($ewallets)
                 ],
+                'taxes' => TaxResource::collection($taxes),
                 'total_quantity' => $totalQuantity,
                 'total_weight' => $totalWeight,
                 'total_price' => $totalPrice,
+                'total_tax' => $totalTax,
             ]
         ], Response::HTTP_OK);
     }

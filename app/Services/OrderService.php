@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\Api\{ConfirmPaymentRequest, CreateOrderRequest};
-use App\Models\{Bank, Cart, Coupon, Invoice, Order, OrderItem, Payment, Shipping};
+use App\Models\{Bank, Cart, Coupon, Invoice, Order, OrderItem, Payment, Shipping, Tax};
 use App\Models\Ewallet;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -197,9 +197,9 @@ class OrderService
 
         $totalPrice = $this->totalPrice($carts);
         $shippingCost = $shippingService['cost'];
-        $discount = 0;
 
         // calculate discount
+        $discount = 0;
         if (isset($coupon)) {
             if ($coupon->discount_type === 'fixed') {
                 $discount = $coupon->discount_amount;
@@ -210,7 +210,9 @@ class OrderService
             $discount = min($discount, $totalPrice);
         }
 
-        $totalAmount = ($totalPrice + $shippingCost) - $discount;
+        $totalTax = $this->totalTax($carts, $discount);
+
+        $totalAmount = $this->grandTotal($carts, $shippingCost, $discount);
 
         DB::beginTransaction();
 
@@ -219,6 +221,9 @@ class OrderService
                 'user_id' => $user->id,
                 'total_price' => $totalPrice,
                 'discount' => $discount,
+                'discount_name' => $coupon ? $coupon->name : null,
+                'tax_amount' => $totalTax,
+                'tax_name' => Tax::pluck('name')->join(', '),
                 'shipping_cost' => $shippingCost,
                 'status' => Order::STATUS_PENDING_PAYMENT,
                 'note' => $validatedData['note'],
@@ -231,6 +236,8 @@ class OrderService
                     'name' => $item->product->name,
                     'weight' => $item->product->weight,
                     'price' => $item->product->price,
+                    'discount_in_percent' => $item->product->discount_in_percent,
+                    'price_after_discount' => $item->product->price_after_discount,
                     'quantity' => $item->quantity,
                 ]);
 
@@ -352,11 +359,42 @@ class OrderService
 
     public function totalPrice(Collection $items): int
     {
-        return $items->reduce(fn($carry, $item) => $carry + ($item->quantity * $item->product->price));
+        return $items->reduce(fn($carry, $item) => $carry + ($item->quantity * $item->product->price_after_discount), 0);
     }
 
     public function totalQuantity(Collection $items): int
     {
         return $items->reduce(fn($carry, $item) => $carry + $item->quantity);
+    }
+
+    /**
+     * Hitung total pajak.
+     * DPP = subtotal produk - discount (>= 0). Ongkir TIDAK dikenai pajak.
+     * Kembalikan rupiah sebagai integer (hindari float untuk uang).
+     */
+    public function totalTax(Collection $items, int $discount = 0): int
+    {
+        $subtotal = (int) $this->totalPrice($items);       // harus integer (rupiah)
+        $dpp      = max(0, $subtotal - max(0, $discount)); // dasar pengenaan pajak
+
+        // Jumlahkan semua pajak dengan presisi desimal, lalu BULATKAN SEKALI di akhir
+        $sum = Tax::query()->get()->reduce(function (float $carry, Tax $tax) use ($dpp) {
+            $rate = (float) $tax->rate;                    // contoh: 11.00, 29.00
+            return $carry + ($dpp * $rate / 100);
+        }, 0.0);
+
+        return (int) round($sum, 0, PHP_ROUND_HALF_UP);    // bulat ke rupiah
+    }
+
+    /**
+     * Total bayar = (subtotal - discount) + ongkir + pajak
+     * (pajak dihitung seperti di atas: tidak kena ongkir)
+     */
+    public function grandTotal(Collection $items, int $shipping = 0, int $discount = 0): int
+    {
+        $subtotal = (int) $this->totalPrice($items);
+        $tax      = $this->totalTax($items, $discount);
+
+        return max(0, $subtotal - max(0, $discount) + max(0, $shipping) + $tax);
     }
 }

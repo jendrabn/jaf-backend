@@ -12,7 +12,7 @@
 
     <title>@yield('page_title') | {{ config('app.name') }}</title>
 
-    <link href="{{ asset('img/favicon.ico') }}"
+    <link href="{{ asset('favicon.ico') }}"
           rel="icon"
           type="image/x-icon" />
 

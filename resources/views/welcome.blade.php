@@ -10,7 +10,7 @@
 
     <title> {{ config('app.name') }}</title>
 
-    <link href="{{ asset('img/favicon.ico') }}"
+    <link href="{{ asset('favicon.ico') }}"
           rel="icon"
           type="image/x-icon">
 
@@ -31,7 +31,7 @@
                     <div class="text-center mb-3">
                         <img alt="Logo"
                              class="w-75"
-                             src="{{ asset('img/logo.png') }}">
+                             src="{{ asset('images/logo.png') }}">
                     </div>
                     <a class="btn btn-primary btn-block btn-lg mb-2"
                        href="{{ route('auth.login') }}">Go to Back Office <i

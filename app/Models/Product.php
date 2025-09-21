@@ -47,12 +47,22 @@ class Product extends Model implements HasMedia
         'is_wishlist',
         'sex_label',
         'rating_avg',
+        'discount',
+        'is_discounted',
+        'discount_in_percent',
+        'price_after_discount',
     ];
 
     protected $casts = [
         'sex' => 'integer',
         'is_publish' => 'boolean',
         'sold_count' => 'integer',
+    ];
+
+    protected $with = [
+        'coupons',
+        'category',
+        'brand',
     ];
 
     public function serializeDate(\DateTimeInterface $date)
@@ -155,5 +165,52 @@ class Product extends Model implements HasMedia
     public function coupons(): BelongsToMany
     {
         return $this->belongsToMany(Coupon::class, 'coupon_product', 'product_id', 'coupon_id');
+    }
+
+    public function discount(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->coupons->where('is_active', true)
+                ->where('promo_type', 'product')
+                ->where('start_date', '<=', now())
+                ->where('end_date', '>=', now())
+                ->sortByDesc('id')
+                ->first()
+        );
+    }
+
+    public function isDiscounted(): Attribute
+    {
+        return Attribute::get(fn() => $this->discount ? true : false);
+    }
+
+    public function discountInPercent(): Attribute
+    {
+        return Attribute::get(function () {
+            if (! $this->discount) {
+                return 0;
+            }
+
+            if ($this->discount->discount_type === 'fixed') {
+                return min(100, ($this->discount->discount_amount / $this->price) * 100);
+            }
+
+            return min(100, $this->discount->discount_amount);
+        });
+    }
+
+    public function priceAfterDiscount(): Attribute
+    {
+        return Attribute::get(function () {
+            if (! $this->discount) {
+                return $this->price;
+            }
+
+            if ($this->discount->discount_type === 'fixed') {
+                return max(0, $this->price - $this->discount->discount_amount);
+            }
+
+            return max(0, $this->price - ($this->discount->discount_amount / 100) * $this->price);
+        });
     }
 }
