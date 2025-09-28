@@ -21,7 +21,7 @@ class BlogResource extends JsonResource
             'slug' => $this->slug,
             'content_thumbnail' => Str::limit(strip_tags($this->content), 200),
             'min_read' => $this->min_read,
-            'featured_image' => $this->featured_image?->url,
+            'featured_image' => $this->featured_image->url ?? asset('images/default-blog.png'),
             'views_count' => $this->views_count,
             'author' => $this->author?->name,
             'category' => BlogCategoryResource::make($this->category),
