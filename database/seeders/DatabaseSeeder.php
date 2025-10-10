@@ -28,7 +28,8 @@ class DatabaseSeeder extends Seeder
             ProductCategorySeeder::class,
             ProductBrandSeeder::class,
             BankSeeder::class,
-            CourierSeeder::class
+            CourierSeeder::class,
+            DataSeeder::class,
         ]);
 
         User::create([

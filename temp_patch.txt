@@ -1,0 +1,18 @@
+*** Begin Patch
+*** Update File: database/seeders/DataSeeder.php
+@@
+-        if (->shouldSeedRolesAndPermissions()) {
+-            ->call(RolesAndPermissionsSeeder::class);
+-        }
+-
+-                        ->seedBaseUsers();
+-                ->seedDemoUsersWithAddresses();
+-        ->call(CourierSeeder::class);
++        if (->shouldSeedRolesAndPermissions()) {
++            ->call(RolesAndPermissionsSeeder::class);
++        }
++
++        ->seedBaseUsers();
++        ->seedDemoUsersWithAddresses();
++        ->call(CourierSeeder::class);
+*** End Patch
