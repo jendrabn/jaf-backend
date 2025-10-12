@@ -57,6 +57,7 @@ class Product extends Model implements HasMedia
         'sex' => 'integer',
         'is_publish' => 'boolean',
         'sold_count' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     protected $with = [
@@ -172,8 +173,7 @@ class Product extends Model implements HasMedia
         return Attribute::make(
             get: fn() => $this->coupons->where('is_active', true)
                 ->where('promo_type', 'product')
-                ->where('start_date', '<=', now())
-                ->where('end_date', '>=', now())
+                ->where(fn($coupon) => $coupon->start_date <= now() && $coupon->end_date >= now())
                 ->sortByDesc('id')
                 ->first()
         );

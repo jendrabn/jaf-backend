@@ -32,6 +32,7 @@ class ProductResource extends JsonResource
             'is_discounted' => $this->is_discounted,
             'discount_in_percent' => $this->discount_in_percent,
             'price_after_discount' => $this->price_after_discount,
+            'coupons' => $this->coupons,
         ];
     }
 }
