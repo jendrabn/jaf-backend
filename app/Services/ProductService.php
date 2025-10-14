@@ -38,7 +38,7 @@ class ProductService
             $searchTerm = $request->get('search');
             // Gunakan fulltext search jika search term tidak kosong
             if (!empty($searchTerm)) {
-                $q->whereRaw('MATCH(name, description) AGAINST(? IN BOOLEAN MODE)', [$searchTerm]);
+                $q->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', [$searchTerm]);
             } else {
                 $q->where('name', 'like', "%{$searchTerm}%")
                     ->orWhereHas('category', fn($q) => $q->where('name', 'like', "%{$searchTerm}%"))
