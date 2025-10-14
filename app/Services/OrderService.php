@@ -135,7 +135,7 @@ class OrderService
         $coupon = null;
 
         // coupon validation
-        if ($validatedData['coupon_code']) {
+        if (isset($validatedData['coupon_code']) && $validatedData['coupon_code'] !== '') {
             $coupon = Coupon::where('code', $validatedData['coupon_code'])
                 ->where('is_active', true)
                 ->first();
