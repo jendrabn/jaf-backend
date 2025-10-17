@@ -20,7 +20,7 @@ return new class extends Migration {
             $table->string('service_name', 100)->nullable();
             $table->string('etd', 50)->nullable();
             $table->integer('weight');
-            $table->string('tracking_number')->unique()->nullable();
+            $table->string('tracking_number')->nullable();
             $table->enum('status', [
                 'pending',
                 'processing',

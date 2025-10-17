@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Http\Requests\Api\{ConfirmPaymentRequest, CreateOrderRequest};
-use App\Models\{Bank, Cart, Coupon, Invoice, Order, OrderItem, Payment, Shipping, Tax};
+use App\Models\{Bank, Cart, Coupon, Invoice, Order, OrderItem, Payment, Product, Shipping, Tax};
 use App\Models\Ewallet;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -126,63 +126,20 @@ class OrderService
         $validatedData = $request->validated();
 
         $user = auth()->user();
-        $carts = Cart::where('user_id', $user->id)
+        $initialCarts = Cart::query()
+            ->where('user_id', $user->id)
             ->whereIn('id', $validatedData['cart_ids'])
+            ->with('product')
             ->get();
 
-        $this->validateBeforeCreateOrder($carts);
-
-        $coupon = null;
-
-        // coupon validation
-        if (isset($validatedData['coupon_code']) && $validatedData['coupon_code'] !== '') {
-            $coupon = Coupon::where('code', $validatedData['coupon_code'])
-                ->where('is_active', true)
-                ->first();
-
-            throw_if(
-                !$coupon,
-                ValidationException::withMessages([
-                    'coupon_code' => 'The coupon code is invalid.'
-                ])
-            );
-
-            if ($coupon->promo_type === 'limit') {
-                throw_if(
-                    $coupon->limit !== null && $coupon->usages()->count() >= $coupon->limit,
-                    ValidationException::withMessages([
-                        'coupon_code' => 'The coupon code has reached its usage limit.'
-                    ])
-                );
-
-                throw_if(
-                    $coupon->limit_per_user !== null && $coupon->usages()->where('user_id', $user->id)->count() >= $coupon->limit_per_user,
-                    ValidationException::withMessages([
-                        'coupon_code' => 'You have reached the usage limit for this coupon code.'
-                    ])
-                );
-            } elseif ($coupon->promo_type === 'period') {
-                $today = now()->startOfDay();
-                throw_if(
-                    ($coupon->start_date && $today->lt($coupon->start_date)) ||
-                        ($coupon->end_date && $today->gt($coupon->end_date)),
-                    ValidationException::withMessages([
-                        'coupon_code' => 'The coupon code is not valid at this time.'
-                    ])
-                );
-            } else {
-                throw ValidationException::withMessages([
-                    'coupon_code' => 'The coupon code has an invalid promo type.'
-                ]);
-            }
-        }
+        $this->validateBeforeCreateOrder($initialCarts);
 
         $shippingAddress = $validatedData['shipping_address'];
-        $totalWeight = $this->totalWeight($carts);
+        $initialTotalWeight = $this->totalWeight($initialCarts);
 
         $shippingCosts = (new RajaOngkirService())->calculateCost(
             $shippingAddress['district_id'],
-            $totalWeight,
+            $initialTotalWeight,
             $validatedData['shipping_courier']
         );
 
@@ -195,28 +152,116 @@ class OrderService
             ])
         );
 
-        $totalPrice = $this->totalPrice($carts);
         $shippingCost = $shippingService['cost'];
 
-        // calculate discount
-        $discount = 0;
-        if (isset($coupon)) {
-            if ($coupon->discount_type === 'fixed') {
-                $discount = $coupon->discount_amount;
-            } elseif ($coupon->discount_type === 'percentage') {
-                $discount = ($coupon->discount_amount / 100) * $totalPrice;
+        return DB::transaction(function () use ($validatedData, $user, $shippingAddress, $shippingService, $shippingCost, $initialTotalWeight) {
+            $lockedCarts = Cart::query()
+                ->where('user_id', $user->id)
+                ->whereIn('id', $validatedData['cart_ids'])
+                ->lockForUpdate()
+                ->with('product')
+                ->get();
+
+            $productIds = $lockedCarts->pluck('product_id')->filter()->unique()->all();
+
+            if (!empty($productIds)) {
+                $lockedProducts = Product::query()
+                    ->whereIn('id', $productIds)
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id');
+
+                $lockedCarts->each(function (Cart $cart) use ($lockedProducts) {
+                    if ($lockedProducts->has($cart->product_id)) {
+                        $cart->setRelation('product', $lockedProducts->get($cart->product_id));
+                    }
+                });
             }
 
-            $discount = min($discount, $totalPrice);
-        }
+            $this->validateBeforeCreateOrder($lockedCarts);
 
-        $totalTax = $this->totalTax($carts, $discount);
+            $lockedTotalWeight = $this->totalWeight($lockedCarts);
 
-        $totalAmount = $this->grandTotal($carts, $shippingCost, $discount);
+            throw_if(
+                $lockedTotalWeight !== $initialTotalWeight,
+                ValidationException::withMessages([
+                    'cart_ids' => 'The cart has been updated. Please review your items and try again.'
+                ])
+            );
 
-        DB::beginTransaction();
+            $totalPrice = $this->totalPrice($lockedCarts);
+            $coupon = null;
+            $discount = 0;
 
-        try {
+            if (!empty($validatedData['coupon_code'])) {
+                $coupon = Coupon::query()
+                    ->where('code', $validatedData['coupon_code'])
+                    ->where('is_active', true)
+                    ->lockForUpdate()
+                    ->first();
+
+                throw_if(
+                    !$coupon,
+                    ValidationException::withMessages([
+                        'coupon_code' => 'The coupon code is invalid.'
+                    ])
+                );
+
+                if ($coupon->promo_type === 'limit') {
+                    if ($coupon->limit !== null) {
+                        $totalUsage = $coupon->usages()->lockForUpdate()->count();
+
+                        throw_if(
+                            $totalUsage >= $coupon->limit,
+                            ValidationException::withMessages([
+                                'coupon_code' => 'The coupon code has reached its usage limit.'
+                            ])
+                        );
+                    }
+
+                    if ($coupon->limit_per_user !== null) {
+                        $userUsage = $coupon->usages()
+                            ->where('user_id', $user->id)
+                            ->lockForUpdate()
+                            ->count();
+
+                        throw_if(
+                            $userUsage >= $coupon->limit_per_user,
+                            ValidationException::withMessages([
+                                'coupon_code' => 'You have reached the usage limit for this coupon code.'
+                            ])
+                        );
+                    }
+                } elseif ($coupon->promo_type === 'period') {
+                    $today = now()->startOfDay();
+
+                    throw_if(
+                        ($coupon->start_date && $today->lt($coupon->start_date)) ||
+                            ($coupon->end_date && $today->gt($coupon->end_date)),
+                        ValidationException::withMessages([
+                            'coupon_code' => 'The coupon code is not valid at this time.'
+                        ])
+                    );
+                } else {
+                    throw ValidationException::withMessages([
+                        'coupon_code' => 'The coupon code has an invalid promo type.'
+                    ]);
+                }
+            }
+
+            if ($coupon) {
+                if ($coupon->discount_type === 'fixed') {
+                    $discount = $coupon->discount_amount;
+                } elseif ($coupon->discount_type === 'percentage') {
+                    $discount = ($coupon->discount_amount / 100) * $totalPrice;
+                }
+
+                $discount = min($discount, $totalPrice);
+            }
+
+            $totalTax = $this->totalTax($lockedCarts, $discount);
+            $totalAmount = $this->grandTotal($lockedCarts, $shippingCost, $discount);
+
             $order = Order::create([
                 'user_id' => $user->id,
                 'total_price' => $totalPrice,
@@ -229,7 +274,14 @@ class OrderService
                 'note' => $validatedData['note'],
             ]);
 
-            foreach ($carts as $item) {
+            foreach ($lockedCarts as $item) {
+                throw_if(
+                    !$item->product,
+                    ValidationException::withMessages([
+                        'cart_ids' => 'One or more products are no longer available.'
+                    ])
+                );
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product->id,
@@ -254,6 +306,7 @@ class OrderService
             ]);
 
             $paymentInfo = [];
+
             if ($validatedData['payment_method'] === Payment::METHOD_BANK) {
                 $bank = Bank::findOrFail($validatedData['bank_id']);
                 $paymentInfo = [
@@ -301,24 +354,19 @@ class OrderService
                 'service' => $shippingService['service'],
                 'service_name' => $shippingService['service_name'],
                 'etd' => $shippingService['etd'],
-                'weight' => $totalWeight,
+                'weight' => $lockedTotalWeight,
                 'status' => Shipping::STATUS_PENDING,
             ]);
 
-            if (isset($coupon)) {
+            if ($coupon) {
                 $coupon->usages()->create([
                     'user_id' => $user->id,
                     'order_id' => $order->id
                 ]);
             }
 
-            DB::commit();
-        } catch (QueryException $e) {
-            DB::rollBack();
-            throw $e;
-        }
-
-        return $order;
+            return $order;
+        });
     }
 
     public function validateBeforeCreateOrder(Collection $carts): void

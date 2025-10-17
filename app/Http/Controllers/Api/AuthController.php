@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\{
     ForgotPasswordRequest,
+    GoogleLoginRequest,
     LoginRequest,
     RegisterRequest,
     ResetPasswordRequest
@@ -35,6 +36,15 @@ class AuthController extends Controller
     public function login(LoginRequest $request): JsonResponse
     {
         $user = $this->authService->login($request);
+
+        return UserResource::make($user)
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
+    }
+
+    public function loginWithGoogle(GoogleLoginRequest $request): JsonResponse
+    {
+        $user = $this->authService->loginWithGoogle($request);
 
         return UserResource::make($user)
             ->response()

@@ -34,17 +34,23 @@ class ProductService
             fn($q) => $q->whereBetween('price', [...$request->only('min_price', 'max_price')])
         );
 
+
         $products->when($request->has('search'), function ($q) use ($request) {
             $searchTerm = $request->get('search');
-            // Gunakan fulltext search jika search term tidak kosong
+
             if (!empty($searchTerm)) {
-                $q->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', [$searchTerm]);
-            } else {
-                $q->where('name', 'like', "%{$searchTerm}%")
-                    ->orWhereHas('category', fn($q) => $q->where('name', 'like', "%{$searchTerm}%"))
-                    ->orWhereHas('brand', fn($q) => $q->where('name', 'like', "%{$searchTerm}%"));
+                $q->where(function ($query) use ($searchTerm) {
+                    $query->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', [$searchTerm])
+                        ->orWhere('name', 'like', "%{$searchTerm}%")
+                        ->orWhereHas('category', fn($c) =>
+                        $c->where('name', 'like', "%{$searchTerm}%"))
+                        ->orWhereHas('brand', fn($b) =>
+                        $b->where('name', 'like', "%{$searchTerm}%"));
+                });
             }
         });
+
+
 
         $products->when(
             $request->has('sort_by'),

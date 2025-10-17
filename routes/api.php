@@ -41,6 +41,7 @@ Route::controller(RegionController::class)->group(function () {
 Route::controller(AuthController::class)->group(function () {
     Route::post('/auth/register', 'register');
     Route::post('/auth/login', 'login');
+    Route::post('/auth/google', 'loginWithGoogle');
     Route::delete('/auth/logout', 'logout')->middleware('auth:sanctum');
     Route::post('/auth/forgot_password', 'sendPasswordResetLink');
     Route::put('/auth/reset_password', 'resetPassword');
