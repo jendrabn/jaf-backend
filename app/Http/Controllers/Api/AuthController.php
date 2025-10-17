@@ -8,7 +8,9 @@ use App\Http\Requests\Api\{
     GoogleLoginRequest,
     LoginRequest,
     RegisterRequest,
-    ResetPasswordRequest
+    ResetPasswordRequest,
+    VerifyLoginOtpRequest,
+    ResendLoginOtpRequest
 };
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -20,9 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    public function __construct(private AuthService $authService)
-    {
-    }
+    public function __construct(private AuthService $authService) {}
 
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -77,5 +77,23 @@ class AuthController extends Controller
         $this->authService->resetPassword($request);
 
         return response()->json(['data' => true], Response::HTTP_OK);
+    }
+
+    public function verifyLoginOtp(VerifyLoginOtpRequest $request): JsonResponse
+    {
+        $user = $this->authService->verifyLoginOtp($request);
+
+        return UserResource::make($user)
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
+    }
+
+    public function resendLoginOtp(ResendLoginOtpRequest $request): JsonResponse
+    {
+        $user = $this->authService->resendLoginOtp($request);
+
+        return UserResource::make($user)
+            ->response()
+            ->setStatusCode(Response::HTTP_OK);
     }
 }
