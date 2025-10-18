@@ -10,6 +10,11 @@ return new class extends Migration {
      */
     public function up(): void
     {
+        // Skip on drivers that do not support FULLTEXT (e.g., sqlite used in tests)
+        if (Schema::getConnection()->getDriverName() !== 'mysql') {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
             $table->fullText('name', 'products_fulltext_name');
         });
@@ -20,6 +25,10 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        if (Schema::getConnection()->getDriverName() !== 'mysql') {
+            return;
+        }
+
         Schema::table('products', function (Blueprint $table) {
             $table->dropFullText('products_fulltext_name');
         });
