@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\Api\PaymentGatewayController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -53,11 +54,15 @@ Route::controller(AuthController::class)->group(function () {
 // Shipping Cost
 Route::post('/shipping_costs', [CheckoutController::class, 'shippingCosts']);
 
+// Payment Gateway (Midtrans) Webhook Notification
+Route::post('/payments/midtrans/notification', [PaymentGatewayController::class, 'midtransNotification']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
 
     // User Account
     Route::controller(UserController::class)->group(function () {
         Route::get('/user', 'get');
+        Route::get('/me', 'get');
         Route::put('/user', 'update');
         Route::put('/user/change_password', 'updatePassword');
     });

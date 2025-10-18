@@ -24,9 +24,11 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use App\Services\MidtransService;
 
 class OrderService
 {
+    public function __construct(public MidtransService $midtrans) {}
     public function getOrders(Request $request, int $size = 10): LengthAwarePaginator
     {
         $page = $request->get('page', 1);
@@ -42,7 +44,7 @@ class OrderService
 
         $orders->when(
             $request->has('status'),
-            fn ($q) => $q->where('status', $request->get('status'))
+            fn($q) => $q->where('status', $request->get('status'))
         );
 
         $orders->when(
@@ -55,7 +57,7 @@ class OrderService
 
                 $q->orderBy(...$sorts[$request->get('sort_by')] ?? $sorts['newest']);
             },
-            fn ($q) => $q->orderBy('id', 'desc')
+            fn($q) => $q->orderBy('id', 'desc')
         );
 
         $orders = $orders->paginate(perPage: $size, page: $page);
@@ -309,7 +311,7 @@ class OrderService
 
             $invoice = Invoice::create([
                 'order_id' => $order->id,
-                'number' => 'INV'.$order->created_at->format('dmy').$order->id,
+                'number' => 'INV' . $order->created_at->format('dmy') . $order->id,
                 'amount' => $totalAmount,
                 'status' => Invoice::STATUS_UNPAID,
                 'due_date' => $order->created_at->addDays(1),
@@ -333,6 +335,12 @@ class OrderService
                     'account_username' => $ewallet->account_username,
                     'phone' => $ewallet->phone,
                 ];
+            } elseif ($validatedData['payment_method'] === Payment::METHOD_GATEWAY) {
+                // Initialize gateway (Midtrans) basic info for frontend
+                $paymentInfo = [
+                    'provider' => 'midtrans',
+                    'client_key' => config('services.midtrans.client_key'),
+                ];
             } else {
                 throw new \Exception('Payment method not found!');
             }
@@ -344,6 +352,15 @@ class OrderService
                 'amount' => $totalAmount,
                 'status' => Payment::STATUS_PENDING,
             ]);
+
+            // If using payment gateway, create Midtrans Snap transaction and store token + redirect URL
+            if ($validatedData['payment_method'] === Payment::METHOD_GATEWAY) {
+                $snap = $this->midtrans->createTransaction($order, $invoice, $user);
+                $info = $payment->info ?? [];
+                $info['snap_token'] = $snap['token'] ?? '';
+                $info['redirect_url'] = $snap['redirect_url'] ?? '';
+                $payment->update(['info' => $info]);
+            }
 
             $userAddress = $user->address()->updateOrCreate(['user_id' => $user->id], $shippingAddress);
 
@@ -393,14 +410,14 @@ class OrderService
         );
 
         throw_if(
-            $carts->filter(fn ($item) => ! $item->product->is_publish)->isNotEmpty(),
+            $carts->filter(fn($item) => ! $item->product->is_publish)->isNotEmpty(),
             ValidationException::withMessages([
                 'cart_ids' => 'The product must be published.',
             ])
         );
 
         throw_if(
-            $carts->filter(fn ($item) => $item->quantity > $item->product->stock)->isNotEmpty(),
+            $carts->filter(fn($item) => $item->quantity > $item->product->stock)->isNotEmpty(),
             ValidationException::withMessages([
                 'cart_ids' => 'The quantity must not be greater than stock.',
             ])
@@ -416,17 +433,17 @@ class OrderService
 
     public function totalWeight(Collection $items): int
     {
-        return $items->reduce(fn ($carry, $item) => $carry + ($item->quantity * $item->product->weight));
+        return $items->reduce(fn($carry, $item) => $carry + ($item->quantity * $item->product->weight));
     }
 
     public function totalPrice(Collection $items): int
     {
-        return $items->reduce(fn ($carry, $item) => $carry + ($item->quantity * $item->product->price_after_discount), 0);
+        return $items->reduce(fn($carry, $item) => $carry + ($item->quantity * $item->product->price_after_discount), 0);
     }
 
     public function totalQuantity(Collection $items): int
     {
-        return $items->reduce(fn ($carry, $item) => $carry + $item->quantity);
+        return $items->reduce(fn($carry, $item) => $carry + $item->quantity);
     }
 
     /**

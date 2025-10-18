@@ -52,7 +52,11 @@ class CheckoutController extends Controller
                 'shipping_methods' => $shippingCosts,
                 'payment_methods' => [
                     'bank' => BankResource::collection($banks),
-                    'ewallet' => EwalletResource::collection($ewallets)
+                    'ewallet' => EwalletResource::collection($ewallets),
+                    'gateway' => [
+                        'provider' => 'midtrans',
+                        'client_key' => config('services.midtrans.client_key'),
+                    ],
                 ],
                 'taxes' => TaxResource::collection($taxes),
                 'total_quantity' => $totalQuantity,

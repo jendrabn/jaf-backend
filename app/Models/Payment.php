@@ -24,6 +24,7 @@ class Payment extends Model
 
     public const METHOD_BANK = 'bank';
     public const METHOD_EWALLET = 'ewallet';
+    public const METHOD_GATEWAY = 'gateway';
 
     protected $fillable = [
         'invoice_id',

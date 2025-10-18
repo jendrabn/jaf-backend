@@ -44,8 +44,8 @@ class OrderPostTest extends ApiTestCase
         $this->seed([
             ProductCategorySeeder::class,
             BankSeeder::class,
-            ProvinceSeeder::class,
-            CitySeeder::class
+            // ProvinceSeeder::class,
+            // CitySeeder::class
         ]);
         $this->user = $this->createUser();
         $this->bank = Bank::first();
@@ -154,7 +154,7 @@ class OrderPostTest extends ApiTestCase
             'payment_method' => [
                 'required',
                 'string',
-                'in:bank,ewallet',
+                'in:bank,ewallet,gateway',
             ],
             'bank_id' => [
                 'required_if:payment_method,bank',

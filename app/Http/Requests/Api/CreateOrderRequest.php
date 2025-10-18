@@ -87,7 +87,7 @@ class CreateOrderRequest extends FormRequest
             'payment_method' => [
                 'required',
                 'string',
-                'in:bank,ewallet',
+                'in:bank,ewallet,gateway',
             ],
             'bank_id' => [
                 'required_if:payment_method,bank',
