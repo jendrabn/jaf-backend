@@ -10,3 +10,4 @@ use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('deactivate-expired-coupons')->everyMinute();
 Schedule::command('cancel-expired-order')->everyMinute();
+// Schedule::command('orders:track-waybills')->everyFiveMinutes();
