@@ -605,13 +605,17 @@ Route::middleware(['auth', 'permission:backoffice.access'])
         // Support - Contact Messages
         Route::prefix('support')->group(function () {
             Route::get('/messages', [AdminContactMessageController::class, 'index'])
-                ->name('messages.index');
+                ->name('messages.index')
+                ->middleware('permission:contact_messages.view');
             Route::get('/messages/{message}', [AdminContactMessageController::class, 'show'])
-                ->name('messages.show');
+                ->name('messages.show')
+                ->middleware('permission:contact_messages.show');
             Route::patch('/messages/{message}', [AdminContactMessageController::class, 'update'])
-                ->name('messages.update');
+                ->name('messages.update')
+                ->middleware('permission:contact_messages.reply');
             Route::post('/messages/{message}/reply', [AdminContactReplyController::class, 'store'])
-                ->name('messages.reply');
+                ->name('messages.reply')
+                ->middleware('permission:contact_messages.reply');
         });
     });
 

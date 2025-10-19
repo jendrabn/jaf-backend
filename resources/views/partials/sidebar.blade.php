@@ -242,13 +242,15 @@
                 @endcanany
 
                 {{-- Support - Contact Messages --}}
-                <li class="nav-item">
-                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.messages.*') ? 'active' : '' }}"
-                       href="{{ route('admin.messages.index') }}">
-                        <i class="nav-icon bi bi-envelope mr-2"></i>
-                        <p class="mb-0">Contact Messages</p>
-                    </a>
-                </li>
+                @can('contact_messages.view')
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.messages.*') ? 'active' : '' }}"
+                           href="{{ route('admin.messages.index') }}">
+                            <i class="nav-icon bi bi-envelope mr-2"></i>
+                            <p class="mb-0">Contact Messages</p>
+                        </a>
+                    </li>
+                @endcan
 
                 {{-- Audit Log --}}
                 @can('audit_logs.view')

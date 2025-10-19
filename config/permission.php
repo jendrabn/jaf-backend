@@ -247,5 +247,8 @@ return [
 
         // Tax (resource + massDestroy)
         'taxes' => ['view', 'create', 'edit', 'delete', 'mass_delete'],
+
+        // Contact Messages (resource-ish: index/show/reply/delete/massDestroy)
+        'contact_messages' => ['view', 'show', 'reply', 'delete', 'mass_delete'],
     ]
 ];

@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->bigInteger('tax_amount')->default(0);
             $table->string('tax_name')->nullable();
             $table->bigInteger('shipping_cost');
+            $table->bigInteger('gateway_fee')->default(0);
             $table->string('note', 200)->nullable();
             $table->string('cancel_reason', 200)->nullable();
             $table->enum('status', [
