@@ -269,12 +269,6 @@
                                     <th>Tracking Number</th>
                                     <td class="d-flex align-items-center">
                                         <span>{{ $shipping->tracking_number }}</span>
-                                        <a class="icon-btn text-muted ml-2 small"
-                                           href=""
-                                           onclick="showTrackingModal(this);"
-                                           target="_blank">
-                                            <i class="bi bi-box-arrow-up-right"></i>
-                                        </a>
                                     </td>
                                 </tr>
                             </table>
@@ -283,6 +277,13 @@
                                 <button class="btn btn-outline-primary btn-sm"
                                         id="btn-confirm-shipping">
                                     <i class="bi bi-plus-lg mr-1"></i> Add Tracking Number
+                                </button>
+                            @endif
+
+                            @if (!empty($shipping->tracking_number))
+                                <button class="btn btn-primary"
+                                        onclick="showTrackingModal(this);">
+                                    Track
                                 </button>
                             @endif
                         </div>
@@ -477,6 +478,34 @@
                    type="text" />
         </form>
     @endif
+
+    <!-- Tracking Waybill Modal -->
+    <div aria-hidden="true"
+         aria-labelledby="trackingWaybillModalLabel"
+         class="modal fade"
+         id="trackingWaybillModal"
+         role="dialog"
+         tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered"
+             role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="trackingWaybillModalLabel">Waybill Tracking</h5>
+                    <button aria-label="Close"
+                            class="close"
+                            data-dismiss="modal"
+                            type="button">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center small text-muted py-4">Loading tracking data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @section('styles')
@@ -801,11 +830,51 @@
             });
 
 
-            function showTrackingModal(el) {
-                el.preventDefault();
+            window.showTrackingModal = function(el) {
+                if (el && el.preventDefault) {
+                    el.preventDefault();
+                }
 
-                alert("This feature is only available in RajaOngkir API premium");
-            }
+                var url = "{{ route('admin.orders.track-waybill', $order->id) }}";
+
+                var $modal = $('#trackingWaybillModal');
+                $modal.find('.modal-title').text('Waybill Tracking');
+                $modal.find('.modal-body').html(
+                    '<div class="text-center small text-muted py-4">Loading tracking data...</div>');
+                $modal.modal('show');
+
+                $.ajax({
+                    url: url,
+                    method: "GET",
+                    dataType: "json",
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                }).done(function(resp) {
+                    var meta = resp && resp.meta ? resp.meta : {};
+                    if ((meta.code && meta.code !== 200) || (meta.status && ('' + meta.status)
+                            .toLowerCase() !== 'success')) {
+                        var msg = meta.message || "Unable to fetch tracking data.";
+                        $modal.find('.modal-body').html(
+                            '<div class="alert alert-danger mb-0" role="alert">' + msg + '</div>');
+                        return;
+                    }
+
+                    var html = (resp && resp.html) ? resp.html :
+                        '<div class="text-muted small">No tracking content.</div>';
+                    $modal.find('.modal-body').html(html);
+                }).fail(function(xhr) {
+                    var msg = "Unable to fetch tracking data.";
+                    try {
+                        if (xhr && xhr.responseJSON && xhr.responseJSON.meta && xhr.responseJSON.meta
+                            .message) {
+                            msg = xhr.responseJSON.meta.message;
+                        }
+                    } catch (e) {}
+                    $modal.find('.modal-body').html(
+                        '<div class="alert alert-danger mb-0" role="alert">' + msg + '</div>');
+                });
+            };
         });
     </script>
 @endsection

@@ -88,6 +88,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/orders/{order}/confirm_order_delivered', 'confirmDelivered');
         // Add Rating
         Route::post('/orders/ratings', 'addRating');
+        // track waybill
+        Route::get('/orders/{order}/waybill', 'trackWaybill');
     });
 
     // Wishlist

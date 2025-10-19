@@ -217,4 +217,36 @@ class RajaOngkirService
             }
         });
     }
+
+    public function trackWaybill(string $courierCode, string $waybillNumber, ?string $lastPhoneNumber = null): array|null
+    {
+        if ($lastPhoneNumber && strlen($lastPhoneNumber) !== 5) {
+            throw new \InvalidArgumentException('Last phone number must be 5 digits');
+        }
+
+        try {
+            $response = Http::timeout(10)
+                ->acceptJson()
+                ->withHeader('key', $this->apiKey)
+                ->withOptions([
+                    'query' => [
+                        'awb' => $waybillNumber,
+                        'courier' => $courierCode,
+                        'last_phone_number' => $lastPhoneNumber,
+                    ],
+                ])
+                ->post("$this->baseUrl/track/waybill");
+
+            $response->throwIf(! $response->ok());
+
+            return $response->json('data');
+        } catch (Exception $exception) {
+            Log::error('Exception while tracking waybill', [
+                'message' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString()
+            ]);
+
+            return null;
+        }
+    }
 }

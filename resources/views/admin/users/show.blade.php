@@ -60,10 +60,14 @@
 
                             <tr>
                                 <th>PHONE NUMBER</th>
-                                <td>{{ $user->phone }}
-                                    <a class="ml-1 text-muted small icon-btn"
-                                       href="https://wa.me/{{ $user->phone }}"
-                                       target="_blank"><i class="bi bi-box-arrow-up-right"></i></a>
+                                <td>
+                                    @if ($user->phone)
+                                        {{ $user->phone }}
+                                        <a class="ml-1 text-muted small icon-btn"
+                                           href="tel:{{ $user->phone }}"><i class="bi bi-box-arrow-up-right"></i></a>
+                                    @else
+                                        -
+                                    @endif
                                 </td>
                             </tr>
 

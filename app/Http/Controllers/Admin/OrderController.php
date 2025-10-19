@@ -15,6 +15,7 @@ use App\DataTables\OrdersDataTable;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\Admin\OrderRequest;
+use App\Services\RajaOngkirService;
 use Symfony\Component\HttpFoundation\Response;
 
 class OrderController extends Controller
@@ -212,5 +213,65 @@ class OrderController extends Controller
             : $orders->first()->invoice->number . '.pdf';
 
         return response()->json(['data' => $base64Pdf, 'filename' => $filename], Response::HTTP_OK);
+    }
+
+    public function trackWaybill(Request $request, Order $order): JsonResponse
+    {
+        $courierCode = (string) $order->shipping->courier;
+        $waybillNumber = (string) $order->shipping->tracking_number;
+
+        // RajaOngkir premium may require last 5 digits of receiver phone number
+        $rawPhone = $order->shipping->address['phone'] ?? null;
+        $lastPhoneNumber = null;
+        if (is_string($rawPhone) && $rawPhone !== '') {
+            $digitsOnly = preg_replace('/\D+/', '', $rawPhone) ?? '';
+            $lastPhoneNumber = strlen($digitsOnly) >= 5 ? substr($digitsOnly, -5) : null;
+        }
+
+        $service = new RajaOngkirService();
+
+        try {
+            $trackingData = $service->trackWaybill($courierCode, $waybillNumber, $lastPhoneNumber);
+
+            if ($trackingData === null) {
+                return response()->json([
+                    'meta' => [
+                        'message' => 'Tidak dapat mengambil data tracking.',
+                        'code' => 500,
+                        'status' => 'error',
+                    ],
+                    'html' => view('admin.orders.partials.tracking-waybill', [
+                        'trackingData' => [],
+                    ])->render(),
+                    'data' => [],
+                ], Response::HTTP_OK);
+            }
+
+            $html = view('admin.orders.partials.tracking-waybill', [
+                'trackingData' => $trackingData,
+            ])->render();
+
+            return response()->json([
+                'meta' => [
+                    'message' => 'OK',
+                    'code' => 200,
+                    'status' => 'success',
+                ],
+                'html' => $html,
+                'data' => $trackingData,
+            ], Response::HTTP_OK);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'meta' => [
+                    'message' => 'Gagal mengambil data tracking: ' . $e->getMessage(),
+                    'code' => 500,
+                    'status' => 'error',
+                ],
+                'html' => view('admin.orders.partials.tracking-waybill', [
+                    'trackingData' => [],
+                ])->render(),
+                'data' => [],
+            ], Response::HTTP_OK);
+        }
     }
 }

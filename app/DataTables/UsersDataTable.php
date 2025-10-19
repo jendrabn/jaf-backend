@@ -35,7 +35,11 @@ class UsersDataTable extends DataTable
                 return $row->email . '<a class="ml-1 icon-btn text-muted small" href="mailto:' . $row->email . '"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->editColumn('phone', function ($row) {
-                return $row->phone . '<a class="ml-1 icon-btn text-muted small" href="https://wa.me/' . $row->phone . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                if (empty($row->phone)) {
+                    return '-';
+                }
+
+                return e($row->phone) . '<a class="ml-1 icon-btn text-muted small" href="tel:' . e($row->phone) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->setRowId('id')
             ->rawColumns(['action', 'roles', 'email', 'phone']);

@@ -31,7 +31,7 @@ Route::get('/home', function () {
     return redirect()->route('admin.home');
 });
 
-Route::post('/kontak', [PublicContactController::class, 'storeWeb'])
+Route::post('/contact', [PublicContactController::class, 'storeWeb'])
     ->name('contact.store');
 
 // ======================= AUTH =======================
@@ -145,6 +145,11 @@ Route::middleware(['auth', 'permission:backoffice.access'])
         Route::post('orders/invoices', [OrderController::class, 'generateInvoicePdf'])
             ->name('orders.invoices')
             ->middleware('permission:orders.generate_invoice');
+
+        Route::get('orders/{order}/waybill', [OrderController::class, 'trackWaybill'])
+            ->whereNumber('order')
+            ->name('orders.track-waybill');
+        // ->middleware('permission:orders.track_waybill');
 
         // -------- Product Categories (except show) + storeMedia + massDestroy --------
         Route::delete('product-categories/destroy', [ProductCategoryController::class, 'massDestroy'])
