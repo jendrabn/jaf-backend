@@ -32,6 +32,8 @@ class OrderDetailResource extends JsonResource
             'tax_amount' => $this->tax_amount,
             'tax_name' => $this->tax_name,
             'shipping_cost' => $this->shipping_cost,
+            'gateway_fee' => $this->gateway_fee,
+            'gateway_fee_name' => $this->gateway_fee_name,
             'total_amount' => $this->invoice->amount,
             'payment_due_date' => $this->invoice->due_date,
             'confirmed_at' => $this->confirmed_at,

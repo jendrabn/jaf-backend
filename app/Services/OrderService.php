@@ -25,10 +25,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use App\Services\MidtransService;
+use App\Services\RajaOngkirService;
 
 class OrderService
 {
-    public function __construct(public MidtransService $midtrans) {}
+    public function __construct(public MidtransService $midtrans, public RajaOngkirService $rajaOngkirService) {}
     public function getOrders(Request $request, int $size = 10): LengthAwarePaginator
     {
         $page = $request->get('page', 1);
@@ -149,7 +150,7 @@ class OrderService
         $shippingAddress = $validatedData['shipping_address'];
         $initialTotalWeight = $this->totalWeight($initialCarts);
 
-        $shippingCosts = (new RajaOngkirService)->calculateCost(
+        $shippingCosts = $this->rajaOngkirService->calculateCost(
             $shippingAddress['district_id'],
             $initialTotalWeight,
             $validatedData['shipping_courier']
@@ -274,6 +275,15 @@ class OrderService
             $totalTax = $this->totalTax($lockedCarts, $discount);
             $totalAmount = $this->grandTotal($lockedCarts, $shippingCost, $discount);
 
+            // Hitung fee payment gateway (Midtrans) FLAT dari konfigurasi .env jika metode pembayaran gateway
+            $gatewayFeeFlat = (int) config('services.midtrans.fee_flat', 0);
+            $gatewayFee = 0;
+            $gatewayFeeName = null;
+            if ($validatedData['payment_method'] === Payment::METHOD_GATEWAY) {
+                $gatewayFee = $gatewayFeeFlat;
+                $gatewayFeeName = 'Payment Gateway Fee';
+            }
+
             $order = Order::create([
                 'user_id' => $user->id,
                 'total_price' => $totalPrice,
@@ -282,6 +292,8 @@ class OrderService
                 'tax_amount' => $totalTax,
                 'tax_name' => Tax::pluck('name')->join(', '),
                 'shipping_cost' => $shippingCost,
+                'gateway_fee' => $gatewayFee,
+                'gateway_fee_name' => $gatewayFeeName,
                 'status' => Order::STATUS_PENDING_PAYMENT,
                 'note' => $validatedData['note'],
             ]);
@@ -312,7 +324,7 @@ class OrderService
             $invoice = Invoice::create([
                 'order_id' => $order->id,
                 'number' => 'INV' . $order->created_at->format('dmy') . $order->id,
-                'amount' => $totalAmount,
+                'amount' => $totalAmount + $gatewayFee,
                 'status' => Invoice::STATUS_UNPAID,
                 'due_date' => $order->created_at->addDays(1),
             ]);
@@ -336,10 +348,11 @@ class OrderService
                     'phone' => $ewallet->phone,
                 ];
             } elseif ($validatedData['payment_method'] === Payment::METHOD_GATEWAY) {
-                // Initialize gateway (Midtrans) basic info for frontend
+                // Initialize gateway (Midtrans) basic info untuk frontend + fee
                 $paymentInfo = [
                     'provider' => 'midtrans',
                     'client_key' => config('services.midtrans.client_key'),
+                    'fee' => $gatewayFee,
                 ];
             } else {
                 throw new \Exception('Payment method not found!');
@@ -349,7 +362,7 @@ class OrderService
                 'invoice_id' => $invoice->id,
                 'method' => $validatedData['payment_method'],
                 'info' => $paymentInfo,
-                'amount' => $totalAmount,
+                'amount' => $totalAmount + $gatewayFee,
                 'status' => Payment::STATUS_PENDING,
             ]);
 

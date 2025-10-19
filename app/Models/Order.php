@@ -56,6 +56,8 @@ class Order extends Model
         'tax_amount',
         'tax_name',
         'shipping_cost',
+        'gateway_fee',
+        'gateway_fee_name',
         'note',
         'cancel_reason',
         'status',

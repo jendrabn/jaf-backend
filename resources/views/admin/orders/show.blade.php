@@ -112,6 +112,30 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                            @elseif ($payment->method === 'gateway')
+                                <table class="table table-borderless kv-table">
+                                    <tbody>
+                                        <tr>
+                                            <th>Provider</th>
+                                            <td>{{ strtoupper($payment->info['provider'] ?? 'midtrans') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Client Key</th>
+                                            <td>{{ $payment->info['client_key'] ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Gateway Fee</th>
+                                            <td>@Rp($order->gateway_fee)</td>
+                                        </tr>
+                                        @if (!empty($payment->info['redirect_url']))
+                                            <tr>
+                                                <th>Redirect URL</th>
+                                                <td><a href="{{ $payment->info['redirect_url'] }}"
+                                                       target="_blank">{{ $payment->info['redirect_url'] }}</a></td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
                             @endif
                         </div>
 
@@ -163,6 +187,26 @@
                                             <th>Phone Number</th>
                                             <td>{{ $payment->info['phone'] }}</td>
                                         </tr>
+                                    @elseif ($payment->method === 'gateway')
+                                        <tr>
+                                            <th>Provider</th>
+                                            <td>{{ strtoupper($payment->info['provider'] ?? 'midtrans') }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Client Key</th>
+                                            <td>{{ $payment->info['client_key'] ?? '-' }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Gateway Fee</th>
+                                            <td>@Rp($order->gateway_fee)</td>
+                                        </tr>
+                                        @if (!empty($payment->info['redirect_url']))
+                                            <tr>
+                                                <th>Redirect URL</th>
+                                                <td><a href="{{ $payment->info['redirect_url'] }}"
+                                                       target="_blank">{{ $payment->info['redirect_url'] }}</a></td>
+                                            </tr>
+                                        @endif
                                     @endif
                                 </tbody>
                             </table>
@@ -361,15 +405,27 @@
                             <table class="table table-sm table-borderless table-totals mb-2">
                                 <tbody>
                                     <tr>
-                                        <td>Total Price</td>
+                                        <td>Total Harga</td>
                                         <td>@Rp($order->total_price)</td>
                                     </tr>
                                     <tr>
-                                        <td>Shipping Cost</td>
+                                        <td>Diskon</td>
+                                        <td>-@Rp($order->discount)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ongkos Kirim</td>
                                         <td>@Rp($order->shipping_cost)</td>
                                     </tr>
                                     <tr>
-                                        <td><span class="mr-2">Total Amount</span></td>
+                                        <td>Pajak</td>
+                                        <td>@Rp($order->tax_amount)</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Payment Gateway Fee</td>
+                                        <td>@Rp($order->gateway_fee)</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="mr-2">Total Bayar</span></td>
                                         <td class="grand-total">@Rp($order->invoice->amount)</td>
                                     </tr>
                                 </tbody>

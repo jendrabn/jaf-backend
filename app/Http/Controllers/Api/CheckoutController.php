@@ -56,6 +56,8 @@ class CheckoutController extends Controller
                     'gateway' => [
                         'provider' => 'midtrans',
                         'client_key' => config('services.midtrans.client_key'),
+                        // Show configured gateway fee on checkout
+                        'fee' => (int) config('services.midtrans.fee_flat', 0),
                     ],
                 ],
                 'taxes' => TaxResource::collection($taxes),

@@ -37,6 +37,8 @@ class OrderController extends Controller
                 'total_amount' =>  $order->invoice->amount,
                 'payment_method' =>  $order->invoice->payment->method,
                 'payment_info' =>  $order->invoice->payment->info,
+                'gateway_fee' => $order->gateway_fee,
+                'gateway_fee_name' => $order->gateway_fee_name,
                 'payment_due_date' =>  $order->invoice->due_date,
                 'created_at' => $order->created_at
             ]
