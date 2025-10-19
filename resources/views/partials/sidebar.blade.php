@@ -16,15 +16,20 @@
 @endphp
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
-    <a class="brand-link text-center" href="{{ route('admin.home') }}">
-        <span class="brand-text font-weight-bold text-uppercase" style="letter-spacing:.15rem;">
+    <a class="brand-link text-center"
+       href="{{ route('admin.home') }}">
+        <span class="brand-text font-weight-bold text-uppercase"
+              style="letter-spacing:.15rem;">
             {{ config('app.name') }}
         </span>
     </a>
 
     <div class="sidebar">
         <nav class="mt-2">
-            <ul class="nav nav-pills nav-sidebar flex-column" data-accordion="false" data-widget="treeview" role="menu">
+            <ul class="nav nav-pills nav-sidebar flex-column"
+                data-accordion="false"
+                data-widget="treeview"
+                role="menu">
 
                 {{-- Dashboard --}}
                 @can('dashboard.view')
@@ -75,7 +80,8 @@
                 @endcan
 
                 {{-- Shop (treeview) --}}
-                @canany(['products.view', 'product_categories.view', 'product_brands.view', 'couriers.view', 'coupons.view', 'taxes.view'])
+                @canany(['products.view', 'product_categories.view', 'product_brands.view', 'couriers.view',
+                    'coupons.view', 'taxes.view'])
                     <li class="nav-item has-treeview {{ $shopActive ? 'menu-open' : '' }}">
                         <a class="nav-link d-flex align-items-center nav-dropdown-toggle {{ $shopActive ? 'active' : '' }}"
                            href="#">
@@ -195,7 +201,8 @@
                 {{-- Blog (treeview) --}}
                 @canany(['blogs.view', 'blog_categories.view', 'blog_tags.view'])
                     <li class="nav-item has-treeview {{ $blogActive ? 'menu-open' : '' }}">
-                        <a class="nav-link d-flex align-items-center {{ $blogActive ? 'active' : '' }}" href="#">
+                        <a class="nav-link d-flex align-items-center {{ $blogActive ? 'active' : '' }}"
+                           href="#">
                             <i class="nav-icon bi bi-newspaper mr-2"></i>
                             <p class="mb-0">Blog</p>
                             <i class="right bi bi-chevron-left ml-auto"></i>
@@ -233,6 +240,15 @@
                         </ul>
                     </li>
                 @endcanany
+
+                {{-- Support - Contact Messages --}}
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.messages.*') ? 'active' : '' }}"
+                       href="{{ route('admin.messages.index') }}">
+                        <i class="nav-icon bi bi-envelope mr-2"></i>
+                        <p class="mb-0">Contact Messages</p>
+                    </a>
+                </li>
 
                 {{-- Audit Log --}}
                 @can('audit_logs.view')

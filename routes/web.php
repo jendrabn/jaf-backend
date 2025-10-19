@@ -15,6 +15,9 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\TaxController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
+use App\Http\Controllers\Admin\ContactReplyController as AdminContactReplyController;
+use App\Http\Controllers\Api\ContactMessageController as PublicContactController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -27,6 +30,9 @@ Route::get('/home', function () {
     }
     return redirect()->route('admin.home');
 });
+
+Route::post('/kontak', [PublicContactController::class, 'storeWeb'])
+    ->name('contact.store');
 
 // ======================= AUTH =======================
 Route::middleware('guest')->prefix('auth')->name('auth.')->group(function () {
@@ -587,17 +593,24 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->whereNumber('auditLog')
             ->name('audit-logs.destroy')
             ->middleware('permission:audit_logs.delete');
-
         Route::delete('audit-logs/massDestroy', [\App\Http\Controllers\Admin\AuditLogController::class, 'massDestroy'])
             ->name('audit-logs.massDestroy')
             ->middleware('permission:audit_logs.mass_delete');
+
+        // Support - Contact Messages
+        Route::prefix('support')->group(function () {
+            Route::get('/messages', [AdminContactMessageController::class, 'index'])
+                ->name('messages.index');
+            Route::get('/messages/{message}', [AdminContactMessageController::class, 'show'])
+                ->name('messages.show');
+            Route::patch('/messages/{message}', [AdminContactMessageController::class, 'update'])
+                ->name('messages.update');
+            Route::post('/messages/{message}/reply', [AdminContactReplyController::class, 'store'])
+                ->name('messages.reply');
+        });
     });
+
 
 Route::get('swagger', function () {
     return view('docs');
 });
-
-
-
-
-

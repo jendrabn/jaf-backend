@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\PaymentGatewayController;
+use App\Http\Controllers\Api\ContactMessageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,10 @@ use Illuminate\Support\Facades\Route;
 
 // Landi Page
 Route::get('/landing', LandingController::class);
+
+// Public Contact
+Route::post('/contact', [ContactMessageController::class, 'store'])
+    ->name('api.contact.store');
 
 // Product
 Route::controller(ProductController::class)->group(function () {
