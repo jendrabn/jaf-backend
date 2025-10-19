@@ -11,3 +11,5 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('deactivate-expired-coupons')->everyMinute();
 Schedule::command('cancel-expired-order')->everyMinute();
 // Schedule::command('orders:track-waybills')->everyFiveMinutes();
+
+Schedule::command('backup:database --compress=1 --keep=14')->dailyAt('02:00')->timezone('Asia/Jakarta')->withoutOverlapping();
