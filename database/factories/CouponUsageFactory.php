@@ -17,7 +17,9 @@ class CouponUsageFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'coupon_id' => \App\Models\Coupon::factory(),
+            'order_id' => \App\Models\Order::factory(),
+            'user_id' => \App\Models\User::factory(),
         ];
     }
 }

@@ -72,6 +72,59 @@ return [
             'after_commit' => false,
         ],
 
+        'rabbitmq' => [
+            'driver' => 'rabbitmq',
+            'host' => env('RABBITMQ_HOST', '127.0.0.1'),
+            'port' => (int) env('RABBITMQ_PORT', 5672),
+            'vhost' => env('RABBITMQ_VHOST', '/'),
+            'user' => env('RABBITMQ_USER', 'guest'),
+            'password' => env('RABBITMQ_PASSWORD', 'guest'),
+            'queue' => env('RABBITMQ_QUEUE', 'default'),
+            'retry_after' => (int) env('RABBITMQ_RETRY_AFTER', 90),
+            'after_commit' => false,
+
+            // Use RabbitMQ delayed message exchange plugin ("rabbitmq_delayed_message_exchange")
+            // so Job::delay(...) becomes a true broker-side delay (not only consumer-side).
+            'options' => [
+                'exchange' => [
+                    'name' => env('RABBITMQ_EXCHANGE_NAME', 'app.delayed.exchange'),
+                    'type' => env('RABBITMQ_EXCHANGE_TYPE', 'x-delayed-message'),
+                    'durable' => true,
+                    'auto_delete' => false,
+                    'arguments' => [
+                        'x-delayed-type' => env('RABBITMQ_DELAYED_BASE_TYPE', 'direct'),
+                    ],
+                ],
+
+                'queue' => [
+                    'declare' => true,
+                    'durable' => true,
+                    'exclusive' => false,
+                    'auto_delete' => false,
+                    'arguments' => [
+                        // You can set DLX if needed:
+                        // 'x-dead-letter-exchange' => env('RABBITMQ_DLX', 'app.dlx'),
+                        // 'x-dead-letter-routing-key' => env('RABBITMQ_DLX_ROUTING_KEY', 'dlx'),
+                    ],
+                    'bind' => true,
+                ],
+
+                'consumer_tag' => env('RABBITMQ_CONSUMER_TAG', ''),
+                'heartbeat' => (int) env('RABBITMQ_HEARTBEAT', 0),
+                'persistent' => (bool) env('RABBITMQ_PERSISTENT', false),
+            ],
+
+            'ssl' => [
+                'enabled' => (bool) env('RABBITMQ_SSL', false),
+                'verify_peer' => true,
+                'verify_peer_name' => true,
+                'allow_self_signed' => false,
+                'cafile' => env('RABBITMQ_SSL_CAFILE', null),
+                'local_cert' => env('RABBITMQ_SSL_LOCALCERT', null),
+                'local_key' => env('RABBITMQ_SSL_LOCALKEY', null),
+                'passphrase' => env('RABBITMQ_SSL_PASSPHRASE', null),
+            ],
+        ],
     ],
 
     /*

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CouponUsage extends Model
 {
-    use Auditable;
+    use HasFactory, Auditable;
 
     protected $fillable = [
         'coupon_id',

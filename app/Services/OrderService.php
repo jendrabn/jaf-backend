@@ -403,10 +403,24 @@ class OrderService
                     'user_id' => $user->id,
                     'order_id' => $order->id,
                 ]);
+
+                // Dispatch delayed job to deactivate coupon if usage limit is reached
+                DB::afterCommit(function () use ($coupon) {
+                    \App\Jobs\DeactivateCouponIfLimitReached::dispatch($coupon->id)
+                        ->onQueue('coupons')
+                        ->delay(now()->addSeconds(5));
+                });
             }
 
             DB::afterCommit(function () use ($user, $order, $invoice, $payment) {
                 Mail::to($user->email)->queue(new OrderCreatedMail($order, $invoice, $payment));
+            });
+
+            // Schedule automatic cancellation via delayed queue message (24h after creation)
+            DB::afterCommit(function () use ($order) {
+                \App\Jobs\CancelOrderIfUnpaid::dispatch($order->id)
+                    ->onQueue('orders-cancel')
+                    ->delay($order->created_at->copy()->addDay());
             });
 
             return $order;

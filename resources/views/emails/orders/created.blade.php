@@ -16,6 +16,8 @@
 
         @php
             $rupiah = fn(int $v) => 'Rp ' . number_format($v, 0, ',', '.');
+            $gatewayFee = (int) ($paymentInfo['fee'] ?? ($order->gateway_fee ?? 0));
+            $emailTotal = (int) $totalAmount + $gatewayFee;
         @endphp
 
         <h2 style="font-size:16px; margin:16px 0 8px;">Detail Produk</h2>
@@ -78,12 +80,20 @@
                     <td style="padding:6px 8px; font-size:13px; text-align:right;">
                         {{ $rupiah((int) $order->shipping_cost) }}</td>
                 </tr>
+                @if ($gatewayFee > 0)
+                    <tr>
+                        <td style="padding:6px 8px; font-size:13px;">Biaya Payment Gateway</td>
+                        <td style="padding:6px 8px; font-size:13px; text-align:right;">
+                            {{ $rupiah((int) $gatewayFee) }}
+                        </td>
+                    </tr>
+                @endif
                 <tr>
                     <td style="padding:8px; font-size:14px; font-weight:bold; border-top:1px solid #ddd;">Total Bayar
                     </td>
                     <td
                         style="padding:8px; font-size:14px; font-weight:bold; text-align:right; border-top:1px solid #ddd;">
-                        {{ $rupiah((int) $totalAmount) }}</td>
+                        {{ $rupiah((int) $emailTotal) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -95,48 +105,87 @@
                role="presentation"
                style="width:100%; border-collapse:collapse;">
             <tbody>
-                <tr>
-                    <td style="padding:6px 8px; font-size:13px;">Metode</td>
-                    <td style="padding:6px 8px; font-size:13px; text-align:right;">
-                        {{ ucfirst($payment->method ?? '') }}</td>
-                </tr>
-                <tr>
-                    <td style="padding:6px 8px; font-size:13px;">Nama</td>
-                    <td style="padding:6px 8px; font-size:13px; text-align:right;">{{ $paymentInfo['name'] ?? '-' }}
-                    </td>
-                </tr>
-                @if (isset($paymentInfo['code']))
+                @if (($payment->method ?? '') === 'gateway')
                     <tr>
-                        <td style="padding:6px 8px; font-size:13px;">Kode Bank</td>
-                        <td style="padding:6px 8px; font-size:13px; text-align:right;">{{ $paymentInfo['code'] }}</td>
-                    </tr>
-                @endif
-                @if (isset($paymentInfo['account_name']))
-                    <tr>
-                        <td style="padding:6px 8px; font-size:13px;">Nama Akun</td>
+                        <td style="padding:6px 8px; font-size:13px;">Metode</td>
                         <td style="padding:6px 8px; font-size:13px; text-align:right;">
-                            {{ $paymentInfo['account_name'] }}</td>
+                            Payment Gateway ({{ ucfirst($paymentInfo['provider'] ?? 'midtrans') }})
+                        </td>
                     </tr>
-                @endif
-                @if (isset($paymentInfo['account_number']))
+                    @if ($gatewayFee > 0)
+                        <tr>
+                            <td style="padding:6px 8px; font-size:13px;">Biaya Gateway</td>
+                            <td style="padding:6px 8px; font-size:13px; text-align:right;">
+                                {{ $rupiah((int) $gatewayFee) }}
+                            </td>
+                        </tr>
+                    @endif
+                    @if (isset($paymentInfo['redirect_url']) && $paymentInfo['redirect_url'])
+                        <tr>
+                            <td style="padding:6px 8px; font-size:13px;">Bayar</td>
+                            <td style="padding:6px 8px; font-size:13px; text-align:right;">
+                                <a href="{{ $paymentInfo['redirect_url'] }}"
+                                   style="color:#0c63e4; text-decoration:none;">
+                                    Klik untuk bayar via {{ ucfirst($paymentInfo['provider'] ?? 'midtrans') }}
+                                </a>
+                            </td>
+                        </tr>
+                    @endif
+                    @if (isset($paymentInfo['client_key']) && $paymentInfo['client_key'])
+                        <tr>
+                            <td style="padding:6px 8px; font-size:13px;">Client Key</td>
+                            <td style="padding:6px 8px; font-size:13px; text-align:right;">
+                                {{ $paymentInfo['client_key'] }}
+                            </td>
+                        </tr>
+                    @endif
+                @else
                     <tr>
-                        <td style="padding:6px 8px; font-size:13px;">Nomor Rekening</td>
+                        <td style="padding:6px 8px; font-size:13px;">Metode</td>
                         <td style="padding:6px 8px; font-size:13px; text-align:right;">
-                            {{ $paymentInfo['account_number'] }}</td>
+                            {{ ucfirst($payment->method ?? '') }}</td>
                     </tr>
-                @endif
-                @if (isset($paymentInfo['account_username']))
                     <tr>
-                        <td style="padding:6px 8px; font-size:13px;">Username Akun</td>
+                        <td style="padding:6px 8px; font-size:13px;">Nama</td>
                         <td style="padding:6px 8px; font-size:13px; text-align:right;">
-                            {{ $paymentInfo['account_username'] }}</td>
+                            {{ $paymentInfo['name'] ?? '-' }}
+                        </td>
                     </tr>
-                @endif
-                @if (isset($paymentInfo['phone']))
-                    <tr>
-                        <td style="padding:6px 8px; font-size:13px;">Nomor HP</td>
-                        <td style="padding:6px 8px; font-size:13px; text-align:right;">{{ $paymentInfo['phone'] }}</td>
-                    </tr>
+                    @if (isset($paymentInfo['code']))
+                        <tr>
+                            <td style="padding:6px 8px; font-size:13px;">Kode Bank</td>
+                            <td style="padding:6px 8px; font-size:13px; text-align:right;">{{ $paymentInfo['code'] }}
+                            </td>
+                        </tr>
+                    @endif
+                    @if (isset($paymentInfo['account_name']))
+                        <tr>
+                            <td style="padding:6px 8px; font-size:13px;">Nama Akun</td>
+                            <td style="padding:6px 8px; font-size:13px; text-align:right;">
+                                {{ $paymentInfo['account_name'] }}</td>
+                        </tr>
+                    @endif
+                    @if (isset($paymentInfo['account_number']))
+                        <tr>
+                            <td style="padding:6px 8px; font-size:13px;">Nomor Rekening</td>
+                            <td style="padding:6px 8px; font-size:13px; text-align:right;">
+                                {{ $paymentInfo['account_number'] }}</td>
+                        </tr>
+                    @endif
+                    @if (isset($paymentInfo['account_username']))
+                        <tr>
+                            <td style="padding:6px 8px; font-size:13px;">Username Akun</td>
+                            <td style="padding:6px 8px; font-size:13px; text-align:right;">
+                                {{ $paymentInfo['account_username'] }}</td>
+                        </tr>
+                    @endif
+                    @if (isset($paymentInfo['phone']))
+                        <tr>
+                            <td style="padding:6px 8px; font-size:13px;">Nomor HP</td>
+                            <td style="padding:6px 8px; font-size:13px; text-align:right;">{{ $paymentInfo['phone'] }}
+                            </td>
+                        </tr>
+                    @endif
                 @endif
             </tbody>
         </table>

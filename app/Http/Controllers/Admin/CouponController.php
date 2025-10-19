@@ -8,8 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CouponRequest;
 use App\Models\Coupon;
 use App\Models\Product;
+use App\Jobs\DeactivateCouponIfExpired;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class CouponController extends Controller
 {
@@ -28,7 +30,7 @@ class CouponController extends Controller
     public function store(CouponRequest $request)
     {
         if ($request->promo_type == 'limit') {
-            Coupon::create([
+            $coupon = Coupon::create([
                 'name' => $request->name,
                 'description' => $request->description,
                 'promo_type' => $request->promo_type,
@@ -41,7 +43,7 @@ class CouponController extends Controller
                 'end_date' => $request->end_date_limit,
             ]);
         } else if ($request->promo_type == 'period') {
-            Coupon::create([
+            $coupon = Coupon::create([
                 'name' => $request->name,
                 'description' => $request->description,
                 'promo_type' => $request->promo_type,
@@ -65,6 +67,14 @@ class CouponController extends Controller
 
             $coupon->products()->attach($request->product_ids);
         }
+
+        DB::afterCommit(function () use ($coupon) {
+            if (in_array($coupon->promo_type, ['period', 'product'], true) && $coupon->end_date && $coupon->is_active) {
+                \App\Jobs\DeactivateCouponIfExpired::dispatch($coupon->id)
+                    ->onQueue('coupons')
+                    ->delay(\Illuminate\Support\Carbon::parse($coupon->end_date));
+            }
+        });
 
         toastr('Coupon created successfully', 'success');
 
@@ -147,6 +157,14 @@ class CouponController extends Controller
 
             $coupon->products()->sync($request->product_ids);
         }
+
+        DB::afterCommit(function () use ($coupon) {
+            if (in_array($coupon->promo_type, ['period', 'product'], true) && $coupon->end_date && $coupon->is_active) {
+                \App\Jobs\DeactivateCouponIfExpired::dispatch($coupon->id)
+                    ->onQueue('coupons')
+                    ->delay(\Illuminate\Support\Carbon::parse($coupon->end_date));
+            }
+        });
 
         toastr('Coupon updated successfully', 'success');
 
