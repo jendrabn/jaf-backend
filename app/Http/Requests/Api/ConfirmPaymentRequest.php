@@ -44,9 +44,9 @@ class ConfirmPaymentRequest extends FormRequest
                     'string',
                     'min:1',
                     'max:50',
-                ]
+                ],
             ];
-        } else if ($paymentMethod === Payment::METHOD_EWALLET) {
+        } elseif ($paymentMethod === Payment::METHOD_EWALLET) {
             return [
                 'name' => [
                     'required',
@@ -71,13 +71,11 @@ class ConfirmPaymentRequest extends FormRequest
                     'string',
                     'min:1',
                     'max:50',
-                ]
+                ],
             ];
         } else {
             return [];
         }
-
-
 
     }
 }

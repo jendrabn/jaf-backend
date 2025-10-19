@@ -19,7 +19,7 @@ class ContactAutoReplyMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Terima Kasih - Tiket #' . $this->message->id,
+            subject: 'Terima Kasih - Tiket #'.$this->message->id,
         );
     }
 

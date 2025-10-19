@@ -2,29 +2,25 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Bank;
-use App\Models\User;
-use App\Models\Order;
-use App\Models\Banner;
-use App\Models\Ewallet;
-use App\Models\Product;
-use Illuminate\View\View;
-use Illuminate\Support\Str;
-use App\Models\ProductBrand;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
-use App\Models\ProductCategory;
 use App\Http\Controllers\Controller;
+use App\Models\Bank;
+use App\Models\Banner;
 use App\Models\Coupon;
+use App\Models\Ewallet;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductBrand;
+use App\Models\ProductCategory;
+use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-
     /**
      * Show the admin dashboard.
-     *
-     * @return View
      */
     public function index(): View
     {
@@ -49,7 +45,7 @@ class DashboardController extends Controller
             ->map(function ($item) {
                 return [
                     'status' => Str::title(implode(' ', explode('_', $item->status))),
-                    'total' => $item->total
+                    'total' => $item->total,
                 ];
             });
 
@@ -60,11 +56,11 @@ class DashboardController extends Controller
         // - Tahunan: 5 tahun terakhir
 
         // 1) Harian (30 hari)
-        $dayRows = Order::selectRaw("
+        $dayRows = Order::selectRaw('
                 DATE(created_at) as d,
                 SUM(total_price + COALESCE(shipping_cost,0)) AS revenue,
                 COUNT(*) AS total
-            ")
+            ')
             ->where('status', Order::STATUS_COMPLETED)
             ->where('created_at', '>=', now()->subDays(30)->startOfDay())
             ->groupBy(DB::raw('DATE(created_at)'))
@@ -72,11 +68,12 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($r) {
                 $d = Carbon::parse($r->d);
+
                 return [
-                    'label'   => $d->format('d M'),
+                    'label' => $d->format('d M'),
                     'revenue' => (int) $r->revenue,
-                    'total'   => (int) $r->total,
-                    'sort'    => $d->timestamp,
+                    'total' => (int) $r->total,
+                    'sort' => $d->timestamp,
                 ];
             })->values();
 
@@ -94,24 +91,25 @@ class DashboardController extends Controller
             ->orderBy('iso_week')
             ->get()
             ->map(function ($r) {
-                $start = Carbon::now()->setISODate((int)$r->iso_year, (int)$r->iso_week)->startOfWeek(); // Mon
-                $end   = (clone $start)->endOfWeek(); // Sun
-                $label = $start->format('d M') . '–' . $end->format('d M Y');
+                $start = Carbon::now()->setISODate((int) $r->iso_year, (int) $r->iso_week)->startOfWeek(); // Mon
+                $end = (clone $start)->endOfWeek(); // Sun
+                $label = $start->format('d M').'–'.$end->format('d M Y');
+
                 return [
-                    'label'   => $label,
+                    'label' => $label,
                     'revenue' => (int) $r->revenue,
-                    'total'   => (int) $r->total,
-                    'sort'    => $start->timestamp,
+                    'total' => (int) $r->total,
+                    'sort' => $start->timestamp,
                 ];
             })->values();
 
         // 3) Bulanan (12 bulan)
-        $monthRows = Order::selectRaw("
+        $monthRows = Order::selectRaw('
                 YEAR(created_at) AS y,
                 MONTH(created_at) AS m,
                 SUM(total_price + COALESCE(shipping_cost,0)) AS revenue,
                 COUNT(*) AS total
-            ")
+            ')
             ->where('status', Order::STATUS_COMPLETED)
             ->where('created_at', '>=', now()->subMonths(12)->startOfMonth())
             ->groupBy('y', 'm')
@@ -120,20 +118,21 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($r) {
                 $d = Carbon::createFromDate($r->y, $r->m, 1);
+
                 return [
-                    'label'   => $d->format('M Y'),
+                    'label' => $d->format('M Y'),
                     'revenue' => (int) $r->revenue,
-                    'total'   => (int) $r->total,
-                    'sort'    => $d->timestamp,
+                    'total' => (int) $r->total,
+                    'sort' => $d->timestamp,
                 ];
             })->values();
 
         // 4) Tahunan (5 tahun)
-        $yearRows = Order::selectRaw("
+        $yearRows = Order::selectRaw('
                 YEAR(created_at) AS y,
                 SUM(total_price + COALESCE(shipping_cost,0)) AS revenue,
                 COUNT(*) AS total
-            ")
+            ')
             ->where('status', Order::STATUS_COMPLETED)
             ->where('created_at', '>=', now()->subYears(5)->startOfYear())
             ->groupBy('y')
@@ -141,19 +140,20 @@ class DashboardController extends Controller
             ->get()
             ->map(function ($r) {
                 $d = Carbon::createFromDate($r->y, 1, 1);
+
                 return [
-                    'label'   => $d->format('Y'),
+                    'label' => $d->format('Y'),
                     'revenue' => (int) $r->revenue,
-                    'total'   => (int) $r->total,
-                    'sort'    => $d->timestamp,
+                    'total' => (int) $r->total,
+                    'sort' => $d->timestamp,
                 ];
             })->values();
 
         $revenues_series = [
-            'day'   => $dayRows,
-            'week'  => $weekRows,
+            'day' => $dayRows,
+            'week' => $weekRows,
             'month' => $monthRows,
-            'year'  => $yearRows,
+            'year' => $yearRows,
         ];
 
         // default tampilan: Mingguan

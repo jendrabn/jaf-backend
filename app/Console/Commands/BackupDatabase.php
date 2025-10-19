@@ -54,6 +54,7 @@ class BackupDatabase extends Command
 
                 default:
                     $this->error("Unsupported DB driver: {$driver}");
+
                     return Command::FAILURE;
             }
         } catch (Throwable $e) {
@@ -90,6 +91,7 @@ class BackupDatabase extends Command
 
         if ($compress) {
             $gz = $this->compressFile($dest);
+
             return $gz;
         }
 
@@ -115,7 +117,7 @@ class BackupDatabase extends Command
         $check->run();
         if (! $check->isSuccessful()) {
             throw new \RuntimeException(
-                "mysqldump not found. Set DB_DUMP_MYSQLDUMP_PATH in your .env to the absolute path of mysqldump (e.g., C:\\laragon\\bin\\mysql\\mysql-8.x\\bin\\mysqldump.exe) or add mysqldump to your system PATH."
+                'mysqldump not found. Set DB_DUMP_MYSQLDUMP_PATH in your .env to the absolute path of mysqldump (e.g., C:\\laragon\\bin\\mysql\\mysql-8.x\\bin\\mysqldump.exe) or add mysqldump to your system PATH.'
             );
         }
 
@@ -138,7 +140,7 @@ class BackupDatabase extends Command
         $process->run();
 
         if (! $process->isSuccessful()) {
-            throw new \RuntimeException('mysqldump failed: ' . $process->getErrorOutput());
+            throw new \RuntimeException('mysqldump failed: '.$process->getErrorOutput());
         }
 
         $dest = "{$dir}/{$basename}.sql";
@@ -146,6 +148,7 @@ class BackupDatabase extends Command
 
         if ($compress) {
             $gz = $this->compressFile($dest);
+
             return $gz;
         }
 
@@ -171,16 +174,16 @@ class BackupDatabase extends Command
 
         $args = [
             $pgDump,
-            "-h",
+            '-h',
             $host,
-            "-p",
+            '-p',
             $port,
-            "-U",
+            '-U',
             $user,
-            "-d",
+            '-d',
             $db,
-            "-Fc",
-            "-f",
+            '-Fc',
+            '-f',
             $dest,
         ];
 
@@ -189,11 +192,12 @@ class BackupDatabase extends Command
         $process->run();
 
         if (! $process->isSuccessful()) {
-            throw new \RuntimeException('pg_dump failed: ' . $process->getErrorOutput());
+            throw new \RuntimeException('pg_dump failed: '.$process->getErrorOutput());
         }
 
         if ($compress) {
             $gz = $this->compressFile($dest);
+
             return $gz;
         }
 
@@ -203,7 +207,7 @@ class BackupDatabase extends Command
     protected function compressFile(string $path): string
     {
         $contents = File::get($path);
-        $gz = $path . '.gz';
+        $gz = $path.'.gz';
         File::put($gz, gzencode($contents, 9));
         File::delete($path);
 
@@ -215,9 +219,10 @@ class BackupDatabase extends Command
         $files = collect(File::files($dir))
             ->filter(function (\SplFileInfo $file) {
                 $name = $file->getFilename();
+
                 return preg_match('/\.(sql|sqlite|dump)(\.gz)?$/i', $name) === 1;
             })
-            ->sortByDesc(fn(\SplFileInfo $file) => $file->getMTime())
+            ->sortByDesc(fn (\SplFileInfo $file) => $file->getMTime())
             ->values();
 
         if ($files->count() <= $keep) {

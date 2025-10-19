@@ -147,7 +147,7 @@ class MidtransService
                 'redirect_url' => $redirectUrl,
             ];
         } catch (\Throwable $e) {
-            Log::error('Midtrans createTransaction failed: ' . $e->getMessage(), [
+            Log::error('Midtrans createTransaction failed: '.$e->getMessage(), [
                 'order_id' => $order->id,
                 'invoice_id' => $invoice->id,
             ]);

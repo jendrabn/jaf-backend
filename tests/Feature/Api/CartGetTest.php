@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Api;
 
-use Tests\TestCase;
 use App\Models\Cart;
-use Tests\ApiTestCase;
+use Database\Seeders\ProductBrandSeeder;
+use Database\Seeders\ProductCategorySeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Database\Seeders\{ProductBrandSeeder, ProductCategorySeeder};
+use Tests\ApiTestCase;
 
 class CartGetTest extends ApiTestCase
 {
@@ -45,11 +45,11 @@ class CartGetTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJson([
-                'data' => $expectedCarts->map(fn($item) => [
+                'data' => $expectedCarts->map(fn ($item) => [
                     'id' => $item->id,
                     'product' => $this->formatProductData($item->product),
                     'quantity' => $item->quantity,
-                ])->toArray()
+                ])->toArray(),
             ]);
     }
 }

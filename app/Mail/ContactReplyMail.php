@@ -20,7 +20,7 @@ class ContactReplyMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->reply->subject ?: ('Reply for Ticket #' . $this->message->id),
+            subject: $this->reply->subject ?: ('Reply for Ticket #'.$this->message->id),
         );
     }
 

@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\DataTables\EwalletsDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\EwalletRequest;
 use App\Models\Ewallet;
-use Illuminate\View\View;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 use App\Traits\MediaUploadingTrait;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Symfony\Component\HttpFoundation\Response;
 
 class EwalletController extends Controller
 {
@@ -20,19 +20,14 @@ class EwalletController extends Controller
 
     /**
      * Display a listing of the resource.
-     *
-     * @param EwalletsDataTable $dataTable
-     * @return mixed
      */
     public function index(EwalletsDataTable $dataTable): mixed
     {
-        return $dataTable->render("admin.ewallets.index");
+        return $dataTable->render('admin.ewallets.index');
     }
 
     /**
      * Display the form for creating a new resource.
-     *
-     * @return View
      */
     public function create(): View
     {
@@ -41,16 +36,13 @@ class EwalletController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     *
-     * @param EwalletRequest $request
-     * @return RedirectResponse
      */
     public function store(EwalletRequest $request): RedirectResponse
     {
         $ewallet = Ewallet::create($request->validated());
 
         if ($request->input('logo', false)) {
-            $path = storage_path('tmp/uploads/' . basename($request->input('logo')));
+            $path = storage_path('tmp/uploads/'.basename($request->input('logo')));
             $ewallet->addMedia($path)->toMediaCollection(Ewallet::MEDIA_COLLECTION_NAME);
         }
 
@@ -65,9 +57,6 @@ class EwalletController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param Ewallet  $ewallet
-     * @return View
      */
     public function edit(Ewallet $ewallet): View
     {
@@ -76,21 +65,17 @@ class EwalletController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param EwalletRequest $request
-     * @param Ewallet $ewallet
-     * @return RedirectResponse
      */
     public function update(EwalletRequest $request, Ewallet $ewallet): RedirectResponse
     {
         $ewallet->update($request->validated());
 
         if ($request->input('logo', false)) {
-            if (!$ewallet->logo || $request->input('logo') !== $ewallet->logo->file_name) {
+            if (! $ewallet->logo || $request->input('logo') !== $ewallet->logo->file_name) {
                 if ($ewallet->logo) {
                     $ewallet->logo->delete();
                 }
-                $path = storage_path('tmp/uploads/' . basename($request->input('logo')));
+                $path = storage_path('tmp/uploads/'.basename($request->input('logo')));
                 $ewallet->addMedia($path)->toMediaCollection(Ewallet::MEDIA_COLLECTION_NAME);
             }
         } elseif ($ewallet->logo) {
@@ -104,9 +89,6 @@ class EwalletController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param Ewallet $ewallet
-     * @return JsonResponse
      */
     public function destroy(Ewallet $ewallet): JsonResponse
     {
@@ -117,9 +99,6 @@ class EwalletController extends Controller
 
     /**
      * Remove the specified resource(s) from storage.
-     *
-     * @param EwalletRequest $request
-     * @return JsonResponse
      */
     public function massDestroy(EwalletRequest $request): JsonResponse
     {
@@ -134,9 +113,9 @@ class EwalletController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' ewallets.'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' ewallets.'],
             ],
             subjectId: null,
             subjectType: \App\Models\Ewallet::class
@@ -147,13 +126,10 @@ class EwalletController extends Controller
 
     /**
      * Store a newly uploaded media in storage using CKEditor.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function storeCKEditorImages(Request $request): JsonResponse
     {
-        $model = new Ewallet();
+        $model = new Ewallet;
         $model->id = $request->input('crud_id', 0);
         $model->exists = true;
         $media = $model->addMediaFromRequest('upload')->toMediaCollection('ck-media');

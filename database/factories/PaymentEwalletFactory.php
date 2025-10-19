@@ -23,7 +23,7 @@ class PaymentEwalletFactory extends Factory
             'name' => fake()->randomElement(Ewallet::EWALLET_SELECT),
             'account_name' => fake()->name,
             'account_username' => fake()->userName,
-            'phone' => fake()->phoneNumber
+            'phone' => fake()->phoneNumber,
         ];
     }
 }

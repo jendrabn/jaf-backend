@@ -9,9 +9,8 @@ use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\Rule;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class WishlistDeleteTest extends ApiTestCase
 {
@@ -31,18 +30,18 @@ class WishlistDeleteTest extends ApiTestCase
     public function delete_wishlist_request_has_the_correct_validation_rules()
     {
         $user = $this->createUser();
-        $rules = (new DeleteWishlistRequest())->setUserResolver(fn() => $user)->rules();
+        $rules = (new DeleteWishlistRequest)->setUserResolver(fn () => $user)->rules();
 
         $this->assertValidationRules([
             'wishlist_ids' => [
                 'required',
-                'array'
+                'array',
             ],
             'wishlist_ids.*' => [
                 'required',
                 'integer',
-                Rule::exists('wishlists', 'id')->where('user_id', $user->id)
-            ]
+                Rule::exists('wishlists', 'id')->where('user_id', $user->id),
+            ],
         ], $rules);
     }
 
@@ -72,7 +71,7 @@ class WishlistDeleteTest extends ApiTestCase
         Sanctum::actingAs($user);
 
         $response = $this->deleteJson('/api/wishlist', [
-            'wishlist_ids' => $wishlists->pluck('id')
+            'wishlist_ids' => $wishlists->pluck('id'),
         ]);
 
         $response->assertOk()

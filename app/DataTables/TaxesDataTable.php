@@ -87,7 +87,6 @@ class TaxesDataTable extends DataTable
 
     protected function filename(): string
     {
-        return 'TAXES_' . date('dmY');
+        return 'TAXES_'.date('dmY');
     }
 }
-

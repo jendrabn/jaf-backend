@@ -2,41 +2,34 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Order;
-use App\Models\Invoice;
-use App\Models\Payment;
-use App\Models\Shipping;
-use Illuminate\View\View;
-use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
 use App\DataTables\OrdersDataTable;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\Admin\OrderRequest;
+use App\Models\Invoice;
+use App\Models\Order;
+use App\Models\Payment;
+use App\Models\Shipping;
 use App\Services\RajaOngkirService;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
 class OrderController extends Controller
 {
-
     /**
      * Display a listing of the orders.
-     *
-     * @param OrdersDataTable $dataTable
-     * @return mixed
      */
     public function index(OrdersDataTable $dataTable): mixed
     {
-        return $dataTable->render("admin.orders.index");
+        return $dataTable->render('admin.orders.index');
     }
 
     /**
      * Show the specified order.
-     *
-     * @param Order $order
-     * @return View
      */
     public function show(Order $order): View
     {
@@ -55,10 +48,6 @@ class OrderController extends Controller
 
     /**
      * Confirm payment for the specified order.
-     *
-     * @param Request $request
-     * @param Order $order
-     * @return RedirectResponse
      */
     public function confirmPayment(Request $request, Order $order): RedirectResponse
     {
@@ -66,21 +55,21 @@ class OrderController extends Controller
             'action' => [
                 'required',
                 'string',
-                'in:accept,reject'
+                'in:accept,reject',
             ],
             'cancel_reason' => [
                 'nullable',
                 'string',
                 'min:1',
-                'max:100'
-            ]
+                'max:100',
+            ],
         ]);
 
         DB::transaction(function () use ($validatedData, $order) {
             if ($validatedData['action'] === 'accept') {
                 $order->update([
                     'status' => Order::STATUS_PROCESSING,
-                    'confirmed_at' => now()
+                    'confirmed_at' => now(),
                 ]);
                 $order->invoice->update(['status' => Invoice::STATUS_PAID]);
                 $order->invoice->payment->update(['status' => Payment::STATUS_RELEASED]);
@@ -89,11 +78,11 @@ class OrderController extends Controller
             if ($validatedData['action'] === 'reject') {
                 $order->update([
                     'status' => Order::STATUS_CANCELLED,
-                    'cancel_reason' => $validatedData['cancel_reason']
+                    'cancel_reason' => $validatedData['cancel_reason'],
                 ]);
                 $order->invoice->update(['status' => Invoice::STATUS_UNPAID]);
                 $order->invoice->payment->update(['status' => Payment::STATUS_CANCELLED]);
-                $order->items->each(fn($item) => $item->product->increment('stock', $item->quantity));
+                $order->items->each(fn ($item) => $item->product->increment('stock', $item->quantity));
             }
         }, 3);
 
@@ -104,10 +93,6 @@ class OrderController extends Controller
 
     /**
      * Confirm shipping for the specified order.
-     *
-     * @param Request $request
-     * @param Order $order
-     * @return RedirectResponse
      */
     public function confirmShipping(Request $request, Order $order): RedirectResponse
     {
@@ -117,14 +102,14 @@ class OrderController extends Controller
                 'string',
                 'min:1',
                 'max:50',
-            ]
+            ],
         ]);
 
         DB::transaction(function () use ($order, $validatedData) {
             $order->update(['status' => Order::STATUS_ON_DELIVERY]);
             $order->shipping->update([
                 'status' => Shipping::STATUS_PROCESSING,
-                'tracking_number' => $validatedData['tracking_number']
+                'tracking_number' => $validatedData['tracking_number'],
             ]);
         }, 3);
 
@@ -135,9 +120,6 @@ class OrderController extends Controller
 
     /**
      * Remove the specified order from storage.
-     *
-     * @param Order $order
-     * @return JsonResponse
      */
     public function destroy(Order $order): JsonResponse
     {
@@ -149,7 +131,6 @@ class OrderController extends Controller
     /**
      * Remove the specified order(s) from storage.
      *
-     * @param OrderRequest $request
      * @return JsonResponse
      */
     public function massDestroy(OrderRequest $request)
@@ -165,9 +146,9 @@ class OrderController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' orders.'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' orders.'],
             ],
             subjectId: null,
             subjectType: \App\Models\Order::class
@@ -178,21 +159,18 @@ class OrderController extends Controller
 
     /**
      * Generate a PDF invoice for the specified orders.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function generateInvoicePdf(Request $request): JsonResponse
     {
         $request->validate([
             'ids' => [
                 'required',
-                'array'
+                'array',
             ],
             'ids.*' => [
                 'required',
                 'numeric',
-                'exists:orders,id'
+                'exists:orders,id',
             ],
         ]);
 
@@ -209,8 +187,8 @@ class OrderController extends Controller
         $base64Pdf = base64_encode($pdf->output());
 
         $filename = $orders->count() > 1
-            ? $orders->map(fn($order) => $order->invoice->number)->join('_') . '.pdf'
-            : $orders->first()->invoice->number . '.pdf';
+            ? $orders->map(fn ($order) => $order->invoice->number)->join('_').'.pdf'
+            : $orders->first()->invoice->number.'.pdf';
 
         return response()->json(['data' => $base64Pdf, 'filename' => $filename], Response::HTTP_OK);
     }
@@ -228,7 +206,7 @@ class OrderController extends Controller
             $lastPhoneNumber = strlen($digitsOnly) >= 5 ? substr($digitsOnly, -5) : null;
         }
 
-        $service = new RajaOngkirService();
+        $service = new RajaOngkirService;
 
         try {
             $trackingData = $service->trackWaybill($courierCode, $waybillNumber, $lastPhoneNumber);
@@ -263,7 +241,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'meta' => [
-                    'message' => 'Gagal mengambil data tracking: ' . $e->getMessage(),
+                    'message' => 'Gagal mengambil data tracking: '.$e->getMessage(),
                     'code' => 500,
                     'status' => 'error',
                 ],

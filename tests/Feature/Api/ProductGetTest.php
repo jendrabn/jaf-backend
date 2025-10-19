@@ -4,14 +4,12 @@ namespace Tests\Feature\Api;
 
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\ProductCategory;
 use Database\Seeders\ProductBrandSeeder;
 use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class ProductGetTest extends ApiTestCase
 {
@@ -25,7 +23,7 @@ class ProductGetTest extends ApiTestCase
 
     private function attemptToGetProductAndExpectOk(array $params = [])
     {
-        $response = $this->getJson('/api/products?' . http_build_query($params));
+        $response = $this->getJson('/api/products?'.http_build_query($params));
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -179,7 +177,7 @@ class ProductGetTest extends ApiTestCase
 
         $this->assertCount(
             3,
-            Arr::where($response['data'], fn($product) => $product['sold_count'] === 0)
+            Arr::where($response['data'], fn ($product) => $product['sold_count'] === 0)
         );
     }
 
@@ -295,7 +293,7 @@ class ProductGetTest extends ApiTestCase
 
         $response = $this->attemptToGetProductAndExpectOk([
             'min_price' => $min,
-            'max_price' => $max
+            'max_price' => $max,
         ]);
 
         $response->assertJsonPath('data', $this->formatProductData($expectedProducts))

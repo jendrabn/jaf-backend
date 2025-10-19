@@ -9,12 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CouponUsage extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
 
     protected $fillable = [
         'coupon_id',
         'order_id',
-        'user_id'
+        'user_id',
     ];
 
     public function coupon(): BelongsTo

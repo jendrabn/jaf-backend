@@ -6,8 +6,8 @@ use App\Models\City;
 use Database\Seeders\CitySeeder;
 use Database\Seeders\ProvinceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class RegionCityGetTest extends ApiTestCase
 {

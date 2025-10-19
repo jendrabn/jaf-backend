@@ -5,8 +5,8 @@ namespace App\Traits;
 use App\Models\AuditLog;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 trait Auditable
 {
@@ -31,8 +31,8 @@ trait Auditable
     {
         static::created(function (Model $model) {
             self::writeAudit('created', $model, [
-                'before'  => null,
-                'after'   => self::maskAttributes($model->getAttributes(), $model),
+                'before' => null,
+                'after' => self::maskAttributes($model->getAttributes(), $model),
                 'changed' => array_keys(self::maskAttributes($model->getAttributes(), $model)),
             ]);
         });
@@ -56,8 +56,8 @@ trait Auditable
             $new = self::maskAttributes($new, $model);
 
             self::writeAudit('updated', $model, [
-                'before'  => $old,
-                'after'   => $new,
+                'before' => $old,
+                'after' => $new,
                 'changed' => array_keys($new),
             ]);
         });
@@ -72,10 +72,10 @@ trait Auditable
                 : null;
 
             self::writeAudit('deleted', $model, [
-                'before'  => $original,
-                'after'   => $after,
+                'before' => $original,
+                'after' => $after,
                 'changed' => $usesSoftDeletes ? ['deleted_at'] : ['force_deleted'],
-                'meta'    => ['soft_delete' => $usesSoftDeletes, 'force_delete' => !$usesSoftDeletes],
+                'meta' => ['soft_delete' => $usesSoftDeletes, 'force_delete' => ! $usesSoftDeletes],
             ]);
         });
 
@@ -84,8 +84,8 @@ trait Auditable
             static::restored(function (Model $model) {
                 $new = self::maskAttributes($model->getAttributes(), $model);
                 self::writeAudit('restored', $model, [
-                    'before'  => ['deleted_at' => null], // indikatif
-                    'after'   => $new,
+                    'before' => ['deleted_at' => null], // indikatif
+                    'after' => $new,
                     'changed' => ['deleted_at'],
                 ]);
             });
@@ -102,54 +102,54 @@ trait Auditable
 
             // siapkan metadata tambahan
             $meta = [
-                'model'        => class_basename($model),
-                'connection'   => $model->getConnectionName(),
-                'table'        => $model->getTable(),
-                'route'        => $req?->route()?->getName(),
-                'action'       => $req?->route()?->getActionName(),
-                'guard'        => Auth::getDefaultDriver(),
-                'user_email'   => $user?->email,
-                'user_name'    => $user?->name,
-                'locale'       => app()->getLocale(),
-                'app_env'      => config('app.env'),
-                'app_version'  => config('app.version'),
+                'model' => class_basename($model),
+                'connection' => $model->getConnectionName(),
+                'table' => $model->getTable(),
+                'route' => $req?->route()?->getName(),
+                'action' => $req?->route()?->getActionName(),
+                'guard' => Auth::getDefaultDriver(),
+                'user_email' => $user?->email,
+                'user_name' => $user?->name,
+                'locale' => app()->getLocale(),
+                'app_env' => config('app.env'),
+                'app_version' => config('app.version'),
             ];
 
             // gabungkan meta manual dari payload jika ada
-            if (!empty($payload['meta'])) {
+            if (! empty($payload['meta'])) {
                 $meta = array_merge($meta, (array) $payload['meta']);
                 unset($payload['meta']);
             }
 
             // properti legacy (biar kompatibel): simpan ringkas "changed"
             $legacyProperties = [
-                'event'   => $event,
-                'before'  => $payload['before'] ?? null,
-                'after'   => $payload['after'] ?? null,
+                'event' => $event,
+                'before' => $payload['before'] ?? null,
+                'after' => $payload['after'] ?? null,
                 'changed' => $payload['changed'] ?? [],
             ];
 
             AuditLog::create([
-                'description'  => "audit:{$event}",
-                'event'        => $event,
-                'subject_id'   => $model->getKey(),
+                'description' => "audit:{$event}",
+                'event' => $event,
+                'subject_id' => $model->getKey(),
                 'subject_type' => get_class($model),
-                'user_id'      => $user?->getKey(),
-                'before'       => $payload['before'] ?? null,
-                'after'        => $payload['after'] ?? null,
-                'changed'      => $payload['changed'] ?? [],
-                'meta'         => $meta,
-                'properties'   => $legacyProperties, // legacy
-                'host'         => $req?->getHost(),
-                'url'          => $req?->fullUrl(),
-                'method'       => $req?->method(),
-                'ip'           => $req?->ip(),
-                'user_agent'   => $req?->userAgent(),
-                'request_id'   => self::$auditRequestId,
+                'user_id' => $user?->getKey(),
+                'before' => $payload['before'] ?? null,
+                'after' => $payload['after'] ?? null,
+                'changed' => $payload['changed'] ?? [],
+                'meta' => $meta,
+                'properties' => $legacyProperties, // legacy
+                'host' => $req?->getHost(),
+                'url' => $req?->fullUrl(),
+                'method' => $req?->method(),
+                'ip' => $req?->ip(),
+                'user_agent' => $req?->userAgent(),
+                'request_id' => self::$auditRequestId,
             ]);
         } catch (\Throwable $e) {
             // jangan sampai audit bikin operasi utama gagal
-            logger()->warning('Audit write failed: ' . $e->getMessage(), ['exception' => $e]);
+            logger()->warning('Audit write failed: '.$e->getMessage(), ['exception' => $e]);
         }
     }
 

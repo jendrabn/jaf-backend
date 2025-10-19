@@ -16,7 +16,7 @@ class UsersDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -32,14 +32,14 @@ class UsersDataTable extends DataTable
                 return implode(' ', $roles);
             })
             ->editColumn('email', function ($row) {
-                return $row->email . '<a class="ml-1 icon-btn text-muted small" href="mailto:' . $row->email . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return $row->email.'<a class="ml-1 icon-btn text-muted small" href="mailto:'.$row->email.'"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->editColumn('phone', function ($row) {
                 if (empty($row->phone)) {
                     return '-';
                 }
 
-                return e($row->phone) . '<a class="ml-1 icon-btn text-muted small" href="tel:' . e($row->phone) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return e($row->phone).'<a class="ml-1 icon-btn text-muted small" href="tel:'.e($row->phone).'"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->setRowId('id')
             ->rawColumns(['action', 'roles', 'email', 'phone']);
@@ -54,7 +54,7 @@ class UsersDataTable extends DataTable
             ->with(['roles'])
             ->select('users.*')
             ->withCount([
-                'orders' => fn($q) => $q->where('status', Order::STATUS_COMPLETED)
+                'orders' => fn ($q) => $q->where('status', Order::STATUS_COMPLETED),
             ]);
     }
 
@@ -154,6 +154,6 @@ class UsersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Users_' . date('dmY');
+        return 'Users_'.date('dmY');
     }
 }

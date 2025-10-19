@@ -3,10 +3,9 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Auth\Notifications\ResetPassword;
-use Spatie\MediaLibrary\Conversions\ImageGenerators\Image;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
 
         ResetPassword::createUrlUsing(function (User $user, string $token) {
             if (request()->is('api/*')) {
-                return config('shop.front_url') . "/auth/reset-password?email={$user->email}&token={$token}";
+                return config('shop.front_url')."/auth/reset-password?email={$user->email}&token={$token}";
             } else {
                 return route('auth.reset_password', ['token' => $token, 'email' => $user->email]);
             }

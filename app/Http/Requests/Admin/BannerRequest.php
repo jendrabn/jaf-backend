@@ -39,7 +39,7 @@ class BannerRequest extends FormRequest
                     'nullable',
                 ],
             ];
-        } else if ($this->routeIs('admin.banners.update')) {
+        } elseif ($this->routeIs('admin.banners.update')) {
             return [
                 'image' => [
                     'required',
@@ -57,7 +57,7 @@ class BannerRequest extends FormRequest
                     'max:255',
                 ],
             ];
-        } else if ($this->routeIs('admin.banners.massDestroy')) {
+        } elseif ($this->routeIs('admin.banners.massDestroy')) {
             return [
                 'ids' => 'required|array',
                 'ids.*' => 'exists:banners,id',

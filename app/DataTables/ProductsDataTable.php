@@ -15,7 +15,7 @@ class ProductsDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -32,7 +32,7 @@ class ProductsDataTable extends DataTable
             })
             ->editColumn(
                 'price',
-                fn($row) => formatRupiah($row->price)
+                fn ($row) => formatRupiah($row->price)
             )
             ->editColumn('is_publish', function ($row) {
                 return sprintf(
@@ -59,7 +59,7 @@ class ProductsDataTable extends DataTable
         $filter_keys = ['product_category_id', 'product_brand_id', 'sex', 'is_publish'];
 
         foreach ($filter_keys as $key) {
-            $model->when(request()->filled($key), fn($q) => $q->where($key, request($key)));
+            $model->when(request()->filled($key), fn ($q) => $q->where($key, request($key)));
         }
 
         return $model;
@@ -100,12 +100,11 @@ class ProductsDataTable extends DataTable
                     ->text('<i class="bi bi-funnel me-1"></i> Filter'),
             ])
             ->ajax([
-                'data' =>
-                'function (data) {
+                'data' => 'function (data) {
                         $.each($("#form-filter").serializeArray(), function (key, val) {
                            data[val.name] = val.value;
                         });
-                    }'
+                    }',
             ]);
     }
 
@@ -178,6 +177,6 @@ class ProductsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Products_' . date('dmY');
+        return 'Products_'.date('dmY');
     }
 }

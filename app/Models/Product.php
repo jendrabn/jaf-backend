@@ -3,22 +3,22 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Facades\DB;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Product extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia, Auditable;
+    use Auditable, HasFactory, InteractsWithMedia;
 
     public const MEDIA_COLLECTION_NAME = 'product_images';
 
@@ -123,7 +123,7 @@ class Product extends Model implements HasMedia
 
     public function isWishlist(): Attribute
     {
-        return Attribute::get(fn() => false);
+        return Attribute::get(fn () => false);
     }
 
     public function scopePublished()
@@ -135,17 +135,17 @@ class Product extends Model implements HasMedia
     {
         static::addGlobalScope(
             'sold_count',
-            fn($q) => $q->withCount([
-                'orderItems as sold_count' => fn($q) => $q
+            fn ($q) => $q->withCount([
+                'orderItems as sold_count' => fn ($q) => $q
                     ->select(DB::raw('IFNULL(SUM(quantity), 0)'))
-                    ->whereHas('order', fn($q) => $q->where('status', Order::STATUS_COMPLETED))
+                    ->whereHas('order', fn ($q) => $q->where('status', Order::STATUS_COMPLETED)),
             ])
         );
     }
 
     public function sexLabel(): Attribute
     {
-        return Attribute::get(fn() => $this->attributes['sex'] ? self::SEX_SELECT[$this->attributes['sex']] : '');
+        return Attribute::get(fn () => $this->attributes['sex'] ? self::SEX_SELECT[$this->attributes['sex']] : '');
     }
 
     public function productRatings(): HasManyThrough
@@ -157,7 +157,7 @@ class Product extends Model implements HasMedia
     {
         return Attribute::get(function () {
             $ratingAvg = $this->productRatings->avg('rating');
-            $ratingAvg =  ceil($ratingAvg * 10) / 10;
+            $ratingAvg = ceil($ratingAvg * 10) / 10;
 
             return $ratingAvg;
         });
@@ -171,9 +171,9 @@ class Product extends Model implements HasMedia
     public function discount(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->coupons->where('is_active', true)
+            get: fn () => $this->coupons->where('is_active', true)
                 ->where('promo_type', 'product')
-                ->where(fn($coupon) => $coupon->start_date <= now() && $coupon->end_date >= now())
+                ->where(fn ($coupon) => $coupon->start_date <= now() && $coupon->end_date >= now())
                 ->sortByDesc('id')
                 ->first()
         );
@@ -181,7 +181,7 @@ class Product extends Model implements HasMedia
 
     public function isDiscounted(): Attribute
     {
-        return Attribute::get(fn() => $this->discount ? true : false);
+        return Attribute::get(fn () => $this->discount ? true : false);
     }
 
     public function discountInPercent(): Attribute

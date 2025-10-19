@@ -2,28 +2,23 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\{
-    Invoice,
-    Order,
-    OrderItem,
-    Payment,
-    Product,
-    Shipping,
-    User
-};
-use Database\Seeders\{
-    BankSeeder,
-    CitySeeder,
-    ProductBrandSeeder,
-    ProductCategorySeeder,
-    ProvinceSeeder
-};
+use App\Models\Invoice;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Shipping;
+use App\Models\User;
+use Database\Seeders\BankSeeder;
+use Database\Seeders\CitySeeder;
+use Database\Seeders\ProductBrandSeeder;
+use Database\Seeders\ProductCategorySeeder;
+use Database\Seeders\ProvinceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class OrderDetailGetTest extends ApiTestCase
 {
@@ -36,6 +31,7 @@ class OrderDetailGetTest extends ApiTestCase
         parent::setUp();
         $this->user = $this->createUser();
     }
+
     #[Test]
     public function unauthenticated_user_cannot_get_order_detail()
     {
@@ -65,13 +61,13 @@ class OrderDetailGetTest extends ApiTestCase
 
         Sanctum::actingAs($this->user);
 
-        $response = $this->getJson('/api/orders/' . $order->id);
+        $response = $this->getJson('/api/orders/'.$order->id);
 
         $response->assertOk()
             ->assertJson([
                 'data' => [
                     'id' => $order->id,
-                    'items' => $order->items->map(fn($item) => [
+                    'items' => $order->items->map(fn ($item) => [
                         'id' => $item->id,
                         'product' => $this->formatProductData($item->product),
                         'name' => $item->name,
@@ -96,7 +92,7 @@ class OrderDetailGetTest extends ApiTestCase
                             'account_number' => $order->invoice->payment->info['account_number'],
                         ],
                         'amount' => $order->invoice->payment->amount,
-                        'status' => $order->invoice->payment->status
+                        'status' => $order->invoice->payment->status,
                     ],
                     'shipping_address' => [
                         'name' => $order->shipping->address['name'],
@@ -105,7 +101,7 @@ class OrderDetailGetTest extends ApiTestCase
                         'city' => $order->shipping->address['city'],
                         'district' => $order->shipping->address['district'],
                         'postal_code' => $order->shipping->address['postal_code'],
-                        'address' => $order->shipping->address['address']
+                        'address' => $order->shipping->address['address'],
                     ],
                     'shipping' => [
                         'id' => $order->shipping->id,
@@ -115,12 +111,12 @@ class OrderDetailGetTest extends ApiTestCase
                         'service_name' => $order->shipping->service_name,
                         'etd' => $order->shipping->etd,
                         'tracking_number' => $order->shipping->tracking_number,
-                        'status' => $order->shipping->status
+                        'status' => $order->shipping->status,
                     ],
                     'note' => $order->note,
                     'cancel_reason' => $order->cancel_reason,
                     'status' => $order->status,
-                    'total_quantity' => $order->items->reduce(fn($carry, $item) => $carry + $item->quantity),
+                    'total_quantity' => $order->items->reduce(fn ($carry, $item) => $carry + $item->quantity),
                     'total_weight' => $order->shipping->weight,
                     'total_price' => $order->total_price,
                     'shipping_cost' => $order->shipping_cost,
@@ -130,7 +126,7 @@ class OrderDetailGetTest extends ApiTestCase
                     'completed_at' => Carbon::parse($order->completed_at)->toISOString(),
                     'cancelled_at' => Carbon::parse($order->cancelled_at)->toISOString(),
                     'created_at' => Carbon::parse($order->created_at)->toISOString(),
-                ]
+                ],
             ]);
 
         $this->assertStringStartsWith('http', $response['data']['items'][0]['product']['image']);
@@ -154,17 +150,16 @@ class OrderDetailGetTest extends ApiTestCase
             ->for($this->createUser())
             ->create();
 
-
         Sanctum::actingAs($this->user);
 
         // Unauthorized order id
-        $response1 = $this->getJson('/api/orders/' . $order->id);
+        $response1 = $this->getJson('/api/orders/'.$order->id);
 
         $response1->assertNotFound()
             ->assertJsonStructure(['message']);
 
         // Invalid order id
-        $response2 = $this->getJson('/api/orders/' . $order->id + 1,);
+        $response2 = $this->getJson('/api/orders/'.$order->id + 1);
 
         $response2->assertNotFound()
             ->assertJsonStructure(['message']);

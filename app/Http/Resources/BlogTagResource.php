@@ -18,7 +18,7 @@ class BlogTagResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'blogs_count' => $this->blogs_count
+            'blogs_count' => $this->blogs_count,
         ];
     }
 }

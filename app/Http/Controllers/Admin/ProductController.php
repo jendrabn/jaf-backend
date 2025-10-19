@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Product;
-use Illuminate\View\View;
-use App\Models\ProductBrand;
-use Illuminate\Http\Request;
-use App\Models\ProductCategory;
-use App\Http\Controllers\Controller;
 use App\DataTables\ProductsDataTable;
-use Yajra\DataTables\Facades\DataTables;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
-use Symfony\Component\HttpFoundation\Response;
+use App\Models\Product;
+use App\Models\ProductBrand;
+use App\Models\ProductCategory;
 use App\Traits\MediaUploadingTrait;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Symfony\Component\HttpFoundation\Response;
 
 class ProductController extends Controller
 {
@@ -21,23 +20,19 @@ class ProductController extends Controller
 
     /**
      * Display a listing of the products.
-     *
-     * @param ProductsDataTable $dataTable
-     * @return mixed
      */
     public function index(ProductsDataTable $dataTable): mixed
     {
         $product_categories = ProductCategory::pluck('name', 'id')->prepend('All', null);
         $product_brands = ProductBrand::pluck('name', 'id')->prepend('All', null);
 
-        return $dataTable->render("admin.products.index", compact('product_categories', 'product_brands'));
+        return $dataTable->render('admin.products.index', compact('product_categories', 'product_brands'));
     }
 
     /**
      * Display a specific product.
      *
-     * @param Product $product The product to display.
-     * @return View
+     * @param  Product  $product  The product to display.
      */
     public function show(Product $product): View
     {
@@ -46,8 +41,6 @@ class ProductController extends Controller
 
     /**
      * Display a form to create a new product.
-     *
-     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -60,7 +53,6 @@ class ProductController extends Controller
     /**
      * Handles the storing of a new product.
      *
-     * @param ProductRequest $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(ProductRequest $request)
@@ -68,7 +60,7 @@ class ProductController extends Controller
         $product = Product::create($request->validated());
 
         foreach ($request->input('images', []) as $file) {
-            $product->addMedia(storage_path('tmp/uploads/' . basename($file)))->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
+            $product->addMedia(storage_path('tmp/uploads/'.basename($file)))->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
         }
 
         if ($media = $request->input('ck-media', false)) {
@@ -96,15 +88,15 @@ class ProductController extends Controller
 
         if (count($product->images) > 0) {
             foreach ($product->images as $media) {
-                if (!in_array($media->file_name, $request->input('images', []))) {
+                if (! in_array($media->file_name, $request->input('images', []))) {
                     $media->delete();
                 }
             }
         }
         $media = $product->images->pluck('file_name')->toArray();
         foreach ($request->input('images', []) as $file) {
-            if (count($media) === 0 || !in_array($file, $media)) {
-                $product->addMedia(storage_path('tmp/uploads/' . basename($file)))->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
+            if (count($media) === 0 || ! in_array($file, $media)) {
+                $product->addMedia(storage_path('tmp/uploads/'.basename($file)))->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
             }
         }
 
@@ -133,9 +125,9 @@ class ProductController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' products.'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' products.'],
             ],
             subjectId: null,
             subjectType: \App\Models\Product::class
@@ -146,17 +138,15 @@ class ProductController extends Controller
 
     public function storeCKEditorImages(Request $request)
     {
-        $model = new Product();
+        $model = new Product;
         $model->id = $request->input('crud_id', 0);
         $model->exists = true;
         $media = $model->addMediaFromRequest('upload')->toMediaCollection('ck-media');
 
-
-
         return response()->json([
             'filename' => $media->file_name,
             'uploaded' => 1,
-            'url' => $media->getUrl()
+            'url' => $media->getUrl(),
         ], Response::HTTP_CREATED);
     }
 }

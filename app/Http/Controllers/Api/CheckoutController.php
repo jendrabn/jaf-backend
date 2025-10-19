@@ -3,17 +3,20 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\{CheckoutRequest, ShippingCostRequest};
-use App\Http\Resources\{
-    BankResource,
-    CartResource,
-    TaxResource,
-    UserAddressResource
-};
+use App\Http\Requests\Api\CheckoutRequest;
+use App\Http\Requests\Api\ShippingCostRequest;
+use App\Http\Resources\BankResource;
+use App\Http\Resources\CartResource;
 use App\Http\Resources\EwalletResource;
+use App\Http\Resources\TaxResource;
+use App\Http\Resources\UserAddressResource;
+use App\Models\Bank;
+use App\Models\Cart;
+use App\Models\Coupon;
 use App\Models\Ewallet;
-use App\Services\{OrderService, RajaOngkirService};
-use App\Models\{Bank, Cart, Coupon, Tax};
+use App\Models\Tax;
+use App\Services\OrderService;
+use App\Services\RajaOngkirService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -65,7 +68,7 @@ class CheckoutController extends Controller
                 'total_weight' => $totalWeight,
                 'total_price' => $totalPrice,
                 'total_tax' => $totalTax,
-            ]
+            ],
         ], Response::HTTP_OK);
     }
 
@@ -86,16 +89,16 @@ class CheckoutController extends Controller
 
         $coupon = Coupon::query()->where('code', $request->get('code'))->first();
 
-        if (!$coupon) {
+        if (! $coupon) {
             return response()->json([
-                'message' => 'Invalid coupon code'
+                'message' => 'Invalid coupon code',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Validate if coupon is active
-        if (!$coupon->is_active) {
+        if (! $coupon->is_active) {
             return response()->json([
-                'message' => 'This coupon is not active'
+                'message' => 'This coupon is not active',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -103,20 +106,20 @@ class CheckoutController extends Controller
         $now = now();
         if ($coupon->start_date && $now->lt($coupon->start_date)) {
             return response()->json([
-                'message' => 'This coupon is not yet valid'
+                'message' => 'This coupon is not yet valid',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         if ($coupon->end_date && $now->gt($coupon->end_date)) {
             return response()->json([
-                'message' => 'This coupon has expired'
+                'message' => 'This coupon has expired',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         // Check usage limit
         if ($coupon->limit && $coupon->usages()->count() >= $coupon->limit) {
             return response()->json([
-                'message' => 'This coupon has reached its usage limit'
+                'message' => 'This coupon has reached its usage limit',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -125,7 +128,7 @@ class CheckoutController extends Controller
 
         return response()->json([
             'message' => 'Coupon applied successfully',
-            'data' => $coupon
+            'data' => $coupon,
         ], Response::HTTP_OK);
     }
 
@@ -135,7 +138,7 @@ class CheckoutController extends Controller
         session()->forget('applied_coupon');
 
         return response()->json([
-            'message' => 'Coupon removed successfully'
+            'message' => 'Coupon removed successfully',
         ], Response::HTTP_OK);
     }
 }

@@ -19,20 +19,20 @@ class ProductService
 
         $products->when(
             $request->has('category_id'),
-            fn($q) => $q->where('product_category_id', $request->get('category_id'))
+            fn ($q) => $q->where('product_category_id', $request->get('category_id'))
         );
         $products->when(
             $request->has('brand_id'),
-            fn($q) => $q->where('product_brand_id', $request->get('brand_id'))
+            fn ($q) => $q->where('product_brand_id', $request->get('brand_id'))
         );
         $products->when(
             $request->has('sex'),
-            fn($q) => $q->where('sex', $request->get('sex'))
+            fn ($q) => $q->where('sex', $request->get('sex'))
         );
 
         $products->when(
             $request->has('min_price') && $request->has('max_price'),
-            fn($q) => $q->whereBetween('price', [...$request->only('min_price', 'max_price')])
+            fn ($q) => $q->whereBetween('price', [...$request->only('min_price', 'max_price')])
         );
 
         $products->when($request->has('search'), function ($q) use ($request) {
@@ -42,8 +42,8 @@ class ProductService
                 $q->where(function ($query) use ($searchTerm) {
                     $query->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', [$searchTerm])
                         ->orWhere('name', 'like', "%{$searchTerm}%")
-                        ->orWhereHas('category', fn($c) => $c->where('name', 'like', "%{$searchTerm}%"))
-                        ->orWhereHas('brand', fn($b) => $b->where('name', 'like', "%{$searchTerm}%"));
+                        ->orWhereHas('category', fn ($c) => $c->where('name', 'like', "%{$searchTerm}%"))
+                        ->orWhereHas('brand', fn ($b) => $b->where('name', 'like', "%{$searchTerm}%"));
                 });
             }
         });
@@ -61,7 +61,7 @@ class ProductService
 
                 $q->orderBy(...$sorts[$request->get('sort_by')] ?? $sorts['newest']);
             },
-            fn($q) => $q->orderBy('id', 'desc')
+            fn ($q) => $q->orderBy('id', 'desc')
         );
 
         $products = $products->paginate(perPage: $size, page: $page);
@@ -115,7 +115,7 @@ class ProductService
         if ($driver === 'mysql') {
             // Use FULLTEXT with BOOLEAN MODE for prefix search (q*).
             // Requires fulltext index on products.name.
-            $against = $prefix . '*';
+            $against = $prefix.'*';
             $query->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', [$against]);
         } else {
             // Fallback for drivers without FULLTEXT (e.g., sqlite in tests).
@@ -157,7 +157,7 @@ class ProductService
 
                     // Two-word phrase suggestion (bigram)
                     if ($i + 1 < $n) {
-                        $bigram = $token . ' ' . $tokens[$i + 1];
+                        $bigram = $token.' '.$tokens[$i + 1];
                         $key2 = mb_strtolower($bigram);
                         $suggestions[$key2] = $bigram;
                         $counts[$key2] = ($counts[$key2] ?? 0) + 1;

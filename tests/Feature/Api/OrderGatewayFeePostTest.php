@@ -13,8 +13,8 @@ use App\Models\User;
 use App\Services\MidtransService;
 use App\Services\RajaOngkirService;
 use Database\Seeders\CourierSeeder;
-use Database\Seeders\ProductCategorySeeder;
 use Database\Seeders\ProductBrandSeeder;
+use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
@@ -46,10 +46,12 @@ class OrderGatewayFeePostTest extends ApiTestCase
         config()->set('services.midtrans.client_key', 'dummy-client-key');
 
         // Stub MidtransService to avoid external calls
-        $this->app->instance(MidtransService::class, new class extends MidtransService {
+        $this->app->instance(MidtransService::class, new class extends MidtransService
+        {
             public function __construct()
             { /* skip parent initialize */
             }
+
             public function createTransaction(Order $order, Invoice $invoice, User $user): array
             {
                 return [
@@ -60,10 +62,12 @@ class OrderGatewayFeePostTest extends ApiTestCase
         });
 
         // Stub RajaOngkirService to return deterministic shipping costs
-        $this->app->instance(RajaOngkirService::class, new class extends RajaOngkirService {
+        $this->app->instance(RajaOngkirService::class, new class extends RajaOngkirService
+        {
             public function __construct()
             { /* skip parent initialize */
             }
+
             public function calculateCost(int $destination, int $weight, ?string $courier = null): array
             {
                 return [

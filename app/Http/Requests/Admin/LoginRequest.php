@@ -36,16 +36,16 @@ class LoginRequest extends FormRequest
                 'email' => [
                     'required',
                     'string',
-                    'email'
+                    'email',
                 ],
                 'password' => [
                     'required',
-                    'string'
+                    'string',
                 ],
                 'remember' => [
                     'nullable',
-                    'boolean'
-                ]
+                    'boolean',
+                ],
             ];
         } else {
             return [];

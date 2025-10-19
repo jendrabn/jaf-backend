@@ -6,10 +6,7 @@ use App\Models\Courier;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class CourierDataTable extends DataTable
@@ -17,7 +14,7 @@ class CourierDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -25,9 +22,9 @@ class CourierDataTable extends DataTable
             ->addColumn('is_active', function ($courier) {
                 return '
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" data-url="' . route('admin.couriers.update', $courier->id) . '" class="custom-control-input toggle-status" id="courier-' . $courier->id . '" data-id="' . $courier->id . '" ' . ($courier->is_active ? 'checked' : '') . '>
-                        <label class="custom-control-label font-weight-normal" for="courier-' . $courier->id . '">
-                            ' . ($courier->is_active ? 'Active' : 'Inactive') . '
+                        <input type="checkbox" data-url="'.route('admin.couriers.update', $courier->id).'" class="custom-control-input toggle-status" id="courier-'.$courier->id.'" data-id="'.$courier->id.'" '.($courier->is_active ? 'checked' : '').'>
+                        <label class="custom-control-label font-weight-normal" for="courier-'.$courier->id.'">
+                            '.($courier->is_active ? 'Active' : 'Inactive').'
                         </label>
                     </div>
                ';
@@ -53,7 +50,7 @@ class CourierDataTable extends DataTable
             ->setTableId('courier-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            //->dom('Bfrtip')
+            // ->dom('Bfrtip')
             ->orderBy(0, 'asc')
             ->selectStyleSingle()
             ->buttons([]);
@@ -82,6 +79,6 @@ class CourierDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Courier_' . date('YmdHis');
+        return 'Courier_'.date('YmdHis');
     }
 }

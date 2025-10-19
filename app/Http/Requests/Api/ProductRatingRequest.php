@@ -24,29 +24,29 @@ class ProductRatingRequest extends FormRequest
         return [
             'ratings' => [
                 'required',
-                'array'
+                'array',
             ],
             'ratings.*.order_item_id' => [
                 'required',
                 'numeric',
-                'exists:order_items,id'
+                'exists:order_items,id',
             ],
             'ratings.*.rating' => [
                 'required',
                 'numeric',
                 'min:1',
-                'max:5'
+                'max:5',
             ],
             'ratings.*.comment' => [
                 'nullable',
                 'string',
                 'min:3',
-                'max:15000'
+                'max:15000',
             ],
             'ratings.*.is_anonymous' => [
                 'nullable',
-                'boolean'
-            ]
+                'boolean',
+            ],
         ];
     }
 }

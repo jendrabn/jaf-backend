@@ -6,23 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\LoginRequest;
 use App\Http\Requests\Admin\ResetPasswordRequest;
 use App\Models\User;
-use Illuminate\View\View;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Password;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
     /**
      * Handle the login request.
-     *
-     * @param LoginRequest $request
-     * @return View|RedirectResponse
      */
     public function login(LoginRequest $request): View|RedirectResponse
     {
@@ -30,7 +27,7 @@ class AuthController extends Controller
             return view('admin.auth.login');
         }
 
-        $throttleKey = strtolower($request->username . '|' . $request->ip());
+        $throttleKey = strtolower($request->username.'|'.$request->ip());
 
         $maxAttempts = 3;
 
@@ -38,11 +35,11 @@ class AuthController extends Controller
             $seconds = RateLimiter::availableIn($throttleKey);
 
             throw ValidationException::withMessages([
-                'email' => 'Too many login attempts. Please try again in ' . $seconds . ' seconds.',
+                'email' => 'Too many login attempts. Please try again in '.$seconds.' seconds.',
             ]);
         }
 
-        if (!Auth::attempt($request->only('email', 'password'), $request->remember)) {
+        if (! Auth::attempt($request->only('email', 'password'), $request->remember)) {
             RateLimiter::hit($throttleKey);
 
             toastr('Invalid credentials.', 'error');
@@ -59,9 +56,6 @@ class AuthController extends Controller
 
     /**
      * Logs out the user and redirects to the homepage.
-     *
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function logout(Request $request): RedirectResponse
     {
@@ -76,8 +70,6 @@ class AuthController extends Controller
 
     /**
      * Returns the view for the forgot password page.
-     *
-     * @return View
      */
     public function forgotPassword(): View
     {
@@ -86,9 +78,6 @@ class AuthController extends Controller
 
     /**
      * Sends a password reset email to the specified email address.
-     *
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function sendResetPasswordLink(Request $request): RedirectResponse
     {
@@ -110,7 +99,7 @@ class AuthController extends Controller
     /**
      * Resets the password for a user.
      *
-     * @param Request $request
+     * @param  Request  $request
      * @return RedirectResponse
      */
     public function resetPassword(ResetPasswordRequest $request): View|RedirectResponse
@@ -128,7 +117,6 @@ class AuthController extends Controller
                 $user->save();
             }
         );
-
 
         if ($status !== Password::PASSWORD_RESET) {
             toastr($status, 'error');

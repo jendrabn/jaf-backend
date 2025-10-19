@@ -3,12 +3,12 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Wishlist;
-use Database\Seeders\{ProductBrandSeeder, ProductCategorySeeder};
+use Database\Seeders\ProductBrandSeeder;
+use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class WishlistGetTest extends ApiTestCase
 {
@@ -52,10 +52,10 @@ class WishlistGetTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJson([
-                'data' => $expectedWishlists->map(fn($item) => [
+                'data' => $expectedWishlists->map(fn ($item) => [
                     'id' => $item->id,
-                    'product' => $this->formatProductData($item->product)
-                ])->toArray()
+                    'product' => $this->formatProductData($item->product),
+                ])->toArray(),
             ])->assertJsonCount(3, 'data');
     }
 }

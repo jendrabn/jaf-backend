@@ -1,37 +1,35 @@
 <?php
+
 namespace Tests;
 
-use App\Models\{
-    Bank,
-    Cart,
-    City,
-    Order,
-    OrderItem,
-    Product,
-    ProductBrand,
-    ProductCategory,
-    Province,
-    Shipping,
-    User,
-    UserAddress
-};
+use App\Models\Bank;
+use App\Models\Cart;
+use App\Models\City;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\ProductBrand;
+use App\Models\ProductCategory;
+use App\Models\Province;
+use App\Models\Shipping;
+use App\Models\User;
+use App\Models\UserAddress;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
 use JMac\Testing\Traits\AdditionalAssertions;
-use Symfony\Component\ErrorHandler\ErrorHandler;
 
 class ApiTestCase extends BaseTestCase
 {
     use AdditionalAssertions;
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         parent::tearDown();
 
-        (new Filesystem())->cleanDirectory(storage_path('app/public'));
+        (new Filesystem)->cleanDirectory(storage_path('app/public'));
     }
 
     protected function createUser(?array $data = [], int $count = 1): User|Collection
@@ -55,7 +53,7 @@ class ApiTestCase extends BaseTestCase
         foreach ($quantities as $quantity) {
             $sequence[] = [
                 'quantity' => $quantity,
-                'order_id' => Order::factory()->for($this->createUser())->create(compact('status'))->id
+                'order_id' => Order::factory()->for($this->createUser())->create(compact('status'))->id,
             ];
         }
 
@@ -100,7 +98,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatCityData(City|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatCityData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatCityData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'type' => $data['type'],
@@ -111,7 +109,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatProvinceData(Province|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatProvinceData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatProvinceData($data))->values()->toArray()
             :
             [
                 'id' => $data['id'],
@@ -122,7 +120,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatCategoryData(ProductCategory|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatCategoryData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatCategoryData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -134,7 +132,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatBrandData(ProductBrand|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatBrandData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatBrandData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -146,7 +144,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatCartData(Cart|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatCartData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatCartData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'product' => $this->formatProductData($data['product']),
@@ -157,14 +155,14 @@ class ApiTestCase extends BaseTestCase
     protected function formatBankData(Bank|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatBankData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatBankData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
                 'code' => $data['code'],
                 'account_name' => $data['account_name'],
                 'account_number' => $data['account_number'],
-                'logo' => $data['logo'] ? $data['logo']->getUrl() : null
+                'logo' => $data['logo'] ? $data['logo']->getUrl() : null,
             ];
     }
 
@@ -185,7 +183,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatProductData(Product|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatProductData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatProductData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -204,7 +202,7 @@ class ApiTestCase extends BaseTestCase
 
     public function fakeHttpRajaOngkir(): void
     {
-        $url = config('shop.rajaongkir.base_url') . '/cost';
+        $url = config('shop.rajaongkir.base_url').'/cost';
 
         Http::fake([
             $url => function (Request $request) {
@@ -214,15 +212,14 @@ class ApiTestCase extends BaseTestCase
 
                         if ($request->data()['courier'] === $courier) {
                             $file = file_get_contents(
-                                base_path('tests/fixtures/rajaongkir/' . $courier . '.json')
+                                base_path('tests/fixtures/rajaongkir/'.$courier.'.json')
                             );
 
                             return Http::response($file);
                         }
                     }
                 }
-            }
+            },
         ]);
     }
-
 }

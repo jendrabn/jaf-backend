@@ -49,7 +49,7 @@ class BankRequest extends FormRequest
                     'unique:banks',
                 ],
             ];
-        } else if ($this->routeIs('admin.banks.update')) {
+        } elseif ($this->routeIs('admin.banks.update')) {
             return [
                 'name' => [
                     'required',
@@ -74,10 +74,10 @@ class BankRequest extends FormRequest
                     'string',
                     'min:1',
                     'max:50',
-                    'unique:banks,account_number,' . $this->route('bank')->id,
+                    'unique:banks,account_number,'.$this->route('bank')->id,
                 ],
             ];
-        } else if ($this->routeIs('admin.banks.massDestroy')) {
+        } elseif ($this->routeIs('admin.banks.massDestroy')) {
             return [
                 'ids' => 'required|array',
                 'ids.*' => 'exists:banks,id',

@@ -11,8 +11,8 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class AuthRegisterPostTest extends ApiTestCase
 {
@@ -44,16 +44,16 @@ class AuthRegisterPostTest extends ApiTestCase
                 'email',
                 'min:1',
                 'max:255',
-                Rule::unique('users', 'email')
+                Rule::unique('users', 'email'),
             ],
             'password' => [
                 'required',
                 'string',
                 Password::min(8)->mixedCase()->numbers(),
                 'max:30',
-                'confirmed'
+                'confirmed',
             ],
-        ], (new RegisterRequest())->rules());
+        ], (new RegisterRequest)->rules());
     }
 
     #[Test]
@@ -65,7 +65,7 @@ class AuthRegisterPostTest extends ApiTestCase
             'name' => 'Umar',
             'email' => 'umar@gmail.com',
             'password' => 'Secret123',
-            'password_confirmation' => 'Secret123'
+            'password_confirmation' => 'Secret123',
         ];
 
         $response = $this->postJson('/api/auth/register', $data);
@@ -78,7 +78,7 @@ class AuthRegisterPostTest extends ApiTestCase
                     'phone' => null,
                     'sex' => null,
                     'birth_date' => null,
-                ]
+                ],
             ]);
 
         $this->assertDatabaseCount('users', 1)

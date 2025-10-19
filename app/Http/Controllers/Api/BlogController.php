@@ -2,25 +2,21 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\BlogCategoryResource;
 use App\Http\Resources\BlogCollection;
 use App\Http\Resources\BlogDetailResource;
-use App\Http\Resources\BlogResource;
+use App\Http\Resources\BlogTagResource;
 use App\Models\Blog;
-use App\Models\BlogTag;
 use App\Models\BlogCategory;
+use App\Models\BlogTag;
 use App\Services\BlogService;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\BlogTagResource;
-use App\Http\Resources\BlogCategoryResource;
 use Symfony\Component\HttpFoundation\Response;
 
 class BlogController extends Controller
 {
-    public function __construct(private BlogService $service)
-    {
-
-    }
+    public function __construct(private BlogService $service) {}
 
     public function categories()
     {

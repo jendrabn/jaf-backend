@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\Api;
 
-use Illuminate\Validation\Rule;
-use PHPUnit\Framework\Attributes\Test;
 use App\Http\Controllers\Api\AuthController;
-use Illuminate\Support\Facades\Notification;
 use App\Http\Requests\Api\ForgotPasswordRequest;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Validation\Rule;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\ApiTestCase;
 
 class AuthForgotPasswordPostTest extends ApiTestCase
@@ -30,7 +30,7 @@ class AuthForgotPasswordPostTest extends ApiTestCase
                 'email',
                 Rule::exists('users', 'email'),
             ],
-        ], (new ForgotPasswordRequest())->rules());
+        ], (new ForgotPasswordRequest)->rules());
     }
 
     #[Test]
@@ -52,7 +52,7 @@ class AuthForgotPasswordPostTest extends ApiTestCase
                 $mail = $notification->toMail($user)->toArray();
 
                 $this->assertEquals(
-                    config('shop.front_url') . "/auth/reset_password?email={$user->email}&token={$notification->token}",
+                    config('shop.front_url')."/auth/reset_password?email={$user->email}&token={$notification->token}",
                     $mail['actionUrl']
                 );
 

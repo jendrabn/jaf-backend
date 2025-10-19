@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Traits\MediaUploadingTrait;
-use Illuminate\View\View;
-use App\Models\ProductCategory;
-use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Controller;
 use App\DataTables\ProductCategoriesDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductCategoryRequest;
+use App\Models\ProductCategory;
+use App\Traits\MediaUploadingTrait;
+use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ProductCategoryController extends Controller
@@ -17,9 +17,6 @@ class ProductCategoryController extends Controller
 
     /**
      * Handles the display of the product categories index page.
-     *
-     * @param ProductCategoriesDataTable $dataTable
-     * @return mixed
      */
     public function index(ProductCategoriesDataTable $dataTable): mixed
     {
@@ -28,8 +25,6 @@ class ProductCategoryController extends Controller
 
     /**
      * Display the form for creating a new product category.
-     *
-     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -39,7 +34,6 @@ class ProductCategoryController extends Controller
     /**
      * Handles the creation of a new product category.
      *
-     * @param ProductCategoryRequest $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(ProductCategoryRequest $request)
@@ -47,7 +41,7 @@ class ProductCategoryController extends Controller
         $productCategory = ProductCategory::create($request->validated());
 
         if ($request->input('logo', false)) {
-            $productCategory->addMedia(storage_path('tmp/uploads/' . basename($request->input('logo'))))
+            $productCategory->addMedia(storage_path('tmp/uploads/'.basename($request->input('logo'))))
                 ->toMediaCollection(ProductCategory::MEDIA_COLLECTION_NAME);
         }
 
@@ -63,7 +57,6 @@ class ProductCategoryController extends Controller
     /**
      * Edit a product category.
      *
-     * @param ProductCategory $productCategory
      * @return \Illuminate\View\View
      */
     public function edit(ProductCategory $productCategory)
@@ -76,8 +69,6 @@ class ProductCategoryController extends Controller
     /**
      * Updates a product category based on the provided request data.
      *
-     * @param ProductCategoryRequest $request
-     * @param ProductCategory $productCategory
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(ProductCategoryRequest $request, ProductCategory $productCategory)
@@ -85,12 +76,12 @@ class ProductCategoryController extends Controller
         $productCategory->update($request->validated());
 
         if ($request->input('logo', false)) {
-            if (!$productCategory->logo || $request->input('logo') !== $productCategory->logo->file_name) {
+            if (! $productCategory->logo || $request->input('logo') !== $productCategory->logo->file_name) {
                 if ($productCategory->logo) {
                     $productCategory->logo->delete();
                 }
 
-                $productCategory->addMedia(storage_path('tmp/uploads/' . basename($request->input('logo'))))
+                $productCategory->addMedia(storage_path('tmp/uploads/'.basename($request->input('logo'))))
                     ->toMediaCollection(ProductCategory::MEDIA_COLLECTION_NAME);
             }
         } elseif ($productCategory->logo) {
@@ -102,11 +93,9 @@ class ProductCategoryController extends Controller
         return back();
     }
 
-
     /**
      * Deletes a product category.
      *
-     * @param ProductCategory $productCategory
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(ProductCategory $productCategory)
@@ -118,9 +107,6 @@ class ProductCategoryController extends Controller
 
     /**
      * Deletes multiple product categories based on the provided IDs.
-     *
-     * @param ProductCategoryRequest $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function massDestroy(ProductCategoryRequest $request): JsonResponse
     {
@@ -135,9 +121,9 @@ class ProductCategoryController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' product categories.'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' product categories.'],
             ],
             subjectId: null,
             subjectType: \App\Models\ProductCategory::class

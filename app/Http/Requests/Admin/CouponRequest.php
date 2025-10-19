@@ -45,13 +45,13 @@ class CouponRequest extends FormRequest
                 'is_active' => ['nullable', 'boolean'],
                 'product_ids' => ['nullable', 'required_if:promo_type,product', 'array', 'exists:products,id'],
             ];
-        } else if ($this->routeIs('admin.coupons.update')) {
+        } elseif ($this->routeIs('admin.coupons.update')) {
             return [
                 'name' => ['required', 'string', 'min:3', 'max:255'],
                 'description' => ['required', 'string', 'min:3', 'max:10000'],
                 'promo_type' => ['required', 'string', 'in:limit,period,product'],
-                'code_limit' => ['nullable', 'required_if:promo_type,limit', 'string', 'min:3', 'max:255', 'unique:coupons,code,' . $this->route('coupon')->id],
-                'code_period' => ['nullable', 'required_if:promo_type,period', 'string', 'min:3', 'max:255', 'unique:coupons,code,' . $this->route('coupon')->id],
+                'code_limit' => ['nullable', 'required_if:promo_type,limit', 'string', 'min:3', 'max:255', 'unique:coupons,code,'.$this->route('coupon')->id],
+                'code_period' => ['nullable', 'required_if:promo_type,period', 'string', 'min:3', 'max:255', 'unique:coupons,code,'.$this->route('coupon')->id],
                 'discount_type_limit' => ['nullable', 'required_if:promo_type,limit', 'string', 'in:fixed,percentage'],
                 'discount_type_period' => ['nullable', 'required_if:promo_type,period', 'string', 'in:fixed,percentage'],
                 'discount_type_product' => ['nullable', 'required_if:promo_type,product', 'string', 'in:fixed,percentage'],

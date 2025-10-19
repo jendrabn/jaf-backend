@@ -113,4 +113,3 @@ class TaxManagementTest extends TestCase
             ->assertJsonValidationErrors('name');
     }
 }
-

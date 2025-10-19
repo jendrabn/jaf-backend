@@ -30,7 +30,7 @@ class OrderFactory extends Factory
                 'processing',
                 'on_delivery',
                 'completed',
-                'cancelled'
+                'cancelled',
             ]),
             'confirmed_at' => fake()->dateTime(),
             'cancelled_at' => fake()->dateTime(),

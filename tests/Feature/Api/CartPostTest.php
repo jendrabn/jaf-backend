@@ -4,14 +4,15 @@ namespace Tests\Feature\Api;
 
 use App\Http\Controllers\Api\CartController;
 use App\Http\Requests\Api\CreateCartRequest;
-use App\Models\{Cart, Product, User};
+use App\Models\Cart;
+use App\Models\Product;
+use App\Models\User;
 use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\Rule;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class CartPostTest extends ApiTestCase
 {
@@ -34,14 +35,14 @@ class CartPostTest extends ApiTestCase
             'product_id' => [
                 'required',
                 'integer',
-                Rule::exists('products', 'id')->where('is_publish', true)
+                Rule::exists('products', 'id')->where('is_publish', true),
             ],
             'quantity' => [
                 'required',
                 'integer',
-                'min:1'
-            ]
-        ], (new CreateCartRequest())->rules());
+                'min:1',
+            ],
+        ], (new CreateCartRequest)->rules());
     }
 
     #[Test]
@@ -66,7 +67,7 @@ class CartPostTest extends ApiTestCase
 
         $data = [
             'product_id' => $product->id,
-            'quantity' => 3
+            'quantity' => 3,
         ];
 
         $response1 = $this->postJson('/api/carts', $data);
@@ -86,7 +87,7 @@ class CartPostTest extends ApiTestCase
             ->assertDatabaseHas('carts', [
                 'user_id' => $user->id,
                 'product_id' => $product->id,
-                'quantity' => $data['quantity'] * 2
+                'quantity' => $data['quantity'] * 2,
             ]);
     }
 
@@ -102,7 +103,7 @@ class CartPostTest extends ApiTestCase
 
         $response = $this->postJson('/api/carts', [
             'product_id' => $product->id,
-            'quantity' => 3
+            'quantity' => 3,
         ]);
 
         $response->assertUnprocessable()

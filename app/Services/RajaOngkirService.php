@@ -4,17 +4,19 @@ namespace App\Services;
 
 use App\Models\Courier;
 use Exception;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
  * Class for fetching shipping costs from RajaOngkir
+ *
  * @see https://rajaongkir.com/api/docs/shipping-cost/endpoint-rajaongkir-for-form-base-calculate-cost/about
  */
 class RajaOngkirService
 {
     private string $baseUrl;
+
     private string $apiKey;
 
     public function __construct()
@@ -26,11 +28,10 @@ class RajaOngkirService
     /**
      * Fetch shipping costs from RajaOngkir API .
      *
-     * @param int $destination Destination District ID
-     * @param int $weight Weight in grams
-     * @return array|null
+     * @param  int  $destination  Destination District ID
+     * @param  int  $weight  Weight in grams
      */
-    public function calculateCost(int $destination, int $weight, string|null $courier = null): array | null
+    public function calculateCost(int $destination, int $weight, ?string $courier = null): ?array
     {
         if (is_null($courier)) {
             $courier = Courier::query()->active()->get()->pluck('code')->toArray();
@@ -39,7 +40,7 @@ class RajaOngkirService
         $courierHash = md5($courier);
         $origin = config('shop.address.district_id');
 
-        $cacheKey = 'rajaongkir:cost:origin_' . $origin . ':destination_' . $destination . ':weight_' . $weight . ':courier_' . $courierHash;
+        $cacheKey = 'rajaongkir:cost:origin_'.$origin.':destination_'.$destination.':weight_'.$weight.':courier_'.$courierHash;
         $cacheTtl = 24 * 60 * 60;
 
         return Cache::remember($cacheKey, $cacheTtl, function () use ($destination, $weight, $courier, $origin) {
@@ -53,7 +54,7 @@ class RajaOngkirService
                         'origin' => $origin,
                         'destination' => $destination,
                         'weight' => $weight,
-                        'courier' => $courier
+                        'courier' => $courier,
                     ]);
 
                 $response->throwIf(! $response->ok());
@@ -77,7 +78,7 @@ class RajaOngkirService
             } catch (Exception $exception) {
                 Log::error('Exception while fetching shipping costs', [
                     'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString()
+                    'trace' => $exception->getTraceAsString(),
                 ]);
 
                 return null;
@@ -85,18 +86,15 @@ class RajaOngkirService
         });
     }
 
-
     /**
      * Fetch provinces from RajaOngkir API.
-     *
-     * @return array|null
      */
-    public function fetchProvinces(): array|null
+    public function fetchProvinces(): ?array
     {
         $cacheKey = 'rajaongkir:provinces';
         $cacheTtl = 24 * 60 * 60;
 
-        return Cache::remember($cacheKey,  $cacheTtl, function () {
+        return Cache::remember($cacheKey, $cacheTtl, function () {
             try {
                 $response = Http::timeout(10)
                     ->acceptJson()
@@ -111,7 +109,7 @@ class RajaOngkirService
             } catch (Exception $exception) {
                 Log::error('Exception while fetching provinces', [
                     'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString()
+                    'trace' => $exception->getTraceAsString(),
                 ]);
 
                 return null;
@@ -121,14 +119,10 @@ class RajaOngkirService
 
     /**
      * Fetch cities from RajaOngkir API.
-     *
-     * @param int $provinceId
-     *
-     * @return array|null
      */
-    public function fetchCities(int $provinceId): array|null
+    public function fetchCities(int $provinceId): ?array
     {
-        $cacheKey = 'rajaongkir:cities:province_' . $provinceId;
+        $cacheKey = 'rajaongkir:cities:province_'.$provinceId;
         $cacheTtl = 24 * 60 * 60;
 
         return Cache::remember($cacheKey, $cacheTtl, function () use ($provinceId) {
@@ -144,7 +138,7 @@ class RajaOngkirService
             } catch (Exception $exception) {
                 Log::error('Exception while fetching cities', [
                     'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString()
+                    'trace' => $exception->getTraceAsString(),
                 ]);
 
                 return null;
@@ -154,14 +148,10 @@ class RajaOngkirService
 
     /**
      * Fetch districts from RajaOngkir API.
-     *
-     * @param int $cityId
-     *
-     * @return array|null
      */
-    public function fetchDistricts(int $cityId): array|null
+    public function fetchDistricts(int $cityId): ?array
     {
-        $cacheKey = 'rajaongkir:districts:city_' . $cityId;
+        $cacheKey = 'rajaongkir:districts:city_'.$cityId;
         $cacheTtl = 24 * 60 * 60;
 
         return Cache::remember($cacheKey, $cacheTtl, function () use ($cityId) {
@@ -177,7 +167,7 @@ class RajaOngkirService
             } catch (Exception $exception) {
                 Log::error('Exception while fetching districts', [
                     'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString()
+                    'trace' => $exception->getTraceAsString(),
                 ]);
 
                 return null;
@@ -187,14 +177,10 @@ class RajaOngkirService
 
     /**
      * Fetch sub districts from RajaOngkir API [Only for premium account of RajaOngkir].
-     *
-     * @param int $districtId
-     *
-     * @return array|null
      */
-    public function fetchSubDistricts(int $districtId): array|null
+    public function fetchSubDistricts(int $districtId): ?array
     {
-        $cacheKey = 'rajaongkir:subdistricts:district_' . $districtId;
+        $cacheKey = 'rajaongkir:subdistricts:district_'.$districtId;
         $cacheTtl = 24 * 60 * 60;
 
         return Cache::remember($cacheKey, $cacheTtl, function () use ($districtId) {
@@ -210,7 +196,7 @@ class RajaOngkirService
             } catch (Exception $exception) {
                 Log::error('Exception while fetching subdistricts', [
                     'message' => $exception->getMessage(),
-                    'trace' => $exception->getTraceAsString()
+                    'trace' => $exception->getTraceAsString(),
                 ]);
 
                 return null;
@@ -218,7 +204,7 @@ class RajaOngkirService
         });
     }
 
-    public function trackWaybill(string $courierCode, string $waybillNumber, ?string $lastPhoneNumber = null): array|null
+    public function trackWaybill(string $courierCode, string $waybillNumber, ?string $lastPhoneNumber = null): ?array
     {
         if ($lastPhoneNumber && strlen($lastPhoneNumber) !== 5) {
             throw new \InvalidArgumentException('Last phone number must be 5 digits');
@@ -243,7 +229,7 @@ class RajaOngkirService
         } catch (Exception $exception) {
             Log::error('Exception while tracking waybill', [
                 'message' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString()
+                'trace' => $exception->getTraceAsString(),
             ]);
 
             return null;

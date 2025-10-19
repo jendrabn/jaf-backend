@@ -11,26 +11,26 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PaymentFactory extends Factory
 {
-  /**
-   * Define the model's default state.
-   *
-   * @return array<string, mixed>
-   */
-  public function definition(): array
-  {
-    $bank = Bank::inRandomOrder()->first();
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        $bank = Bank::inRandomOrder()->first();
 
-    return [
-      'invoice_id' => Invoice::inRandomOrder()->first()->id,
-      'method' => 'bank',
-      'info' => [
-        'name' => $bank->name,
-        'code' => $bank->code,
-        'account_name' => $bank->account_name,
-        'account_number' => $bank->account_number
-      ],
-      'amount' => fake()->numberBetween(150000, 1000000),
-      'status' => fake()->randomElement(['pending', 'cancelled', 'realeased'])
-    ];
-  }
+        return [
+            'invoice_id' => Invoice::inRandomOrder()->first()->id,
+            'method' => 'bank',
+            'info' => [
+                'name' => $bank->name,
+                'code' => $bank->code,
+                'account_name' => $bank->account_name,
+                'account_number' => $bank->account_number,
+            ],
+            'amount' => fake()->numberBetween(150000, 1000000),
+            'status' => fake()->randomElement(['pending', 'cancelled', 'realeased']),
+        ];
+    }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class ResetPasswordRequest extends FormRequest
 {
@@ -28,8 +28,8 @@ class ResetPasswordRequest extends FormRequest
                     'required',
                     'string',
                     Password::min(8)->max(30)->mixedCase()->numbers(),
-                    'confirmed'
-                ]
+                    'confirmed',
+                ],
             ];
         } else {
             return [];

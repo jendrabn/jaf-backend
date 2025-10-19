@@ -5,9 +5,8 @@ namespace Tests\Feature\Api;
 use App\Models\Province;
 use Database\Seeders\ProvinceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class RegionProvinceGetTest extends ApiTestCase
 {

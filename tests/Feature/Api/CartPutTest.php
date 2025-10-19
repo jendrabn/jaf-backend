@@ -4,13 +4,13 @@ namespace Tests\Feature\Api;
 
 use App\Http\Controllers\Api\CartController;
 use App\Http\Requests\Api\UpdateCartRequest;
-use App\Models\{Cart, User};
+use App\Models\Cart;
+use App\Models\User;
 use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class CartPutTest extends ApiTestCase
 {
@@ -42,9 +42,9 @@ class CartPutTest extends ApiTestCase
             'quantity' => [
                 'required',
                 'integer',
-                'min:1'
-            ]
-        ], (new UpdateCartRequest())->rules());
+                'min:1',
+            ],
+        ], (new UpdateCartRequest)->rules());
     }
 
     #[Test]
@@ -68,7 +68,7 @@ class CartPutTest extends ApiTestCase
 
         Sanctum::actingAs($this->user);
 
-        $response = $this->putJson('/api/carts/' . $cart->id, $data);
+        $response = $this->putJson('/api/carts/'.$cart->id, $data);
 
         $response->assertOk()
             ->assertJson(['data' => true]);
@@ -87,7 +87,7 @@ class CartPutTest extends ApiTestCase
 
         Sanctum::actingAs($this->user);
 
-        $response = $this->putJson('/api/carts/' . $cart->id + 1, ['quantity' => 1]);
+        $response = $this->putJson('/api/carts/'.$cart->id + 1, ['quantity' => 1]);
 
         $response->assertNotFound()
             ->assertJsonStructure(['message']);
@@ -103,7 +103,7 @@ class CartPutTest extends ApiTestCase
 
         Sanctum::actingAs($this->user);
 
-        $response = $this->putJson('/api/carts/' . $cart->id, ['quantity' => 2]);
+        $response = $this->putJson('/api/carts/'.$cart->id, ['quantity' => 2]);
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['quantity']);

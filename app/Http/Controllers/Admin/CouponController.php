@@ -8,9 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CouponRequest;
 use App\Models\Coupon;
 use App\Models\Product;
-use App\Jobs\DeactivateCouponIfExpired;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 
 class CouponController extends Controller
@@ -42,7 +40,7 @@ class CouponController extends Controller
                 'start_date' => $request->start_date_limit,
                 'end_date' => $request->end_date_limit,
             ]);
-        } else if ($request->promo_type == 'period') {
+        } elseif ($request->promo_type == 'period') {
             $coupon = Coupon::create([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -54,7 +52,7 @@ class CouponController extends Controller
                 'start_date' => $request->start_date_period,
                 'end_date' => $request->end_date_period,
             ]);
-        } else if ($request->promo_type == 'product') {
+        } elseif ($request->promo_type == 'product') {
             $coupon = Coupon::create([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -99,14 +97,14 @@ class CouponController extends Controller
             $coupon->limit_per_user_limit = $coupon->limit_per_user;
             $coupon->discount_type_limit = $coupon->discount_type;
             $coupon->discount_amount_limit = $coupon->discount_amount;
-        } else if ($coupon->promo_type == 'period') {
+        } elseif ($coupon->promo_type == 'period') {
             $coupon->code_period = $coupon->code;
             $coupon->limit_per_user_period = $coupon->limit_per_user;
             $coupon->discount_type_period = $coupon->discount_type;
             $coupon->discount_amount_period = $coupon->discount_amount;
             $coupon->start_date_period = $coupon->start_date;
             $coupon->end_date_period = $coupon->end_date;
-        } else if ($coupon->promo_type == 'product') {
+        } elseif ($coupon->promo_type == 'product') {
             $coupon->discount_type_product = $coupon->discount_type;
             $coupon->discount_amount_product = $coupon->discount_amount;
             $coupon->product_ids = $coupon->products->pluck('id')->toArray();
@@ -132,7 +130,7 @@ class CouponController extends Controller
                 'start_date' => $request->start_date_limit,
                 'end_date' => $request->end_date_limit,
             ]);
-        } else if ($request->promo_type == 'period') {
+        } elseif ($request->promo_type == 'period') {
             $coupon->update([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -144,7 +142,7 @@ class CouponController extends Controller
                 'start_date' => $request->start_date_period,
                 'end_date' => $request->end_date_period,
             ]);
-        } else if ($request->promo_type == 'product') {
+        } elseif ($request->promo_type == 'product') {
             $coupon->update([
                 'name' => $request->name,
                 'description' => $request->description,
@@ -184,7 +182,7 @@ class CouponController extends Controller
         $count = count($ids);
 
         $request->validate([
-            'ids'   => 'required|array',
+            'ids' => 'required|array',
             'ids.*' => 'exists:coupons,id',
         ]);
 
@@ -196,9 +194,9 @@ class CouponController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' coupons.'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' coupons.'],
             ],
             subjectId: null,
             subjectType: \App\Models\Coupon::class

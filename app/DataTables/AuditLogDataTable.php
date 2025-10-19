@@ -15,7 +15,7 @@ class AuditLogDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -23,31 +23,33 @@ class AuditLogDataTable extends DataTable
             // === Kolom tampilan (computed / edit) ===
             ->addColumn('event_badge', function (AuditLog $row) {
                 $map = [
-                    'created'  => 'success',
-                    'updated'  => 'warning',
-                    'deleted'  => 'danger',
+                    'created' => 'success',
+                    'updated' => 'warning',
+                    'deleted' => 'danger',
                     'bulk_deleted' => 'danger',
                     'restored' => 'info',
                 ];
                 $color = $map[$row->event] ?? 'secondary';
-                $text  = strtoupper($row->event ?? 'unknown');
+                $text = strtoupper($row->event ?? 'unknown');
+
                 return "<span class='badge bg-{$color}'>{$text}</span>";
             })
 
             ->addColumn('subject_display', function (AuditLog $row) {
                 $type = class_basename($row->subject_type ?? '');
-                if (!$type && $row->subject) {
+                if (! $type && $row->subject) {
                     $type = class_basename($row->subject::class);
                 }
                 $id = $row->subject_id ?? '—';
+
                 return "<code>{$type}#{$id}</code>";
             })
 
             ->addColumn('actor', function (AuditLog $row) {
                 if ($row->user) {
-                    $name  = e($row->user->name ?? 'User');
+                    $name = e($row->user->name ?? 'User');
                     $email = e($row->user->email ?? '');
-                    $url   = e(route('admin.users.show', $row->user->id));
+                    $url = e(route('admin.users.show', $row->user->id));
 
                     return
                         "<div>{$name}
@@ -61,16 +63,17 @@ class AuditLogDataTable extends DataTable
                 return "<span class='text-muted'>System</span>";
             })
 
-
             ->addColumn('request', function (AuditLog $row) {
                 $method = e($row->method ?? '—');
-                $ip     = e($row->ip ?? ($row->host ?? '—'));
-                $url    = e(str($row->url ?? '')->limit(48));
+                $ip = e($row->ip ?? ($row->host ?? '—'));
+                $url = e(str($row->url ?? '')->limit(48));
+
                 return "<div><strong>{$method}</strong> · {$ip}<div class='text-muted small'>{$url}</div></div>";
             })
 
             ->addColumn('changed_count', function (AuditLog $row) {
                 $count = is_array($row->changed) ? count($row->changed) : (collect($row->changed)->count());
+
                 return "<span class='badge bg-light'>{$count}</span>";
             })
 
@@ -96,12 +99,12 @@ class AuditLogDataTable extends DataTable
             ->setRowId('id')
             ->setRowClass(function (AuditLog $row) {
                 return match ($row->event) {
-                    'deleted'  => 'table-danger',
-                    'bulk_deleted'  => 'table-danger',
-                    'updated'  => 'table-warning',
-                    'created'  => 'table-success',
+                    'deleted' => 'table-danger',
+                    'bulk_deleted' => 'table-danger',
+                    'updated' => 'table-warning',
+                    'created' => 'table-success',
                     'restored' => 'table-info',
-                    default    => '',
+                    default => '',
                 };
             })
 
@@ -133,12 +136,12 @@ class AuditLogDataTable extends DataTable
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->parameters([
-                'responsive'  => true,
-                'autoWidth'   => false,
-                'stateSave'   => true,
-                'pageLength'  => 25,
-                'lengthMenu'  => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language'    => [],
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
             ])
             ->buttons([
                 Button::make('selectAll')
@@ -225,6 +228,6 @@ class AuditLogDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'AuditLog_' . date('YmdHis');
+        return 'AuditLog_'.date('YmdHis');
     }
 }

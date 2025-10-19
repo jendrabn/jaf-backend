@@ -39,13 +39,13 @@ class ContactMessagesDataTable extends DataTable
             ];
             $conf = $map[$row->status] ?? ['label' => ucfirst($row->status), 'color' => 'secondary'];
 
-            return '<span class="badge badge-' . e($conf['color']) . ' badge-pill">' . e($conf['label']) . '</span>';
+            return '<span class="badge badge-'.e($conf['color']).' badge-pill">'.e($conf['label']).'</span>';
         });
 
         $dataTable->addColumn('actions', function (ContactMessage $row) {
             $url = route('admin.messages.show', $row->id);
 
-            return '<a href="' . e($url) . '" class="btn btn-sm btn-outline-primary">Show</a>';
+            return '<a href="'.e($url).'" class="btn btn-sm btn-outline-primary">Show</a>';
         });
 
         $dataTable->rawColumns(['status', 'actions']);
@@ -107,6 +107,6 @@ class ContactMessagesDataTable extends DataTable
 
     protected function filename(): string
     {
-        return 'contact_messages_' . date('YmdHis');
+        return 'contact_messages_'.date('YmdHis');
     }
 }

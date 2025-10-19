@@ -15,22 +15,22 @@ class OrdersDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.orders.partials.action')
             ->addColumn('customer', function ($row) {
-                if (!$row->user) {
+                if (! $row->user) {
                     return '';
                 }
 
-                return $row->user->name . '<a class="ml-2 text-muted small icon-btn" href="' . route('admin.users.show', $row->user->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return $row->user->name.'<a class="ml-2 text-muted small icon-btn" href="'.route('admin.users.show', $row->user->id).'"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->editColumn(
                 'items',
-                fn($row) => view('admin.orders.partials.item', ['items' => $row->items])
+                fn ($row) => view('admin.orders.partials.item', ['items' => $row->items])
             )
             ->editColumn('status', function ($row) {
                 $status = Order::STATUSES[$row->status];
@@ -43,15 +43,15 @@ class OrdersDataTable extends DataTable
             })
             ->editColumn(
                 'amount',
-                fn($row) => formatRupiah($row->invoice->amount)
+                fn ($row) => formatRupiah($row->invoice->amount)
             )
             ->editColumn(
                 'shipping',
-                fn($row) => $row->shipping ? strtoupper($row->shipping->courier) . '/' . $row->shipping->tracking_number : ''
+                fn ($row) => $row->shipping ? strtoupper($row->shipping->courier).'/'.$row->shipping->tracking_number : ''
             )
             ->addColumn(
                 'payment_method',
-                fn($row) => strtoupper($row->invoice->payment->method)
+                fn ($row) => strtoupper($row->invoice->payment->method)
             )
             ->setRowId('id')
             ->rawColumns(['action', 'customer', 'items', 'status']);
@@ -76,17 +76,17 @@ class OrdersDataTable extends DataTable
 
         $model->when(
             request()->filled('status'),
-            fn($q) => $q->where('status', request('status'))
+            fn ($q) => $q->where('status', request('status'))
         );
 
         $model->when(
             request()->filled('daterange'),
-            fn($q) => $q->whereBetween('created_at', explode(' - ', request('daterange')))
+            fn ($q) => $q->whereBetween('created_at', explode(' - ', request('daterange')))
         );
 
         $model->when(
             request()->filled('payment_method'),
-            fn($q) => $q->whereHas('invoice', fn($q) => $q->whereHas('payment', fn($q) => $q->where('method', request('payment_method'))))
+            fn ($q) => $q->whereHas('invoice', fn ($q) => $q->whereHas('payment', fn ($q) => $q->where('method', request('payment_method'))))
         );
 
         return $model;
@@ -135,7 +135,7 @@ class OrdersDataTable extends DataTable
 
                         let status = $("#nav-pills-status .nav-link.active").data("status");
                         d["status"] = status;
-                    }'
+                    }',
             ]);
     }
 
@@ -208,6 +208,6 @@ class OrdersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Orders_' . date('dmY');
+        return 'Orders_'.date('dmY');
     }
 }

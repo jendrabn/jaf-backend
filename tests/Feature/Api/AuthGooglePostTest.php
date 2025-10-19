@@ -35,7 +35,7 @@ class AuthGooglePostTest extends ApiTestCase
                 'required',
                 'string',
             ],
-        ], (new GoogleLoginRequest())->rules());
+        ], (new GoogleLoginRequest)->rules());
     }
 
     #[Test]
@@ -44,7 +44,7 @@ class AuthGooglePostTest extends ApiTestCase
         $user = $this->createUser();
         $token = 'google-token';
 
-        $socialiteUser = (new SocialiteUser())
+        $socialiteUser = (new SocialiteUser)
             ->setId('google-id')
             ->setEmail($user->email)
             ->setName($user->name);
@@ -66,10 +66,10 @@ class AuthGooglePostTest extends ApiTestCase
                     'birth_date',
                     'auth_token',
                     'avatar',
-                ]
+                ],
             ])
             ->assertJson([
-                'data' => $this->formatUserData($user->fresh())
+                'data' => $this->formatUserData($user->fresh()),
             ]);
 
         $user = $user->fresh();
@@ -84,7 +84,7 @@ class AuthGooglePostTest extends ApiTestCase
         $token = 'register-token';
         $email = 'new.user@example.com';
 
-        $socialiteUser = (new SocialiteUser())
+        $socialiteUser = (new SocialiteUser)
             ->setId('new-google-id')
             ->setEmail($email)
             ->setName('New Google User');
@@ -106,7 +106,7 @@ class AuthGooglePostTest extends ApiTestCase
                     'birth_date',
                     'auth_token',
                     'avatar',
-                ]
+                ],
             ])
             ->assertJson([
                 'data' => [
@@ -115,7 +115,7 @@ class AuthGooglePostTest extends ApiTestCase
                     'phone' => null,
                     'sex' => null,
                     'birth_date' => null,
-                ]
+                ],
             ]);
 
         $user = User::query()->where('email', $email)->first();
@@ -151,7 +151,7 @@ class AuthGooglePostTest extends ApiTestCase
     {
         $token = 'no-email-token';
 
-        $socialiteUser = (new SocialiteUser())
+        $socialiteUser = (new SocialiteUser)
             ->setId('no-email-id');
 
         $provider = Mockery::mock(Provider::class);

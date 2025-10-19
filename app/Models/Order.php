@@ -3,48 +3,53 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
 
     public const STATUS_PENDING_PAYMENT = 'pending_payment';
+
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_PROCESSING = 'processing';
+
     public const STATUS_ON_DELIVERY = 'on_delivery';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     public const STATUSES = [
         self::STATUS_PENDING_PAYMENT => [
             'label' => 'Pending Payment',
-            'color' => 'secondary'
+            'color' => 'secondary',
         ],
         self::STATUS_PENDING => [
             'label' => 'Pending',
-            'color' => 'warning'
+            'color' => 'warning',
         ],
         self::STATUS_PROCESSING => [
             'label' => 'Processing',
-            'color' => 'success'
+            'color' => 'success',
         ],
         self::STATUS_ON_DELIVERY => [
             'label' => 'On Delivery',
-            'color' => 'success'
+            'color' => 'success',
         ],
         self::STATUS_COMPLETED => [
             'label' => 'Completed',
-            'color' => 'info'
+            'color' => 'info',
         ],
         self::STATUS_CANCELLED => [
             'label' => 'Cancelled',
-            'color' => 'danger'
+            'color' => 'danger',
         ],
     ];
 
@@ -103,6 +108,6 @@ class Order extends Model
 
     public function totalQuantity(): Attribute
     {
-        return Attribute::get(fn() => $this->items->reduce(fn($carry, $item) => $carry + $item->quantity));
+        return Attribute::get(fn () => $this->items->reduce(fn ($carry, $item) => $carry + $item->quantity));
     }
 }

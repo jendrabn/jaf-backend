@@ -9,10 +9,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Shipping extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_PROCESSING = 'processing';
+
     public const STATUS_SHIPPED = 'shipped';
 
     public const STATUSES = [
@@ -46,8 +48,8 @@ class Shipping extends Model
     public function address(): Attribute
     {
         return Attribute::make(
-            set: fn($value) => json_encode($value),
-            get: fn($value) => json_decode($value, true)
+            set: fn ($value) => json_encode($value),
+            get: fn ($value) => json_decode($value, true)
         );
     }
 }

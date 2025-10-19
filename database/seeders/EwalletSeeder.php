@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Ewallet;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class EwalletSeeder extends Seeder
@@ -17,7 +16,7 @@ class EwalletSeeder extends Seeder
             'name' => 'ShopeePay',
             'account_name' => 'JAF Parfum\'s Store',
             'account_username' => 'jafparfumsstore',
-            'phone' => '08123456789'
+            'phone' => '08123456789',
         ]);
     }
 }

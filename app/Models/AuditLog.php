@@ -4,8 +4,8 @@ namespace App\Models;
 
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class AuditLog extends Model
 {
@@ -31,10 +31,10 @@ class AuditLog extends Model
     ];
 
     protected $casts = [
-        'before'     => 'array',
-        'after'      => 'array',
-        'changed'    => 'array',
-        'meta'       => 'array',
+        'before' => 'array',
+        'after' => 'array',
+        'changed' => 'array',
+        'meta' => 'array',
         'properties' => 'array', // legacy
     ];
 

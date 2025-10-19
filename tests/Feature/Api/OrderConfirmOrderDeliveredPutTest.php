@@ -2,13 +2,15 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\{Order, Shipping, User};
-use Database\Seeders\{CitySeeder, ProvinceSeeder};
+use App\Models\Order;
+use App\Models\Shipping;
+use App\Models\User;
+use Database\Seeders\CitySeeder;
+use Database\Seeders\ProvinceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class OrderConfirmOrderDeliveredPutTest extends ApiTestCase
 {
@@ -43,7 +45,7 @@ class OrderConfirmOrderDeliveredPutTest extends ApiTestCase
 
         Sanctum::actingAs($this->user);
 
-        $response = $this->putJson('/api/orders/' . $order->id . '/confirm_order_delivered');
+        $response = $this->putJson('/api/orders/'.$order->id.'/confirm_order_delivered');
 
         $response->assertOk()
             ->assertJson(['data' => true]);
@@ -51,7 +53,6 @@ class OrderConfirmOrderDeliveredPutTest extends ApiTestCase
         $this->assertTrue($order->fresh()->status === Order::STATUS_COMPLETED);
         $this->assertTrue($order->shipping->fresh()->status === Shipping::STATUS_SHIPPED);
     }
-
 
     #[Test]
     public function cannot_confirm_order_delivered_if_order_doenot_exist()
@@ -61,13 +62,13 @@ class OrderConfirmOrderDeliveredPutTest extends ApiTestCase
         Sanctum::actingAs($this->user);
 
         // Unauthorized order id
-        $response1 = $this->putJson('/api/orders/' . $order->id . '/confirm_order_delivered');
+        $response1 = $this->putJson('/api/orders/'.$order->id.'/confirm_order_delivered');
 
         $response1->assertNotFound()
             ->assertJsonStructure(['message']);
 
         // Invalid order id
-        $response2 = $this->putJson('/api/orders/' . $order->id + 1 . '/confirm_order_delivered');
+        $response2 = $this->putJson('/api/orders/'.$order->id + 1 .'/confirm_order_delivered');
 
         $response2->assertNotFound()
             ->assertJsonStructure(['message']);
@@ -82,7 +83,7 @@ class OrderConfirmOrderDeliveredPutTest extends ApiTestCase
 
         Sanctum::actingAs($this->user);
 
-        $response = $this->putJson('/api/orders/' . $order->id . '/confirm_order_delivered');
+        $response = $this->putJson('/api/orders/'.$order->id.'/confirm_order_delivered');
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['order_id']);

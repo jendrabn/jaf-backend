@@ -47,7 +47,7 @@ class ContactReplyController extends Controller
 
             return redirect()
                 ->back()
-                ->with('error', 'Gagal mengirim balasan: ' . $e->getMessage());
+                ->with('error', 'Gagal mengirim balasan: '.$e->getMessage());
         }
     }
 }

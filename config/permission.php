@@ -75,8 +75,8 @@ return [
         /*
          * Change this if you want to name the related pivots other than defaults
          */
-        'role_pivot_key' => null, //default 'role_id',
-        'permission_pivot_key' => null, //default 'permission_id',
+        'role_pivot_key' => null, // default 'role_id',
+        'permission_pivot_key' => null, // default 'permission_id',
 
         /*
          * Change this if you want to name the related model primary key other than
@@ -184,13 +184,13 @@ return [
         'store' => 'default',
     ],
 
-    'permissions' =>  [
+    'permissions' => [
         // Backoffice
         'backoffice' => ['access'],
 
         // Dashboard & Profile
         'dashboard' => ['view'],                         // GET admin.home
-        'profile'   => ['view', 'update', 'update_password'], // index, updateProfile, updatePassword
+        'profile' => ['view', 'update', 'update_password'], // index, updateProfile, updatePassword
 
         // Users (resource + massDestroy)
         'users' => ['view', 'show', 'create', 'edit', 'delete', 'mass_delete'],
@@ -203,7 +203,7 @@ return [
             'mass_delete',
             'confirm_shipping',
             'confirm_payment',
-            'generate_invoice'
+            'generate_invoice',
         ],
 
         // Product Categories (resource except show + storeMedia + massDestroy)
@@ -250,5 +250,5 @@ return [
 
         // Contact Messages (resource-ish: index/show/reply/delete/massDestroy)
         'contact_messages' => ['view', 'show', 'reply', 'delete', 'mass_delete'],
-    ]
+    ],
 ];

@@ -73,9 +73,9 @@ class BlogTagController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' blog tags.'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' blog tags.'],
             ],
             subjectId: null,
             subjectType: \App\Models\BlogTag::class

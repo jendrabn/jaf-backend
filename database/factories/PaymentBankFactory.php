@@ -10,20 +10,20 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class PaymentBankFactory extends Factory
 {
-  /**
-   * Define the model's default state.
-   *
-   * @return array<string, mixed>
-   */
-  public function definition(): array
-  {
-    return [
-      'payment_id' => function () {
-        return PaymentBank::inRandomOrder()->first()->id;
-      },
-      'name' => fake()->randomElement(['BCA', 'BSI', 'Mandiri', 'BRI', 'BNI']),
-      'account_name' => fake()->name(),
-      'account_number' => fake()->creditCardNumber(),
-    ];
-  }
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'payment_id' => function () {
+                return PaymentBank::inRandomOrder()->first()->id;
+            },
+            'name' => fake()->randomElement(['BCA', 'BSI', 'Mandiri', 'BRI', 'BNI']),
+            'account_name' => fake()->name(),
+            'account_number' => fake()->creditCardNumber(),
+        ];
+    }
 }

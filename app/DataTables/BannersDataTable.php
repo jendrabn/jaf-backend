@@ -15,7 +15,7 @@ class BannersDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -109,7 +109,7 @@ class BannersDataTable extends DataTable
             Column::computed('action')
                 ->title('ACTION')
                 ->exportable(false)
-                ->printable(false)
+                ->printable(false),
         ];
     }
 
@@ -118,6 +118,6 @@ class BannersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'BANNERS_' . date('dmY');
+        return 'BANNERS_'.date('dmY');
     }
 }

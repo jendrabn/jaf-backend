@@ -3,11 +3,12 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Banner;
-use Database\Seeders\{ProductBrandSeeder, ProductCategorySeeder};
+use Database\Seeders\ProductBrandSeeder;
+use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class HomePageGetTest extends ApiTestCase
 {
@@ -35,15 +36,14 @@ class HomePageGetTest extends ApiTestCase
             ->assertOk()
             ->assertJson([
                 'data' => [
-                    'banners' =>
-                        $expectedBanners->map(fn($banner) => [
-                            'id' => $banner->id,
-                            'image' => $banner->image ? $banner->image->getUrl() : null,
-                            'image_description' => $banner->image_description,
-                            'url' => $banner->url
-                        ])->toArray(),
-                    'products' => $this->formatProductData($expectedProducts)
-                ]
+                    'banners' => $expectedBanners->map(fn ($banner) => [
+                        'id' => $banner->id,
+                        'image' => $banner->image ? $banner->image->getUrl() : null,
+                        'image_description' => $banner->image_description,
+                        'url' => $banner->url,
+                    ])->toArray(),
+                    'products' => $this->formatProductData($expectedProducts),
+                ],
             ]);
 
         $this->assertStringStartsWith('http', $response['data']['banners'][0]['image']);

@@ -5,11 +5,11 @@ namespace Tests\Feature\Api;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Requests\Api\ShippingCostRequest;
 use App\Models\Shipping;
-use Database\Seeders\{CitySeeder, ProvinceSeeder};
+use Database\Seeders\CitySeeder;
+use Database\Seeders\ProvinceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class ShippingCostPostTest extends ApiTestCase
 {
@@ -33,9 +33,9 @@ class ShippingCostPostTest extends ApiTestCase
             'weight' => [
                 'required',
                 'integer',
-                'max:' . Shipping::MAX_WEIGHT
+                'max:'.Shipping::MAX_WEIGHT,
             ],
-        ], (new ShippingCostRequest())->rules());
+        ], (new ShippingCostRequest)->rules());
     }
 
     #[Test]
@@ -55,8 +55,8 @@ class ShippingCostPostTest extends ApiTestCase
                         'service_name',
                         'cost',
                         'etd',
-                    ]
-                ]
+                    ],
+                ],
             ])
             ->assertJsonFragment([
                 'courier' => 'jne',
@@ -64,7 +64,7 @@ class ShippingCostPostTest extends ApiTestCase
                 'service' => 'REG',
                 'service_name' => 'Layanan Reguler',
                 'cost' => 34000,
-                'etd' => '1-2 hari'
+                'etd' => '1-2 hari',
             ]);
     }
 }

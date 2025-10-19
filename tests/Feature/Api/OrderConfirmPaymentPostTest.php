@@ -4,19 +4,22 @@ namespace Tests\Feature\Api;
 
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Requests\Api\ConfirmPaymentRequest;
-use App\Models\{Invoice, Order, Payment, User};
+use App\Models\Invoice;
+use App\Models\Order;
+use App\Models\Payment;
+use App\Models\User;
 use Database\Seeders\BankSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class OrderConfirmPaymentPostTest extends ApiTestCase
 {
     use RefreshDatabase;
 
     private User $user;
+
     private array $data;
 
     protected function setUp(): void
@@ -27,7 +30,7 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
         $this->data = [
             'name' => 'BCA',
             'account_name' => 'Abdullah',
-            'account_number' => '1988162520'
+            'account_number' => '1988162520',
         ];
     }
 
@@ -64,8 +67,8 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
                 'string',
                 'min:1',
                 'max:50',
-            ]
-        ], (new ConfirmPaymentRequest())->rules());
+            ],
+        ], (new ConfirmPaymentRequest)->rules());
     }
 
     #[Test]
@@ -81,11 +84,11 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
     public function can_confirm_payment()
     {
         $order = Order::factory([
-            'created_at' => now()
+            'created_at' => now(),
         ])
             ->for($this->user)
             ->afterCreating(
-                fn($order) => Invoice::factory(['due_date' => $order->created_at->addDays(1)])
+                fn ($order) => Invoice::factory(['due_date' => $order->created_at->addDays(1)])
                     ->has(Payment::factory())
                     ->for($order)
                     ->create()
@@ -94,7 +97,7 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
 
         Sanctum::actingAs($this->user);
 
-        $response = $this->postJson('/api/orders/' . $order->id . '/confirm_payment', $this->data);
+        $response = $this->postJson('/api/orders/'.$order->id.'/confirm_payment', $this->data);
 
         $response->assertCreated()
             ->assertJson(['data' => true]);
@@ -113,13 +116,13 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
         Sanctum::actingAs($this->user);
 
         // Unauthorized order id
-        $response1 = $this->postJson('/api/orders/' . $order->id . '/confirm_payment', $this->data);
+        $response1 = $this->postJson('/api/orders/'.$order->id.'/confirm_payment', $this->data);
 
         $response1->assertNotFound()
             ->assertJsonStructure(['message']);
 
         // Invalid order id
-        $response2 = $this->postJson('/api/orders/' . $order->id + 1 . '/confirm_payment', $this->data);
+        $response2 = $this->postJson('/api/orders/'.$order->id + 1 .'/confirm_payment', $this->data);
 
         $response2->assertNotFound()
             ->assertJsonStructure(['message']);
@@ -133,7 +136,7 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
         $order = Order::factory()
             ->for($this->user)
             ->afterCreating(
-                fn($order) => Invoice::factory(['due_date' => $order->created_at->addDays(1)])
+                fn ($order) => Invoice::factory(['due_date' => $order->created_at->addDays(1)])
                     ->for($order)
                     ->create()
             )
@@ -141,7 +144,7 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
 
         Sanctum::actingAs($this->user);
 
-        $response = $this->postJson('/api/orders/' . $order->id . '/confirm_payment', $this->data);
+        $response = $this->postJson('/api/orders/'.$order->id.'/confirm_payment', $this->data);
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['order_id']);
@@ -155,7 +158,7 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
         $order = Order::factory()
             ->for($this->user)
             ->afterCreating(
-                fn($order) => Invoice::factory(['due_date' => $order->created_at->addDays(1)])
+                fn ($order) => Invoice::factory(['due_date' => $order->created_at->addDays(1)])
                     ->for($order)
                     ->create()
             )
@@ -165,7 +168,7 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
 
         Sanctum::actingAs($this->user);
 
-        $response = $this->postJson('/api/orders/' . $order->id . '/confirm_payment', $this->data);
+        $response = $this->postJson('/api/orders/'.$order->id.'/confirm_payment', $this->data);
 
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['order_id']);

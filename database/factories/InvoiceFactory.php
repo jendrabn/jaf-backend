@@ -11,19 +11,19 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class InvoiceFactory extends Factory
 {
-  /**
-   * Define the model's default state.
-   *
-   * @return array<string, mixed>
-   */
-  public function definition(): array
-  {
-    return [
-      'order_id' => Order::inRandomOrder()->first()->id ?? Order::factory()->create()->id,
-      'number' => 'INV/' . fake()->date('Ymd') . '/' . fake()->randomDigit(),
-      'amount' => fake()->numberBetween(150000, 1000000),
-      'status' => fake()->randomElement([Invoice::STATUS_PAID, Invoice::STATUS_UNPAID]),
-      'due_date' => fake()->dateTime(),
-    ];
-  }
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'order_id' => Order::inRandomOrder()->first()->id ?? Order::factory()->create()->id,
+            'number' => 'INV/'.fake()->date('Ymd').'/'.fake()->randomDigit(),
+            'amount' => fake()->numberBetween(150000, 1000000),
+            'status' => fake()->randomElement([Invoice::STATUS_PAID, Invoice::STATUS_UNPAID]),
+            'due_date' => fake()->dateTime(),
+        ];
+    }
 }

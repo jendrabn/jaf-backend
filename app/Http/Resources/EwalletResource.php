@@ -20,7 +20,7 @@ class EwalletResource extends JsonResource
             'account_name' => $this->account_name,
             'account_username' => $this->account_username,
             'phone' => $this->phone,
-            'logo' => $this->logo?->getUrl()
+            'logo' => $this->logo?->getUrl(),
         ];
     }
 }

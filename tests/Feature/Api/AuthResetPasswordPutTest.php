@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
-use Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class AuthResetPasswordPutTest extends ApiTestCase
 {
@@ -35,20 +35,20 @@ class AuthResetPasswordPutTest extends ApiTestCase
                 'required',
                 'string',
                 'email',
-                Rule::exists('users', 'email')
+                Rule::exists('users', 'email'),
             ],
             'token' => [
                 'required',
-                'string'
+                'string',
             ],
             'password' => [
                 'required',
                 'string',
                 PasswordRule::min(8)->mixedCase()->numbers(),
                 'max:30',
-                'confirmed'
+                'confirmed',
             ],
-        ], (new ResetPasswordRequest())->rules());
+        ], (new ResetPasswordRequest)->rules());
     }
 
     #[Test]

@@ -12,7 +12,6 @@ class AuditLogController extends Controller
     /**
      * Index view data for audit log based on AuditLogDataTable
      *
-     * @param AuditLogDataTable $dataTable
      * @return \Illuminate\Http\Response
      */
     public function index(AuditLogDataTable $dataTable)
@@ -23,7 +22,6 @@ class AuditLogController extends Controller
     /**
      * Show the form for editing the given audit log.
      *
-     * @param \App\Models\AuditLog $auditLog
      * @return \Illuminate\Http\Response
      */
     public function show(AuditLog $auditLog)
@@ -34,7 +32,6 @@ class AuditLogController extends Controller
     /**
      * Delete the given audit log.
      *
-     * @param \App\Models\AuditLog $auditLog
      * @return \Illuminate\Http\Response
      */
     public function destroy(AuditLog $auditLog)
@@ -47,7 +44,6 @@ class AuditLogController extends Controller
     /**
      * Mass delete audit logs based on provided IDs.
      *
-     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function massDestroy(Request $request)
@@ -68,9 +64,9 @@ class AuditLogController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' audit logs']
+                'meta' => ['note' => 'Bulk deleted '.$count.' audit logs'],
             ],
             subjectId: null,
             subjectType: \App\Models\AuditLog::class

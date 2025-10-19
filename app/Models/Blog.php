@@ -4,18 +4,18 @@ namespace App\Models;
 
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
-use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Blog extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia, Auditable;
+    use Auditable, HasFactory, InteractsWithMedia;
 
     const MEDIA_COLLECTION_NAME = 'blog_images';
 
@@ -28,7 +28,7 @@ class Blog extends Model implements HasMedia
         'views_count',
         'is_publish',
         'blog_category_id',
-        'user_id'
+        'user_id',
     ];
 
     protected $casts = [

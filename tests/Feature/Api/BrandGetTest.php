@@ -5,8 +5,8 @@ namespace Tests\Feature\Api;
 use App\Models\ProductBrand;
 use Database\Seeders\ProductBrandSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class BrandGetTest extends ApiTestCase
 {

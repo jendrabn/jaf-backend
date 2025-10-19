@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Wishlist extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -33,6 +33,6 @@ class Wishlist extends Model
 
     protected static function booted(): void
     {
-        static::addGlobalScope(fn($q) => $q->whereHas('product', fn($q) => $q->where('is_publish', true)));
+        static::addGlobalScope(fn ($q) => $q->whereHas('product', fn ($q) => $q->where('is_publish', true)));
     }
 }

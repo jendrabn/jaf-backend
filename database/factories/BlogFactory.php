@@ -28,7 +28,7 @@ class BlogFactory extends Factory
             'min_read' => fake()->numberBetween(1, 100),
             'is_publish' => fake()->boolean(80),
             'blog_category_id' => BlogCategory::inRandomOrder()->first()->id,
-            'user_id' => User::role(User::ROLE_ADMIN)->inRandomOrder()->first()->id
+            'user_id' => User::role(User::ROLE_ADMIN)->inRandomOrder()->first()->id,
         ];
     }
 

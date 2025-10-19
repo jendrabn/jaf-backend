@@ -5,7 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     /**
      * Run the migrations.
      */
@@ -29,7 +30,7 @@ return new class extends Migration {
                 'processing',
                 'on_delivery',
                 'completed',
-                'cancelled'
+                'cancelled',
             ])->index('idx_orders_status');
             $table->timestamp('confirmed_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();

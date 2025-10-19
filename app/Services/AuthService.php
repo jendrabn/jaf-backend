@@ -2,20 +2,24 @@
 
 namespace App\Services;
 
-use App\Http\Requests\Api\{GoogleLoginRequest, LoginRequest, ResetPasswordRequest, VerifyLoginOtpRequest, ResendLoginOtpRequest};
+use App\Http\Requests\Api\GoogleLoginRequest;
+use App\Http\Requests\Api\LoginRequest;
+use App\Http\Requests\Api\ResendLoginOtpRequest;
+use App\Http\Requests\Api\ResetPasswordRequest;
+use App\Http\Requests\Api\VerifyLoginOtpRequest;
+use App\Mail\LoginOtpMail;
+use App\Models\LoginOtp;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Laravel\Socialite\Facades\Socialite;
-use App\Models\LoginOtp;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\LoginOtpMail;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Log;
 
 class AuthService
 {
@@ -23,7 +27,7 @@ class AuthService
     {
         $validatedData = $request->validated();
 
-        if (!auth()->attempt($validatedData)) {
+        if (! auth()->attempt($validatedData)) {
             Log::warning('Login failed: invalid credentials.', ['email' => $validatedData['email']]);
             throw new AuthenticationException('Kredensial yang diberikan salah.');
         }
@@ -78,7 +82,7 @@ class AuthService
         if (empty($email)) {
             Log::warning('Google login failed: email not available.');
             throw ValidationException::withMessages([
-                'token' => 'Akun Google tidak menyediakan alamat email.'
+                'token' => 'Akun Google tidak menyediakan alamat email.',
             ]);
         }
 
@@ -89,7 +93,7 @@ class AuthService
 
         $name = $googleUser->getName() ?: $googleUser->getNickname() ?: $email;
 
-        if (!$user) {
+        if (! $user) {
             $user = User::create([
                 'name' => $name,
                 'email' => $email,
@@ -112,7 +116,7 @@ class AuthService
                 $updates['email_verified_at'] = now();
             }
 
-            if (!empty($updates)) {
+            if (! empty($updates)) {
                 $user->forceFill($updates)->save();
             }
         }
@@ -135,7 +139,7 @@ class AuthService
             ->latest()
             ->first();
 
-        if (!$otp) {
+        if (! $otp) {
             Log::warning('OTP verification failed: invalid code.', ['user_id' => $user->id, 'email' => $validated['email']]);
             throw ValidationException::withMessages(['code' => 'Kode OTP tidak valid.']);
         }
@@ -145,7 +149,7 @@ class AuthService
             throw ValidationException::withMessages(['code' => 'Kode OTP telah kedaluwarsa.']);
         }
 
-        if (!is_null($otp->consumed_at)) {
+        if (! is_null($otp->consumed_at)) {
             Log::warning('OTP verification failed: code already used.', ['user_id' => $user->id, 'email' => $validated['email']]);
             throw ValidationException::withMessages(['code' => 'Kode OTP sudah digunakan.']);
         }
@@ -185,7 +189,7 @@ class AuthService
         $user = User::where('email', $email)->firstOrFail();
 
         // Rate limit: satu permintaan setiap 30 detik per pengguna (berdasarkan waktu request)
-        $key = 'resend-login-otp:' . $user->id;
+        $key = 'resend-login-otp:'.$user->id;
 
         if (RateLimiter::tooManyAttempts($key, 1)) {
             $wait = (int) RateLimiter::availableIn($key);
@@ -236,8 +240,8 @@ class AuthService
 
         [$local, $domain] = explode('@', $email, 2);
         $visible = max(1, min(3, strlen($local)));
-        $maskedLocal = substr($local, 0, $visible) . str_repeat('*', max(0, strlen($local) - $visible));
+        $maskedLocal = substr($local, 0, $visible).str_repeat('*', max(0, strlen($local) - $visible));
 
-        return $maskedLocal . '@' . $domain;
+        return $maskedLocal.'@'.$domain;
     }
 }

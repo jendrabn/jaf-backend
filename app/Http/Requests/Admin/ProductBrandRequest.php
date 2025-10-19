@@ -4,7 +4,6 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-
 class ProductBrandRequest extends FormRequest
 {
     /**
@@ -29,42 +28,42 @@ class ProductBrandRequest extends FormRequest
                     'string',
                     'min:1',
                     'max:100',
-                    'unique:product_brands,name'
+                    'unique:product_brands,name',
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:1',
                     'max:255',
-                    'unique:product_brands,slug'
+                    'unique:product_brands,slug',
                 ],
             ];
-        } else if ($this->routeIs('admin.product-brands.update')) {
+        } elseif ($this->routeIs('admin.product-brands.update')) {
             return [
                 'name' => [
                     'required',
                     'string',
                     'min:1',
                     'max:100',
-                    'unique:product_brands,name,' . $this->route('product_brand')->id,
+                    'unique:product_brands,name,'.$this->route('product_brand')->id,
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:1',
                     'max:255',
-                    'unique:product_brands,slug,' . $this->id,
+                    'unique:product_brands,slug,'.$this->id,
                 ],
             ];
-        } else if ($this->routeIs('admin.product-brands.massDestroy')) {
+        } elseif ($this->routeIs('admin.product-brands.massDestroy')) {
             return [
                 'ids' => [
                     'required',
-                    'array'
+                    'array',
                 ],
                 'ids.*' => [
                     'integer',
-                    'exists:product_brands,id'
+                    'exists:product_brands,id',
                 ],
             ];
         } else {

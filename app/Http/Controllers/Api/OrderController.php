@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\{ConfirmPaymentRequest, CreateOrderRequest, ProductRatingRequest};
-use App\Http\Resources\{OrderCollection, OrderDetailResource};
+use App\Http\Requests\Api\ConfirmPaymentRequest;
+use App\Http\Requests\Api\CreateOrderRequest;
+use App\Http\Requests\Api\ProductRatingRequest;
+use App\Http\Resources\OrderCollection;
+use App\Http\Resources\OrderDetailResource;
 use App\Models\Order;
 use App\Models\ProductRating;
 use App\Services\OrderService;
@@ -35,14 +38,14 @@ class OrderController extends Controller
         return response()->json([
             'data' => [
                 'id' => $order->id,
-                'total_amount' =>  $order->invoice->amount,
-                'payment_method' =>  $order->invoice->payment->method,
-                'payment_info' =>  $order->invoice->payment->info,
+                'total_amount' => $order->invoice->amount,
+                'payment_method' => $order->invoice->payment->method,
+                'payment_info' => $order->invoice->payment->info,
                 'gateway_fee' => $order->gateway_fee,
                 'gateway_fee_name' => $order->gateway_fee_name,
-                'payment_due_date' =>  $order->invoice->due_date,
-                'created_at' => $order->created_at
-            ]
+                'payment_due_date' => $order->invoice->due_date,
+                'created_at' => $order->created_at,
+            ],
         ], Response::HTTP_CREATED);
     }
 
@@ -58,7 +61,7 @@ class OrderController extends Controller
             'items.rating',
             'invoice',
             'invoice.payment',
-            'shipping'
+            'shipping',
         ]);
 
         return OrderDetailResource::make($order)
@@ -91,7 +94,7 @@ class OrderController extends Controller
                 ], [
                     'rating' => $rating['rating'],
                     'comment' => $rating['comment'],
-                    'is_anonymous' => $rating['is_anonymous']
+                    'is_anonymous' => $rating['is_anonymous'],
                 ]);
             }
         });
@@ -112,7 +115,7 @@ class OrderController extends Controller
             $lastPhoneNumber = strlen($digitsOnly) >= 5 ? substr($digitsOnly, -5) : null;
         }
 
-        $service = new RajaOngkirService();
+        $service = new RajaOngkirService;
 
         try {
             $trackingData = $service->trackWaybill($courierCode, $waybillNumber, $lastPhoneNumber);
@@ -139,7 +142,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'meta' => [
-                    'message' => 'Gagal mengambil data tracking: ' . $e->getMessage(),
+                    'message' => 'Gagal mengambil data tracking: '.$e->getMessage(),
                     'code' => 500,
                     'status' => 'error',
                 ],

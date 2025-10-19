@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class ProductRequest extends FormRequest
 {
@@ -37,7 +37,7 @@ class ProductRequest extends FormRequest
                     'string',
                     'min:1',
                     'max:200',
-                    'unique:products,name'
+                    'unique:products,name',
                 ],
                 'slug' => [
                     'required',
@@ -48,7 +48,7 @@ class ProductRequest extends FormRequest
                 'product_category_id' => [
                     'required',
                     'integer',
-                    'exists:product_categories,id'
+                    'exists:product_categories,id',
                 ],
                 'description' => [
                     'required',
@@ -56,12 +56,12 @@ class ProductRequest extends FormRequest
                 'product_brand_id' => [
                     'nullable',
                     'integer',
-                    'exists:product_brands,id'
+                    'exists:product_brands,id',
                 ],
                 'sex' => [
                     'nullable',
                     'integer',
-                    'in:1,2,3'
+                    'in:1,2,3',
                 ],
                 'price' => [
                     'required',
@@ -77,10 +77,10 @@ class ProductRequest extends FormRequest
                 ],
                 'is_publish' => [
                     'required',
-                    'boolean'
+                    'boolean',
                 ],
             ];
-        } else if ($this->routeIs('admin.products.update')) {
+        } elseif ($this->routeIs('admin.products.update')) {
             return [
                 'images' => [
                     'array',
@@ -94,7 +94,7 @@ class ProductRequest extends FormRequest
                     'string',
                     'min:1',
                     'max:200',
-                    'unique:products,name,' . $this->product->id
+                    'unique:products,name,'.$this->product->id,
                 ],
                 'slug' => [
                     'required',
@@ -105,7 +105,7 @@ class ProductRequest extends FormRequest
                 'product_category_id' => [
                     'required',
                     'integer',
-                    'exists:product_categories,id'
+                    'exists:product_categories,id',
                 ],
                 'description' => [
                     'required',
@@ -113,12 +113,12 @@ class ProductRequest extends FormRequest
                 'product_brand_id' => [
                     'nullable',
                     'integer',
-                    'exists:product_brands,id'
+                    'exists:product_brands,id',
                 ],
                 'sex' => [
                     'nullable',
                     'integer',
-                    'in:1,2,3'
+                    'in:1,2,3',
                 ],
                 'price' => [
                     'required',
@@ -134,18 +134,18 @@ class ProductRequest extends FormRequest
                 ],
                 'is_publish' => [
                     'required',
-                    'boolean'
+                    'boolean',
                 ],
             ];
-        } else if ($this->routeIs('admin.products.massDestroy')) {
+        } elseif ($this->routeIs('admin.products.massDestroy')) {
             return [
                 'ids' => [
                     'required',
-                    'array'
+                    'array',
                 ],
                 'ids.*' => [
                     'integer',
-                    'exists:products,id'
+                    'exists:products,id',
                 ],
             ];
         } else {
@@ -162,7 +162,7 @@ class ProductRequest extends FormRequest
     {
         $this->merge([
             'slug' => Str::slug($this->name),
-            'is_publish' => (bool) $this->is_publish
+            'is_publish' => (bool) $this->is_publish,
         ]);
     }
 }

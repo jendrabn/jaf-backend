@@ -3,11 +3,11 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Product;
-use Database\Seeders\{ProductBrandSeeder, ProductCategorySeeder};
+use Database\Seeders\ProductBrandSeeder;
+use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class ProductSimilarGetTest extends ApiTestCase
 {
@@ -24,10 +24,10 @@ class ProductSimilarGetTest extends ApiTestCase
     {
         $this->createProduct(count: 3);
         $products = Product::factory(7)
-            ->sequence(['name' => 'Bvlgari ' . fake()->sentence(2)])
+            ->sequence(['name' => 'Bvlgari '.fake()->sentence(2)])
             ->create();
 
-        $response = $this->getJson('/api/products/' . $id = $products->first()->id . '/similars');
+        $response = $this->getJson('/api/products/'.$id = $products->first()->id.'/similars');
 
         $expectedProducts = $products->where('id', '!==', $id)->sortByDesc('id')->take(5);
 
@@ -40,7 +40,7 @@ class ProductSimilarGetTest extends ApiTestCase
     {
         $product = $this->createProduct();
 
-        $response = $this->getJson('/api/products/' . $product->id + 1 . '/similars');
+        $response = $this->getJson('/api/products/'.$product->id + 1 .'/similars');
 
         $response->assertNotFound()
             ->assertJsonStructure(['message']);

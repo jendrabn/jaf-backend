@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\{
-    ForgotPasswordRequest,
-    GoogleLoginRequest,
-    LoginRequest,
-    RegisterRequest,
-    ResetPasswordRequest,
-    VerifyLoginOtpRequest,
-    ResendLoginOtpRequest
-};
+use App\Http\Requests\Api\ForgotPasswordRequest;
+use App\Http\Requests\Api\GoogleLoginRequest;
+use App\Http\Requests\Api\LoginRequest;
+use App\Http\Requests\Api\RegisterRequest;
+use App\Http\Requests\Api\ResendLoginOtpRequest;
+use App\Http\Requests\Api\ResetPasswordRequest;
+use App\Http\Requests\Api\VerifyLoginOtpRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\AuthService;

@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Bank;
-use Illuminate\View\View;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
 use App\DataTables\BanksDataTable;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\Admin\BankRequest;
-use Symfony\Component\HttpFoundation\Response;
+use App\Models\Bank;
 use App\Traits\MediaUploadingTrait;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Symfony\Component\HttpFoundation\Response;
 
 class BankController extends Controller
 {
@@ -20,19 +20,14 @@ class BankController extends Controller
 
     /**
      * Displays a listing of the resource.
-     *
-     * @param BanksDataTable $dataTable
-     * @return mixed
      */
     public function index(BanksDataTable $dataTable): mixed
     {
-        return $dataTable->render("admin.banks.index");
+        return $dataTable->render('admin.banks.index');
     }
 
     /**
      * Display a form for creating a new resource.
-     *
-     * @return View
      */
     public function create(): View
     {
@@ -44,7 +39,7 @@ class BankController extends Controller
         $bank = Bank::create($request->validated());
 
         if ($request->input('logo', false)) {
-            $path = storage_path('tmp/uploads/' . basename($request->input('logo')));
+            $path = storage_path('tmp/uploads/'.basename($request->input('logo')));
             $bank->addMedia($path)->toMediaCollection(Bank::MEDIA_COLLECTION_NAME);
         }
 
@@ -59,9 +54,6 @@ class BankController extends Controller
 
     /**
      * Show the form for editing the specified resource.
-     *
-     * @param Bank $bank
-     * @return View
      */
     public function edit(Bank $bank): View
     {
@@ -70,21 +62,17 @@ class BankController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param BankRequest $request
-     * @param Bank $bank
-     * @return RedirectResponse
      */
     public function update(BankRequest $request, Bank $bank): RedirectResponse
     {
         $bank->update($request->validated());
 
         if ($request->input('logo', false)) {
-            if (!$bank->logo || $request->input('logo') !== $bank->logo->file_name) {
+            if (! $bank->logo || $request->input('logo') !== $bank->logo->file_name) {
                 if ($bank->logo) {
                     $bank->logo->delete();
                 }
-                $path = storage_path('tmp/uploads/' . basename($request->input('logo')));
+                $path = storage_path('tmp/uploads/'.basename($request->input('logo')));
                 $bank->addMedia($path)->toMediaCollection(Bank::MEDIA_COLLECTION_NAME);
             }
         } elseif ($bank->logo) {
@@ -98,9 +86,6 @@ class BankController extends Controller
 
     /**
      * Remove the specified resource from storage.
-     *
-     * @param Bank $bank
-     * @return JsonResponse
      */
     public function destroy(Bank $bank): JsonResponse
     {
@@ -111,9 +96,6 @@ class BankController extends Controller
 
     /**
      * Destroy the specified resource(s) from storage.
-     *
-     * @param BankRequest $request
-     * @return JsonResponse
      */
     public function massDestroy(BankRequest $request): JsonResponse
     {
@@ -128,9 +110,9 @@ class BankController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' banks']
+                'meta' => ['note' => 'Bulk deleted '.$count.' banks'],
             ],
             subjectId: null,
             subjectType: \App\Models\Bank::class
@@ -141,13 +123,10 @@ class BankController extends Controller
 
     /**
      * Store a newly uploaded media in storage using CKEditor.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function storeCKEditorImages(Request $request): JsonResponse
     {
-        $model = new Bank();
+        $model = new Bank;
         $model->id = $request->input('crud_id', 0);
         $model->exists = true;
         $media = $model->addMediaFromRequest('upload')->toMediaCollection('ck-media');

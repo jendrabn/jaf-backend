@@ -64,6 +64,7 @@ class TrackWaybillsCommand extends Command
 
                 if ($data === null) {
                     $this->line("Order #{$order->id}: no tracking data returned");
+
                     continue;
                 }
 

@@ -6,10 +6,7 @@ use App\Models\CouponUsage;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class CouponUsageDataTable extends DataTable
@@ -17,17 +14,17 @@ class CouponUsageDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', 'couponusage.action')
             ->addColumn('order_id', function ($row) {
-                return $row->order->id . '<a href="' . route('admin.orders.show', $row->order->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return $row->order->id.'<a href="'.route('admin.orders.show', $row->order->id).'"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->addColumn('customer', function ($row) {
-                return $row->order->user->name . '<a href="' . route('admin.users.show', $row->order->user->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return $row->order->user->name.'<a href="'.route('admin.users.show', $row->order->user->id).'"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->setRowId('id')
             ->rawColumns(['action', 'order_id', 'customer']);
@@ -52,7 +49,7 @@ class CouponUsageDataTable extends DataTable
             ->setTableId('datatable-couponusage')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            //->dom('Bfrtip')
+            // ->dom('Bfrtip')
             ->orderBy(0, 'desc')
             ->selectStyleSingle()
             ->buttons([]);
@@ -88,6 +85,6 @@ class CouponUsageDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'CouponUsage_' . date('YmdHis');
+        return 'CouponUsage_'.date('YmdHis');
     }
 }

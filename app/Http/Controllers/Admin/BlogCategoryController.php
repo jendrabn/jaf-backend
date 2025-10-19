@@ -76,9 +76,9 @@ class BlogCategoryController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' blog categories']
+                'meta' => ['note' => 'Bulk deleted '.$count.' blog categories'],
             ],
             subjectId: null,
             subjectType: \App\Models\BlogCategory::class

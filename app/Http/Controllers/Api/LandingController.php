@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\{BannerResource, ProductResource};
+use App\Http\Resources\BannerResource;
 use App\Http\Resources\BlogResource;
-use App\Models\{Banner, Product};
+use App\Http\Resources\ProductResource;
+use App\Models\Banner;
 use App\Models\Blog;
+use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -34,7 +36,7 @@ class LandingController extends Controller
                 'banners' => BannerResource::collection($banners),
                 'products' => ProductResource::collection($products),
                 'blogs' => BlogResource::collection($blogs),
-            ]
+            ],
         ], Response::HTTP_OK);
     }
 }

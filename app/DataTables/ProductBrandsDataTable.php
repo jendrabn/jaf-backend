@@ -15,7 +15,7 @@ class ProductBrandsDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -122,6 +122,6 @@ class ProductBrandsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'ProductBrands_' . date('dmY');
+        return 'ProductBrands_'.date('dmY');
     }
 }

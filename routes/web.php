@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BlogTagController;
+use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
+use App\Http\Controllers\Admin\ContactReplyController as AdminContactReplyController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EwalletController;
 use App\Http\Controllers\Admin\OrderController;
@@ -15,8 +17,6 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\TaxController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
-use App\Http\Controllers\Admin\ContactReplyController as AdminContactReplyController;
 use App\Http\Controllers\Api\ContactMessageController as PublicContactController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +28,7 @@ Route::get('/home', function () {
     if (session('status')) {
         return redirect()->route('admin.home')->with('status', session('status'));
     }
+
     return redirect()->route('admin.home');
 });
 
@@ -618,7 +619,6 @@ Route::middleware(['auth', 'permission:backoffice.access'])
                 ->middleware('permission:contact_messages.reply');
         });
     });
-
 
 Route::get('swagger', function () {
     return view('docs');

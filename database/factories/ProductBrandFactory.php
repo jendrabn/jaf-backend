@@ -9,16 +9,16 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ProductBrandFactory extends Factory
 {
-  /**
-   * Define the model's default state.
-   *
-   * @return array<string, mixed>
-   */
-  public function definition(): array
-  {
-    return [
-      'name' => fake()->name(),
-      'slug' => fake()->unique()->slug(),
-    ];
-  }
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'name' => fake()->name(),
+            'slug' => fake()->unique()->slug(),
+        ];
+    }
 }

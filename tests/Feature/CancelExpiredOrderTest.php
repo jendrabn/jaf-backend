@@ -5,10 +5,8 @@ namespace Tests\Feature;
 use App\Models\Invoice;
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class CancelExpiredOrderTest extends ApiTestCase
 {
@@ -20,7 +18,7 @@ class CancelExpiredOrderTest extends ApiTestCase
         $order = Order::factory()
             ->for($this->createUser())
             ->afterCreating(
-                fn(Order $order) => Invoice::factory()->create(['due_date' => $order->created_at->addDays(1)])
+                fn (Order $order) => Invoice::factory()->create(['due_date' => $order->created_at->addDays(1)])
             )
             ->create(['status' => Order::STATUS_PENDING_PAYMENT]);
 

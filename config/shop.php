@@ -9,11 +9,11 @@ return [
         'city_name' => 'Jember',
         'province_name' => 'Jawa Timur',
         'phone' => '081234567890',
-        'address' => null
+        'address' => null,
     ],
     'rajaongkir' => [
         'key' => env('RAJAONGKIR_KEY'),
-        'base_url' => env('RAJAONGKIR_BASE_URL')
+        'base_url' => env('RAJAONGKIR_BASE_URL'),
     ],
-    'front_url' => env('FRONT_URL')
+    'front_url' => env('FRONT_URL'),
 ];

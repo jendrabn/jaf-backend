@@ -6,26 +6,26 @@ namespace App\Models;
 
 use App\Traits\Auditable;
 use DateTimeInterface;
-use Spatie\Image\Enums\Fit;
-use Illuminate\Support\Carbon;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Notifications\Notifiable;
-use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements CanResetPassword, HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles, InteractsWithMedia, Auditable;
+    use Auditable, HasApiTokens, HasFactory, HasRoles, InteractsWithMedia, Notifiable;
 
     public const ROLE_ADMIN = 'admin';
+
     public const ROLE_USER = 'user';
 
     public const MEDIA_COLLECTION_NAME = 'avatar_images';
@@ -58,7 +58,7 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
 
     protected $appends = [
         'sex_label',
-        'avatar'
+        'avatar',
     ];
 
     protected function serializeDate(DateTimeInterface $date): string
@@ -89,7 +89,7 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
     public function sexLabel(): Attribute
     {
         return Attribute::make(
-            get: fn($value, $attributes) => self::SEX_SELECT[$attributes['sex'] ?? null] ?? ''
+            get: fn ($value, $attributes) => self::SEX_SELECT[$attributes['sex'] ?? null] ?? ''
         );
     }
 

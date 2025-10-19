@@ -7,8 +7,8 @@ use App\Http\Requests\Api\ProfileRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\Rule;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class UserPutTest extends ApiTestCase
 {
@@ -28,7 +28,7 @@ class UserPutTest extends ApiTestCase
     public function profile_request_has_the_correct_validation_rules()
     {
         $user = $this->createUser();
-        $rules = (new ProfileRequest())->setUserResolver(fn() => $user)->rules();
+        $rules = (new ProfileRequest)->setUserResolver(fn () => $user)->rules();
 
         $this->assertValidationRules([
             'name' => [
@@ -43,7 +43,7 @@ class UserPutTest extends ApiTestCase
                 'email',
                 'min:1',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($user->id)
+                Rule::unique('users', 'email')->ignore($user->id),
             ],
             'phone' => [
                 'nullable',
@@ -55,7 +55,7 @@ class UserPutTest extends ApiTestCase
             'sex' => [
                 'nullable',
                 'integer',
-                Rule::in([1, 2])
+                Rule::in([1, 2]),
             ],
             'birth_date' => [
                 'nullable',

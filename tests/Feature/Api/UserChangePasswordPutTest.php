@@ -8,8 +8,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class UserChangePasswordPutTest extends ApiTestCase
 {
@@ -41,7 +41,7 @@ class UserChangePasswordPutTest extends ApiTestCase
                 'max:30',
                 'confirmed',
             ],
-        ], (new UpdatePasswordRequest())->rules());
+        ], (new UpdatePasswordRequest)->rules());
     }
 
     #[Test]
@@ -62,7 +62,7 @@ class UserChangePasswordPutTest extends ApiTestCase
         $data = [
             'current_password' => $password,
             'password' => $newPassword,
-            'password_confirmation' => $newPassword
+            'password_confirmation' => $newPassword,
         ];
 
         Sanctum::actingAs($user);

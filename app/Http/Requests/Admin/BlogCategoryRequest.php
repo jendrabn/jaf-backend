@@ -28,33 +28,33 @@ class BlogCategoryRequest extends FormRequest
                     'string',
                     'min:3',
                     'max:50',
-                    'unique:blog_categories,name'
+                    'unique:blog_categories,name',
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:3',
                     'max:255',
-                    'unique:blog_categories,slug'
+                    'unique:blog_categories,slug',
                 ],
             ];
-        } else if ($this->routeIs('admin.blog-categories.update')) {
+        } elseif ($this->routeIs('admin.blog-categories.update')) {
             return [
                 'name' => [
                     'required',
                     'string',
                     'min:3',
-                    'max:50'
+                    'max:50',
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:3',
                     'max:255',
-                    'unique:blog_categories,slug,' . $this->id
+                    'unique:blog_categories,slug,'.$this->id,
                 ],
             ];
-        } else if ($this->routeIs('admin.blog-categories.massDestroy')) {
+        } elseif ($this->routeIs('admin.blog-categories.massDestroy')) {
             return [
                 'ids' => [
                     'required',

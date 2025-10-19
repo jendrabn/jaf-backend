@@ -8,7 +8,7 @@
     </a>
 
     <a class="btn btn-danger btn-sm btn-icon btn-delete"
-       href="{{ route('admin.orders.destroy', $id) }}') }}">
+       href="{{ route('admin.orders.destroy', $id) }}">
         <i class="bi bi-trash3"></i>
     </a>
 </div>

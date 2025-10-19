@@ -5,8 +5,8 @@ namespace Tests\Feature\Api;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Requests\Api\LoginRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class AuthLoginPostTest extends ApiTestCase
 {
@@ -35,7 +35,7 @@ class AuthLoginPostTest extends ApiTestCase
                 'required',
                 'string',
             ],
-        ], (new LoginRequest())->rules());
+        ], (new LoginRequest)->rules());
     }
 
     #[Test]
@@ -45,7 +45,7 @@ class AuthLoginPostTest extends ApiTestCase
 
         $response = $this->postJson('/api/auth/login', [
             'email' => $user->email,
-            'password' => $password
+            'password' => $password,
         ]);
 
         $response->assertOk()
@@ -58,10 +58,10 @@ class AuthLoginPostTest extends ApiTestCase
                     'sex',
                     'birth_date',
                     'auth_token',
-                ]
+                ],
             ])
             ->assertJson([
-                'data' => $this->formatUserData($user)
+                'data' => $this->formatUserData($user),
             ]);
 
         $this->assertCount(1, $user->fresh()->tokens);

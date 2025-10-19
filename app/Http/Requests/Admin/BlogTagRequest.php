@@ -28,34 +28,34 @@ class BlogTagRequest extends FormRequest
                     'string',
                     'min:3',
                     'max:50',
-                    'unique:blog_tags,name'
+                    'unique:blog_tags,name',
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:3',
                     'max:255',
-                    'unique:blog_tags,slug'
+                    'unique:blog_tags,slug',
                 ],
             ];
-        } else if ($this->routeIs('admin.blog-tags.update')) {
+        } elseif ($this->routeIs('admin.blog-tags.update')) {
             return [
                 'name' => [
                     'required',
                     'string',
                     'min:3',
                     'max:50',
-                    'unique:blog_tags,name,' . $this->id
+                    'unique:blog_tags,name,'.$this->id,
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:3',
                     'max:255',
-                    'unique:blog_tags,slug,' . $this->id
+                    'unique:blog_tags,slug,'.$this->id,
                 ],
             ];
-        } else if ($this->routeIs('admin.blog-tags.massDestroy')) {
+        } elseif ($this->routeIs('admin.blog-tags.massDestroy')) {
             return [
                 'ids' => [
                     'required',

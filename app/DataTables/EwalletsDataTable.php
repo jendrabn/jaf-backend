@@ -15,7 +15,7 @@ class EwalletsDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -125,6 +125,6 @@ class EwalletsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Ewallets_' . date('dmY');
+        return 'Ewallets_'.date('dmY');
     }
 }

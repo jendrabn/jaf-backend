@@ -3,20 +3,20 @@
 namespace App\Models;
 
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PaymentEwallet extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
 
     protected $fillable = [
         'payment_id',
         'name',
         'account_name',
         'account_username',
-        'phone'
+        'phone',
     ];
 
     public function serializeDate(\DateTimeInterface $date)

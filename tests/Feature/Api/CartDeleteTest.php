@@ -9,9 +9,8 @@ use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\Rule;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class CartDeleteTest extends ApiTestCase
 {
@@ -27,18 +26,18 @@ class CartDeleteTest extends ApiTestCase
     public function delete_cart_request_has_the_correct_validation_rules()
     {
         $user = $this->createUser();
-        $rules = (new DeleteCartRequest())->setUserResolver(fn() => $user)->rules();
+        $rules = (new DeleteCartRequest)->setUserResolver(fn () => $user)->rules();
 
         $this->assertValidationRules([
             'cart_ids' => [
                 'required',
-                'array'
+                'array',
             ],
             'cart_ids.*' => [
                 'required',
                 'integer',
-                Rule::exists('carts', 'id')->where('user_id', $user->id)
-            ]
+                Rule::exists('carts', 'id')->where('user_id', $user->id),
+            ],
         ], $rules);
     }
 
@@ -67,7 +66,7 @@ class CartDeleteTest extends ApiTestCase
         Sanctum::actingAs($user);
 
         $response = $this->deleteJson('/api/carts', [
-            'cart_ids' => $carts->pluck('id')
+            'cart_ids' => $carts->pluck('id'),
         ]);
 
         $response->assertOk()

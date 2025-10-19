@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class UserAddress extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -29,7 +29,7 @@ class UserAddress extends Model
         'province',
         'city',
         'district',
-        'subdistrict'
+        'subdistrict',
     ];
 
     public function serializeDate(\DateTimeInterface $date)
@@ -44,33 +44,33 @@ class UserAddress extends Model
 
     public function province(): Attribute
     {
-        $provinces = (new RajaOngkirService())->fetchProvinces();
+        $provinces = (new RajaOngkirService)->fetchProvinces();
         $province = collect($provinces)->where('id', '=', $this->province_id)->first();
 
-        return Attribute::get(fn() => $province);
+        return Attribute::get(fn () => $province);
     }
 
     public function city(): Attribute
     {
-        $cities = (new RajaOngkirService())->fetchCities($this->province_id);
+        $cities = (new RajaOngkirService)->fetchCities($this->province_id);
         $city = collect($cities)->where('id', '=', $this->city_id)->first();
 
-        return Attribute::get(fn() => $city);
+        return Attribute::get(fn () => $city);
     }
 
     public function district(): Attribute
     {
-        $districts = (new RajaOngkirService())->fetchDistricts($this->city_id);
+        $districts = (new RajaOngkirService)->fetchDistricts($this->city_id);
         $district = collect($districts)->where('id', '=', $this->district_id)->first();
 
-        return Attribute::get(fn() => $district);
+        return Attribute::get(fn () => $district);
     }
 
     public function subdistrict(): Attribute
     {
-        $subdistricts = (new RajaOngkirService())->fetchSubdistricts($this->district_id);
+        $subdistricts = (new RajaOngkirService)->fetchSubdistricts($this->district_id);
         $subdistrict = collect($subdistricts)->where('id', '=', $this->subdistrict_id)->first();
 
-        return Attribute::get(fn() => $subdistrict);
+        return Attribute::get(fn () => $subdistrict);
     }
 }

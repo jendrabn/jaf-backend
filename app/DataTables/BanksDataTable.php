@@ -15,7 +15,7 @@ class BanksDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -124,6 +124,6 @@ class BanksDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'BANKS_' . date('dmY');
+        return 'BANKS_'.date('dmY');
     }
 }

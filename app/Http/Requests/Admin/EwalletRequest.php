@@ -46,10 +46,10 @@ class EwalletRequest extends FormRequest
                     'string',
                     'min:10',
                     'max:15',
-                    'starts_with:08,62'
-                ]
+                    'starts_with:08,62',
+                ],
             ];
-        } else if ($this->routeIs('admin.ewallets.update')) {
+        } elseif ($this->routeIs('admin.ewallets.update')) {
             return [
                 'name' => [
                     'required',
@@ -74,17 +74,17 @@ class EwalletRequest extends FormRequest
                     'string',
                     'min:10',
                     'max:15',
-                    'starts_with:08,62'
-                ]
+                    'starts_with:08,62',
+                ],
             ];
-        } else if ($this->routeIs('admin.ewallets.massDestroy')) {
+        } elseif ($this->routeIs('admin.ewallets.massDestroy')) {
             return [
                 'ids' => [
                     'required',
-                    'array'
+                    'array',
                 ],
                 'ids.*' => [
-                    'exists:ewallets,id'
+                    'exists:ewallets,id',
                 ],
             ];
         } else {

@@ -24,7 +24,7 @@ class ShippingCostRequest extends FormRequest
     {
         return [
             'destination' => ['required', 'integer'],
-            'weight' => ['required', 'integer', 'max:' . Shipping::MAX_WEIGHT],
+            'weight' => ['required', 'integer', 'max:'.Shipping::MAX_WEIGHT],
         ];
     }
 }

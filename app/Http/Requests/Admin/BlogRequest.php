@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class BlogRequest extends FormRequest
 {
@@ -29,108 +29,108 @@ class BlogRequest extends FormRequest
                     'string',
                     'min:3',
                     'max:200',
-                    'not_in:categories,tags'
+                    'not_in:categories,tags',
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:3',
                     'max:255',
-                    'unique:blogs,slug'
+                    'unique:blogs,slug',
                 ],
                 'content' => [
                     'required',
                     'string',
-                    'min:3'
+                    'min:3',
                 ],
                 'min_read' => [
                     'required',
-                    'integer'
+                    'integer',
                 ],
                 'featured_image_description' => [
                     'nullable',
                     'string',
                     'min:3',
-                    'max:500'
+                    'max:500',
                 ],
                 'is_publish' => [
                     'required',
-                    'boolean'
+                    'boolean',
                 ],
                 'blog_category_id' => [
                     'required',
                     'numeric',
-                    'exists:blog_categories,id'
+                    'exists:blog_categories,id',
                 ],
                 'user_id' => [
                     'required',
                     'numeric',
-                    'exists:users,id'
+                    'exists:users,id',
                 ],
                 'tag_ids' => [
                     'nullable',
-                    'array'
+                    'array',
                 ],
             ];
-        } else if ($this->routeIs('admin.blogs.update')) {
+        } elseif ($this->routeIs('admin.blogs.update')) {
             return [
                 'title' => [
                     'required',
                     'string',
                     'min:3',
                     'max:200',
-                    'not_in:categories,tags'
+                    'not_in:categories,tags',
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:3',
                     'max:255',
-                    'unique:blogs,slug,' . $this->id
+                    'unique:blogs,slug,'.$this->id,
                 ],
                 'content' => [
                     'required',
                     'string',
-                    'min:3'
+                    'min:3',
                 ],
                 'min_read' => [
                     'required',
-                    'integer'
+                    'integer',
                 ],
                 'featured_image_description' => [
                     'nullable',
                     'string',
                     'min:3',
-                    'max:500'
+                    'max:500',
                 ],
                 'is_publish' => [
                     'required',
-                    'boolean'
+                    'boolean',
                 ],
                 'blog_category_id' => [
                     'required',
                     'numeric',
-                    'exists:blog_categories,id'
+                    'exists:blog_categories,id',
                 ],
                 'user_id' => [
                     'required',
                     'numeric',
-                    'exists:users,id'
+                    'exists:users,id',
                 ],
                 'tag_ids' => [
                     'nullable',
-                    'array'
+                    'array',
                 ],
             ];
-        } else if ($this->routeIs('admin.blogs.massDestroy')) {
+        } elseif ($this->routeIs('admin.blogs.massDestroy')) {
             return [
                 'ids' => [
                     'required',
-                    'array'
+                    'array',
                 ],
                 'ids.*' => [
                     'numeric',
-                    'exists:blogs,id'
+                    'exists:blogs,id',
                 ],
             ];
         } else {
@@ -138,11 +138,10 @@ class BlogRequest extends FormRequest
         }
     }
 
-
     public function prepareForValidation(): void
     {
         $this->whenHas('title', function ($value) {
-            $this->merge(['slug' => Str::slug($value . '-' . Str::random(3))]);
+            $this->merge(['slug' => Str::slug($value.'-'.Str::random(3))]);
         });
 
         $this->merge([
@@ -153,7 +152,7 @@ class BlogRequest extends FormRequest
             $minRead = round(str_word_count(strip_tags($value)) / 200);
 
             $this->merge([
-                'min_read' => (int) max(1, $minRead)
+                'min_read' => (int) max(1, $minRead),
             ]);
         });
 

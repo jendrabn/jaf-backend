@@ -19,7 +19,7 @@ class NewContactMessageMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Contact Message #' . $this->message->id,
+            subject: 'New Contact Message #'.$this->message->id,
         );
     }
 

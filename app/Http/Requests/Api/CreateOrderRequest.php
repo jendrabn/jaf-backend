@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Api;
 
-use App\Models\Shipping;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -32,7 +31,7 @@ class CreateOrderRequest extends FormRequest
                 'required',
                 'integer',
                 Rule::exists('carts', 'id')
-                    ->where('user_id', $this->user()->id)
+                    ->where('user_id', $this->user()->id),
             ],
             'shipping_address.name' => [
                 'required',
@@ -78,11 +77,11 @@ class CreateOrderRequest extends FormRequest
             'shipping_courier' => [
                 'required',
                 'string',
-                'exists:couriers,code'
+                'exists:couriers,code',
             ],
             'shipping_service' => [
                 'required',
-                'string'
+                'string',
             ],
             'payment_method' => [
                 'required',
@@ -97,7 +96,7 @@ class CreateOrderRequest extends FormRequest
             'ewallet_id' => [
                 'required_if:payment_method,ewallet',
                 'integer',
-                'exists:ewallets,id'
+                'exists:ewallets,id',
             ],
             'note' => [
                 'nullable',
@@ -107,7 +106,7 @@ class CreateOrderRequest extends FormRequest
             'coupon_code' => [
                 'nullable',
                 'string',
-                'exists:coupons,code'
+                'exists:coupons,code',
             ],
         ];
     }

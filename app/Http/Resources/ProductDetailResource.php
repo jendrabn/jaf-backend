@@ -4,7 +4,6 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Arr;
 
 class ProductDetailResource extends JsonResource
 {
@@ -19,7 +18,7 @@ class ProductDetailResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'images' => ! $this->images->isEmpty() ? $this->images->map(fn($media) => $media?->getUrl())->toArray() : [asset('images/default-product.jpg')],
+            'images' => ! $this->images->isEmpty() ? $this->images->map(fn ($media) => $media?->getUrl())->toArray() : [asset('images/default-product.jpg')],
             'category' => ProductCategoryResource::make($this->category),
             'description' => $this->description,
             'brand' => $this->whenNotNull(ProductBrandResource::make($this->brand)),

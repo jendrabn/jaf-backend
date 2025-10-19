@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RegionController extends Controller
 {
-
     public function __construct(private readonly RajaOngkirService $rajaOngkirService) {}
 
     public function provinces(): JsonResponse

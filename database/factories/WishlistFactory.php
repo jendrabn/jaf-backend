@@ -11,16 +11,16 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class WishlistFactory extends Factory
 {
-  /**
-   * Define the model's default state.
-   *
-   * @return array<string, mixed>
-   */
-  public function definition(): array
-  {
-    return [
-      'user_id' => User::inRandomOrder()->first()->id,
-      'product_id' => Product::inRandomOrder()->first()->id
-    ];
-  }
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        return [
+            'user_id' => User::inRandomOrder()->first()->id,
+            'product_id' => Product::inRandomOrder()->first()->id,
+        ];
+    }
 }

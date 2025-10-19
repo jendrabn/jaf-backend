@@ -4,28 +4,23 @@ namespace Tests\Feature\Api;
 
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Requests\Api\CheckoutRequest;
-use App\Models\{
-    Bank,
-    Cart,
-    User,
-    UserAddress
-};
-use Database\Seeders\{
-    BankSeeder,
-    CitySeeder,
-    ProductBrandSeeder,
-    ProductCategorySeeder,
-    ProvinceSeeder
-};
+use App\Models\Bank;
+use App\Models\Cart;
+use App\Models\User;
+use App\Models\UserAddress;
+use Database\Seeders\BankSeeder;
+use Database\Seeders\CitySeeder;
+use Database\Seeders\ProductBrandSeeder;
+use Database\Seeders\ProductCategorySeeder;
+use Database\Seeders\ProvinceSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\Rule;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class CheckoutPostTest extends ApiTestCase
 {
@@ -56,7 +51,7 @@ class CheckoutPostTest extends ApiTestCase
         Sanctum::actingAs($this->user);
 
         return $this->postJson('/api/checkout', [
-            'cart_ids' => $cartIds
+            'cart_ids' => $cartIds,
         ]);
     }
 
@@ -73,7 +68,7 @@ class CheckoutPostTest extends ApiTestCase
     #[Test]
     public function checkout_request_has_the_correct_validation_rules()
     {
-        $rules = (new CheckoutRequest())->setUserResolver(fn() => $this->user)->rules();
+        $rules = (new CheckoutRequest)->setUserResolver(fn () => $this->user)->rules();
 
         $this->assertValidationRules([
             'cart_ids' => [
@@ -83,7 +78,7 @@ class CheckoutPostTest extends ApiTestCase
             'cart_ids.*' => [
                 'integer',
                 Rule::exists('carts', 'id')->where('user_id', $this->user->id),
-            ]
+            ],
         ], $rules);
     }
 
@@ -95,7 +90,6 @@ class CheckoutPostTest extends ApiTestCase
         $response->assertUnauthorized()
             ->assertJsonStructure(['message']);
     }
-
 
     #[Test]
     public function can_checkout()
@@ -123,15 +117,15 @@ class CheckoutPostTest extends ApiTestCase
                     'shipping_address' => $this->formatUserAddressData($userAddress),
                     'carts' => [
                         $this->formatCartData($cart1),
-                        $this->formatCartData($cart2)
+                        $this->formatCartData($cart2),
                     ],
                     'payment_methods' => [
-                        'bank' => $this->formatBankData($this->banks)
+                        'bank' => $this->formatBankData($this->banks),
                     ],
                     'total_quantity' => $totalQuantity,
                     'total_weight' => $totalWeight,
                     'total_price' => $totalPrice,
-                ]
+                ],
             ])
             ->assertJsonFragment([
                 'courier' => 'jne',
@@ -139,7 +133,7 @@ class CheckoutPostTest extends ApiTestCase
                 'service' => 'REG',
                 'service_name' => 'Layanan Reguler',
                 'cost' => 34000,
-                'etd' => '1-2 hari'
+                'etd' => '1-2 hari',
             ])
             ->assertJsonCount(12, 'data.shipping_methods')
             ->assertJsonCount(1, 'data.payment_methods.bank');
@@ -164,20 +158,19 @@ class CheckoutPostTest extends ApiTestCase
                     'shipping_address' => null,
                     'carts' => [
                         $this->formatCartData($cart1),
-                        $this->formatCartData($cart2)
+                        $this->formatCartData($cart2),
                     ],
                     'shipping_methods' => null,
                     'payment_methods' => [
-                        'bank' => $this->formatBankData($this->banks)
+                        'bank' => $this->formatBankData($this->banks),
                     ],
                     'total_quantity' => $totalQuantity,
                     'total_weight' => $totalWeight,
                     'total_price' => $totalPrice,
-                ]
+                ],
             ])
             ->assertJsonCount(1, 'data.payment_methods.bank');
     }
-
 
     #[Test]
     public function cannot_checkout_if_product_is_not_published()

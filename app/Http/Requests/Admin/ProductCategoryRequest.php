@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Support\Str;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
 
 class ProductCategoryRequest extends FormRequest
 {
@@ -29,41 +29,41 @@ class ProductCategoryRequest extends FormRequest
                     'string',
                     'min:1',
                     'max:100',
-                    'unique:product_categories,name'
-                ],
-                'slug' => [
-                    'required',
-                    'string',
-                    'min:1',
-                    'max:255'
-                ],
-            ];
-        } else if ($this->routeIs('admin.product-categories.update')) {
-            return [
-                'name' => [
-                    'required',
-                    'string',
-                    'min:1',
-                    'max:100',
-                    'unique:product_categories,name,' . $this->route('product_category')->id,
+                    'unique:product_categories,name',
                 ],
                 'slug' => [
                     'required',
                     'string',
                     'min:1',
                     'max:255',
-                    'unique:product_categories,slug,' . $this->route('product_category')->id,
                 ],
             ];
-        } else if ($this->routeIs('admin.product-categories.massDestroy')) {
+        } elseif ($this->routeIs('admin.product-categories.update')) {
+            return [
+                'name' => [
+                    'required',
+                    'string',
+                    'min:1',
+                    'max:100',
+                    'unique:product_categories,name,'.$this->route('product_category')->id,
+                ],
+                'slug' => [
+                    'required',
+                    'string',
+                    'min:1',
+                    'max:255',
+                    'unique:product_categories,slug,'.$this->route('product_category')->id,
+                ],
+            ];
+        } elseif ($this->routeIs('admin.product-categories.massDestroy')) {
             return [
                 'ids' => [
                     'required',
-                    'array'
+                    'array',
                 ],
                 'ids.*' => [
                     'integer',
-                    'exists:product_categories,id'
+                    'exists:product_categories,id',
                 ],
             ];
         } else {

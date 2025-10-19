@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Coupon extends Model
 {
     /** @use HasFactory<\Database\Factories\CouponFactory> */
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
 
     protected $fillable = [
         'name',
@@ -49,7 +49,7 @@ class Coupon extends Model
     public function availableCoupons(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->limit ? $this->limit - $this->usages_count : null,
+            get: fn () => $this->limit ? $this->limit - $this->usages_count : null,
         );
     }
 
@@ -61,7 +61,7 @@ class Coupon extends Model
     public function code(): Attribute
     {
         return Attribute::make(
-            set: fn($value) => str_replace(' ', '', $value),
+            set: fn ($value) => str_replace(' ', '', $value),
         );
     }
 }

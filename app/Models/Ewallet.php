@@ -4,16 +4,16 @@ namespace App\Models;
 
 use App\Traits\Auditable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
-use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Ewallet extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia, Auditable;
+    use Auditable, HasFactory, InteractsWithMedia;
 
     const MEDIA_COLLECTION_NAME = 'ewallet_images';
 

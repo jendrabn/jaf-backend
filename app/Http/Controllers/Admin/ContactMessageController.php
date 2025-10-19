@@ -6,8 +6,8 @@ use App\DataTables\ContactMessagesDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ContactMessageController extends Controller

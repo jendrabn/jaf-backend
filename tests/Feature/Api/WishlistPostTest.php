@@ -8,9 +8,8 @@ use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\Rule;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class WishlistPostTest extends ApiTestCase
 {
@@ -33,9 +32,9 @@ class WishlistPostTest extends ApiTestCase
             'product_id' => [
                 'required',
                 'integer',
-                Rule::exists('products', 'id')->where('is_publish', true)
-            ]
-        ], (new CreateWishlistRequest())->rules());
+                Rule::exists('products', 'id')->where('is_publish', true),
+            ],
+        ], (new CreateWishlistRequest)->rules());
     }
 
     #[Test]

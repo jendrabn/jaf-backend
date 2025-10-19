@@ -8,13 +8,12 @@ use Intervention\Image\ImageManager;
 
 trait MediaUploadingTrait
 {
-
     public function storeMedia(Request $request)
     {
         // Validates file size
         if (request()->has('size')) {
             request()->validate([
-                'file' => 'max:' . request()->input('size') * 1024,
+                'file' => 'max:'.request()->input('size') * 1024,
             ]);
         }
 
@@ -32,7 +31,7 @@ trait MediaUploadingTrait
         $path = storage_path('tmp/uploads');
 
         try {
-            if (!file_exists($path)) {
+            if (! file_exists($path)) {
                 mkdir($path, 0755, true);
             }
         } catch (\Exception $e) {
@@ -40,17 +39,17 @@ trait MediaUploadingTrait
 
         $file = $request->file('file');
 
-        $name = uniqid() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.webp';
+        $name = uniqid().'_'.pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'.webp';
 
-        $fullPath = $path . '/' . $name;
+        $fullPath = $path.'/'.$name;
 
-        $imageManager = new ImageManager(new Driver());
+        $imageManager = new ImageManager(new Driver);
 
         $imageManager->read($file)->toWebp(60)->save($fullPath);
 
         return response()->json([
             'name' => $name,
-            'original_name' => $fullPath
+            'original_name' => $fullPath,
         ]);
     }
 }

@@ -15,7 +15,6 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param UsersDataTable $dataTable
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index(UsersDataTable $dataTable)
@@ -38,7 +37,6 @@ class UserController extends Controller
     /**
      * Store a newly created user in the database.
      *
-     * @param UserRequest $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(UserRequest $request)
@@ -51,11 +49,9 @@ class UserController extends Controller
         return redirect()->route('admin.users.index');
     }
 
-
     /**
      * Display the specified user.
      *
-     * @param User $user
      * @return \Illuminate\Contracts\View\View
      */
     public function show(User $user)
@@ -68,7 +64,6 @@ class UserController extends Controller
     /**
      * Edit a user.
      *
-     * @param User $user
      * @return \Illuminate\Contracts\View\View
      */
     public function edit(User $user)
@@ -82,10 +77,6 @@ class UserController extends Controller
 
     /**
      * Updates a user with the provided data.
-     *
-     * @param UserRequest $request
-     * @param User $user
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UserRequest $request, User $user): RedirectResponse
     {
@@ -99,9 +90,6 @@ class UserController extends Controller
 
     /**
      * Deletes a user by ID.
-     *
-     * @param User $user
-     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(User $user): JsonResponse
     {
@@ -112,9 +100,6 @@ class UserController extends Controller
 
     /**
      * Deletes multiple users by IDs.
-     *
-     * @param UserRequest $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function massDestroy(UserRequest $request): JsonResponse
     {
@@ -129,9 +114,9 @@ class UserController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' users']
+                'meta' => ['note' => 'Bulk deleted '.$count.' users'],
             ],
             subjectId: null,
             subjectType: \App\Models\User::class

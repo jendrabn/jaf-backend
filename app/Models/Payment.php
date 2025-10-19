@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Payment extends Model
 {
-    use HasFactory, Auditable;
+    use Auditable, HasFactory;
 
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_RELEASED = 'realeased';
 
     public const STATUSES = [
@@ -23,7 +25,9 @@ class Payment extends Model
     ];
 
     public const METHOD_BANK = 'bank';
+
     public const METHOD_EWALLET = 'ewallet';
+
     public const METHOD_GATEWAY = 'gateway';
 
     protected $fillable = [
@@ -52,8 +56,8 @@ class Payment extends Model
     public function info(): Attribute
     {
         return Attribute::make(
-            set: fn($value) => json_encode($value),
-            get: fn($value) => json_decode($value, true)
+            set: fn ($value) => json_encode($value),
+            get: fn ($value) => json_decode($value, true)
         );
     }
 }

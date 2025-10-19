@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class CouponDataTable extends DataTable
@@ -17,7 +15,7 @@ class CouponDataTable extends DataTable
     /**
      * Build the DataTable class.
      *
-     * @param QueryBuilder $query Results from query() method.
+     * @param  QueryBuilder  $query  Results from query() method.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
@@ -29,9 +27,9 @@ class CouponDataTable extends DataTable
             })
             ->editColumn('discount_amount', function ($coupon) {
                 if ($coupon->discount_type == 'fixed') {
-                    return formatRupiah($coupon->discount_amount) . '(Flat)';
-                } else if ($coupon->discount_type == 'percentage') {
-                    return $coupon->discount_amount . '%';
+                    return formatRupiah($coupon->discount_amount).'(Flat)';
+                } elseif ($coupon->discount_type == 'percentage') {
+                    return $coupon->discount_amount.'%';
                 } else {
                     return null;
                 }
@@ -150,6 +148,6 @@ class CouponDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Coupon_' . date('YmdHis');
+        return 'Coupon_'.date('YmdHis');
     }
 }

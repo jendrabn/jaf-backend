@@ -4,29 +4,24 @@ namespace Tests\Feature\Api;
 
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Requests\Api\CreateOrderRequest;
-use App\Models\{
-    Bank,
-    Cart,
-    Invoice,
-    Order,
-    Payment,
-    Product,
-    Shipping,
-    User
-};
-use Database\Seeders\{
-    BankSeeder,
-    CitySeeder,
-    ProductCategorySeeder,
-    ProvinceSeeder
-};
+use App\Models\Bank;
+use App\Models\Cart;
+use App\Models\Invoice;
+use App\Models\Order;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Shipping;
+use App\Models\User;
+use Database\Seeders\BankSeeder;
+use Database\Seeders\CitySeeder;
+use Database\Seeders\ProductCategorySeeder;
+use Database\Seeders\ProvinceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\Rule;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class OrderPostTest extends ApiTestCase
 {
@@ -56,13 +51,13 @@ class OrderPostTest extends ApiTestCase
                 'city_id' => 154,
                 'district' => 'Cipayung',
                 'postal_code' => '13845',
-                'address' => 'Jl. Belimbing XII No.19'
+                'address' => 'Jl. Belimbing XII No.19',
             ],
             'shipping_courier' => 'jne',
             'shipping_service' => 'REG',
             'payment_method' => 'bank',
             'bank_id' => $this->bank->id,
-            'note' => fake()->sentence()
+            'note' => fake()->sentence(),
         ];
     }
 
@@ -94,7 +89,7 @@ class OrderPostTest extends ApiTestCase
     #[Test]
     public function create_order_request_uses_the_correct_validation_rules()
     {
-        $rules = (new CreateOrderRequest())->setUserResolver(fn() => $this->user)->rules();
+        $rules = (new CreateOrderRequest)->setUserResolver(fn () => $this->user)->rules();
 
         $this->assertValidationRules([
             'cart_ids' => [
@@ -104,7 +99,7 @@ class OrderPostTest extends ApiTestCase
             'cart_ids.*' => [
                 'required',
                 'integer',
-                Rule::exists('carts', 'id')->where('user_id', $this->user->id)
+                Rule::exists('carts', 'id')->where('user_id', $this->user->id),
             ],
             'shipping_address.name' => [
                 'required',
@@ -145,11 +140,11 @@ class OrderPostTest extends ApiTestCase
             'shipping_courier' => [
                 'required',
                 'string',
-                Rule::in(Shipping::COURIERS)
+                Rule::in(Shipping::COURIERS),
             ],
             'shipping_service' => [
                 'required',
-                'string'
+                'string',
             ],
             'payment_method' => [
                 'required',
@@ -164,13 +159,13 @@ class OrderPostTest extends ApiTestCase
             'ewallet_id' => [
                 'required_if:payment_method,ewallet',
                 'integer',
-                'exists:ewallets,id'
+                'exists:ewallets,id',
             ],
             'note' => [
                 'nullable',
                 'string',
                 'max:200',
-            ]
+            ],
         ], $rules);
     }
 
@@ -210,11 +205,11 @@ class OrderPostTest extends ApiTestCase
                         'name' => $this->bank->name,
                         'code' => $this->bank->code,
                         'account_name' => $this->bank->account_name,
-                        'account_number' => $this->bank->account_number
+                        'account_number' => $this->bank->account_number,
                     ],
                     'payment_due_date' => $paymentDueDate->toISOString(),
-                    'created_at' => $order->created_at->toISOString()
-                ]
+                    'created_at' => $order->created_at->toISOString(),
+                ],
             ]);
 
         $this->assertDatabaseHas('orders', [
@@ -247,7 +242,7 @@ class OrderPostTest extends ApiTestCase
 
         $this->assertDatabaseHas('invoices', [
             'order_id' => $response['data']['id'],
-            'number' => 'INV' . $order->created_at->format('dmy') . $response['data']['id'],
+            'number' => 'INV'.$order->created_at->format('dmy').$response['data']['id'],
             'amount' => $totalAmount,
             'status' => Invoice::STATUS_UNPAID,
             'due_date' => $paymentDueDate,
@@ -259,10 +254,10 @@ class OrderPostTest extends ApiTestCase
                 'name' => $this->bank->name,
                 'code' => $this->bank->code,
                 'account_name' => $this->bank->account_name,
-                'account_number' => $this->bank->account_number
+                'account_number' => $this->bank->account_number,
             ]),
             'amount' => $totalAmount,
-            'status' => Payment::STATUS_PENDING
+            'status' => Payment::STATUS_PENDING,
         ]);
 
         $this->assertDatabaseHas('shippings', [
@@ -274,7 +269,7 @@ class OrderPostTest extends ApiTestCase
                 'city' => 'Jakarta Timur',
                 'district' => $this->data['shipping_address']['district'],
                 'postal_code' => $this->data['shipping_address']['postal_code'],
-                'address' => $this->data['shipping_address']['address']
+                'address' => $this->data['shipping_address']['address'],
             ]),
             'courier' => $this->data['shipping_courier'],
             'courier_name' => 'Jalur Nugraha Ekakurir (JNE)',
@@ -282,7 +277,7 @@ class OrderPostTest extends ApiTestCase
             'service_name' => 'Layanan Reguler',
             'etd' => '1-2 hari',
             'weight' => $totalWeight,
-            'status' => Shipping::STATUS_PENDING
+            'status' => Shipping::STATUS_PENDING,
         ]);
 
         $this->assertDatabaseMissing('carts', ['id' => $cart1->id]);
@@ -290,11 +285,11 @@ class OrderPostTest extends ApiTestCase
 
         $this->assertDatabaseHas('products', [
             'id' => $cart1->product->id,
-            'stock' => 3
+            'stock' => 3,
         ]);
         $this->assertDatabaseHas('products', [
             'id' => $cart2->product->id,
-            'stock' => 4
+            'stock' => 4,
         ]);
     }
 
@@ -342,7 +337,7 @@ class OrderPostTest extends ApiTestCase
 
         $response = $this->attemptToCreateOrder([
             'cart_ids' => [$cart1->id, $cart2->id],
-            'shipping_service' => 'INVALID'
+            'shipping_service' => 'INVALID',
         ]);
 
         $response->assertUnprocessable()

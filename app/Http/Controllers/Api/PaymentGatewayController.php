@@ -25,7 +25,7 @@ class PaymentGatewayController extends Controller
             return response()->json(['message' => 'Invalid payload'], 400);
         }
 
-        $computedSignature = hash('sha512', $orderId . $statusCode . $grossAmount . $serverKey);
+        $computedSignature = hash('sha512', $orderId.$statusCode.$grossAmount.$serverKey);
 
         if (! hash_equals($computedSignature, $signatureKey)) {
             return response()->json(['message' => 'Invalid signature'], 401);

@@ -2,16 +2,14 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\{
-    Order,
-    OrderItem,
-    Product
-};
-use Database\Seeders\{ProductBrandSeeder, ProductCategorySeeder};
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use Database\Seeders\ProductBrandSeeder;
+use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class ProductDetailGetTest extends ApiTestCase
 {
@@ -35,7 +33,7 @@ class ProductDetailGetTest extends ApiTestCase
                     ],
                     [
                         'order_id' => $this->createOrder(['status' => Order::STATUS_COMPLETED])->id,
-                        'quantity' => 3
+                        'quantity' => 3,
                     ]
                 )
         )
@@ -43,10 +41,10 @@ class ProductDetailGetTest extends ApiTestCase
             ->create();
 
         $expectedImages = $product->images
-            ? $product->images->map(fn($media) => $media->getUrl())->toArray()
+            ? $product->images->map(fn ($media) => $media->getUrl())->toArray()
             : [];
 
-        $response = $this->getJson('/api/products/' . $product->id);
+        $response = $this->getJson('/api/products/'.$product->id);
 
         $response->assertOk()
             ->assertJson([
@@ -64,7 +62,7 @@ class ProductDetailGetTest extends ApiTestCase
                     'weight' => $product->weight,
                     'sold_count' => 5,
                     'is_wishlist' => false,
-                ]
+                ],
             ])
             ->assertJsonCount(2, 'data.images');
     }
@@ -74,7 +72,7 @@ class ProductDetailGetTest extends ApiTestCase
     {
         $product = $this->createProduct();
 
-        $response = $this->getJson('/api/products/' . $product->id + 1);
+        $response = $this->getJson('/api/products/'.$product->id + 1);
 
         $response->assertNotFound()
             ->assertJsonStructure(['message']);
@@ -85,7 +83,7 @@ class ProductDetailGetTest extends ApiTestCase
     {
         $product = $this->createProduct(['is_publish' => false]);
 
-        $response = $this->getJson('/api/products/' . $product->id);
+        $response = $this->getJson('/api/products/'.$product->id);
 
         $response->assertNotFound()
             ->assertJsonStructure(['message']);

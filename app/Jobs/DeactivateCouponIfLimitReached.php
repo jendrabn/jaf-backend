@@ -15,7 +15,6 @@ class DeactivateCouponIfLimitReached implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-
     public function __construct(public int $couponId) {}
 
     public function handle(): void

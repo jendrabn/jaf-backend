@@ -2,14 +2,17 @@
 
 namespace Tests\Feature\Api;
 
-use App\Models\{Invoice, Order, OrderItem, User};
-use Database\Seeders\{ProductBrandSeeder, ProductCategorySeeder};
+use App\Models\Invoice;
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\User;
+use Database\Seeders\ProductBrandSeeder;
+use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
 use Laravel\Sanctum\Sanctum;
-use Tests\ApiTestCase;
-use Tests\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class OrderGetTest extends ApiTestCase
 {
@@ -27,7 +30,7 @@ class OrderGetTest extends ApiTestCase
     {
         Sanctum::actingAs($this->user);
 
-        $response = $this->getJson('/api/orders?' . http_build_query($params));
+        $response = $this->getJson('/api/orders?'.http_build_query($params));
 
         $response->assertOk()
             ->assertJsonStructure([
@@ -38,8 +41,8 @@ class OrderGetTest extends ApiTestCase
                         'status',
                         'total_amount',
                         'payment_due_date',
-                        'created_at'
-                    ]
+                        'created_at',
+                    ],
                 ],
                 'page' => [
                     'total',
@@ -47,8 +50,8 @@ class OrderGetTest extends ApiTestCase
                     'current_page',
                     'last_page',
                     'from',
-                    'to'
-                ]
+                    'to',
+                ],
             ]);
 
         return $response;
@@ -78,7 +81,7 @@ class OrderGetTest extends ApiTestCase
 
         $response->assertJsonPath('data.0', [
             'id' => $order->id,
-            'items' => $order->items->map(fn($item) => [
+            'items' => $order->items->map(fn ($item) => [
                 'id' => $item->id,
                 'product' => $this->formatProductData($item->product),
                 'name' => $item->name,
@@ -89,7 +92,7 @@ class OrderGetTest extends ApiTestCase
             'status' => $order->status,
             'total_amount' => $order->invoice->amount,
             'payment_due_date' => $order->invoice->due_date->toISOString(),
-            'created_at' => $order->created_at->toISOString()
+            'created_at' => $order->created_at->toISOString(),
         ]);
     }
 
@@ -109,7 +112,7 @@ class OrderGetTest extends ApiTestCase
             'current_page' => $page,
             'last_page' => 2,
             'from' => 11,
-            'to' => 13
+            'to' => 13,
         ])->assertJsonCount(3, 'data');
     }
 

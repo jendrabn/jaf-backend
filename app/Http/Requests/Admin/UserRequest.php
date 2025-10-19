@@ -28,7 +28,7 @@ class UserRequest extends FormRequest
                     'required',
                     'string',
                     'min:1',
-                    'max:30'
+                    'max:30',
 
                 ],
                 'email' => [
@@ -41,7 +41,7 @@ class UserRequest extends FormRequest
                     'required',
                     'string',
                     Password::min(8)->mixedCase()->numbers(),
-                    'max:30'
+                    'max:30',
                 ],
                 'roles.*' => [
                     'string',
@@ -55,38 +55,38 @@ class UserRequest extends FormRequest
                     'string',
                     'min:10',
                     'max:15',
-                    'starts_with:62'
+                    'starts_with:62',
                 ],
                 'sex' => [
                     'nullable',
                     'integer',
-                    'in:1,2'
+                    'in:1,2',
                 ],
                 'birth_date' => [
                     'nullable',
                     'date',
                 ],
             ];
-        } else if ($this->routeIs('admin.users.update')) {
+        } elseif ($this->routeIs('admin.users.update')) {
             return [
                 'name' => [
                     'required',
                     'string',
                     'min:1',
-                    'max:30'
+                    'max:30',
 
                 ],
                 'email' => [
                     'required',
                     'string',
                     'email',
-                    'unique:users,email,' . $this->route('user')->id,
+                    'unique:users,email,'.$this->route('user')->id,
                 ],
                 'password' => [
                     'nullable',
                     'string',
                     Password::min(8)->mixedCase()->numbers(),
-                    'max:30'
+                    'max:30',
                 ],
                 'roles.*' => [
                     'string',
@@ -100,19 +100,19 @@ class UserRequest extends FormRequest
                     'string',
                     'min:10',
                     'max:15',
-                    'starts_with:62'
+                    'starts_with:62',
                 ],
                 'sex' => [
                     'nullable',
                     'integer',
-                    'in:1,2'
+                    'in:1,2',
                 ],
                 'birth_date' => [
                     'nullable',
                     'date',
                 ],
             ];
-        } else if ($this->routeIs('admin.users.massDestroy')) {
+        } elseif ($this->routeIs('admin.users.massDestroy')) {
             return [
                 'ids' => ['required', 'array'],
                 'ids.*' => ['integer', 'exists:users,id'],
@@ -131,8 +131,9 @@ class UserRequest extends FormRequest
     protected function prepareForValidation()
     {
         if ($this->routeIs('admin.users.update')) {
-            if (!$this->filled('password'))
+            if (! $this->filled('password')) {
                 $this->request->remove('password');
+            }
         }
     }
 }

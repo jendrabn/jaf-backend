@@ -25,7 +25,7 @@ class BlogResource extends JsonResource
             'views_count' => $this->views_count,
             'author' => $this->author?->name,
             'category' => BlogCategoryResource::make($this->category),
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
         ];
     }
 }

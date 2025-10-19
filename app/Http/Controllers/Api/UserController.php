@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\{ProfileRequest, UpdatePasswordRequest};
-use App\Http\Requests\Api\AvatarRequest;
+use App\Http\Requests\Api\ProfileRequest;
+use App\Http\Requests\Api\UpdatePasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
@@ -30,13 +30,14 @@ class UserController extends Controller
         $user->update($request->validated());
 
         if ($request->hasFile('avatar')) {
-            if ($user->avatar)
+            if ($user->avatar) {
                 $user->avatar->delete();
+            }
 
             $file = $request->file('avatar');
-            $fileName = uniqid() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.jpeg';
+            $fileName = uniqid().'_'.pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'.jpeg';
 
-            $imageBase64 = (new ImageManager(new Driver()))->read($file)->toJpeg(50)->toDataUri();
+            $imageBase64 = (new ImageManager(new Driver))->read($file)->toJpeg(50)->toDataUri();
 
             $user->addMediaFromBase64($imageBase64)
                 ->setFileName($fileName)

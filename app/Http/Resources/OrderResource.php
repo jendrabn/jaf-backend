@@ -20,7 +20,7 @@ class OrderResource extends JsonResource
             'status' => $this->status,
             'total_amount' => $this->invoice->amount,
             'payment_due_date' => $this->invoice->due_date,
-            'created_at' => $this->created_at
+            'created_at' => $this->created_at,
         ];
     }
 }

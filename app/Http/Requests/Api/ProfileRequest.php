@@ -35,7 +35,7 @@ class ProfileRequest extends FormRequest
                 'email',
                 'min:1',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($this->user()->id)
+                Rule::unique('users', 'email')->ignore($this->user()->id),
             ],
             'phone' => [
                 'nullable',
@@ -47,7 +47,7 @@ class ProfileRequest extends FormRequest
             'sex' => [
                 'nullable',
                 'integer',
-                Rule::in([1, 2])
+                Rule::in([1, 2]),
             ],
             'birth_date' => [
                 'nullable',
@@ -59,7 +59,7 @@ class ProfileRequest extends FormRequest
                 'file',
                 'max:1024',
                 'mimes:jpg,jpeg,png',
-            ]
+            ],
         ];
     }
 }

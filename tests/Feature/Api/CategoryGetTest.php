@@ -5,8 +5,8 @@ namespace Tests\Feature\Api;
 use App\Models\ProductCategory;
 use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
+use Tests\ApiTestCase;
 
 class CategoryGetTest extends ApiTestCase
 {

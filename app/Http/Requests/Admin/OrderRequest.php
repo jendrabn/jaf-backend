@@ -25,11 +25,11 @@ class OrderRequest extends FormRequest
             return [
                 'ids' => [
                     'required',
-                    'array'
+                    'array',
                 ],
                 'ids.*' => [
                     'integer',
-                    'exists:orders,id'
+                    'exists:orders,id',
                 ],
             ];
         } else {

@@ -22,15 +22,15 @@ class ShippingFactory extends Factory
         return [
             'order_id' => Order::inRandomOrder()->first()->id,
             'address' => [
-                'name' =>  fake()->name(),
-                'phone' =>  fake()->phoneNumber(),
+                'name' => fake()->name(),
+                'phone' => fake()->phoneNumber(),
                 // 'province' => $city->province->name,
                 // 'city' => $city->name,
                 'province' => fake()->city(),
                 'city' => fake()->city(),
                 'district' => fake()->city(),
                 'zip_code' => fake()->postcode(),
-                'address' => fake()->address()
+                'address' => fake()->address(),
             ],
             'courier' => fake()->randomElement(['jne', 'tiki', 'pos']),
             'courier_name' => fake()->company(),
@@ -39,7 +39,7 @@ class ShippingFactory extends Factory
             'etd' => fake()->randomElement(['1-2 hari', '3-4 hari', '7 hari']),
             'weight' => fake()->numberBetween(700, 5000),
             'tracking_number' => fake()->unique()->isbn10(),
-            'status' => fake()->randomElement(['pending', 'processing', 'shipped',]),
+            'status' => fake()->randomElement(['pending', 'processing', 'shipped']),
         ];
     }
 }

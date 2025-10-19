@@ -23,7 +23,7 @@ class ProductRatingResource extends JsonResource
             'comment' => $this->comment,
             'is_anonymous' => $this->is_anonymous,
             'created_at' => $this->created_at,
-            'username' => $this->is_anonymous ? Str::mask($userName, '*', 1, -1) : $userName
+            'username' => $this->is_anonymous ? Str::mask($userName, '*', 1, -1) : $userName,
         ];
     }
 }

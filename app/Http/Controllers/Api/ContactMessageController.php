@@ -27,7 +27,7 @@ class ContactMessageController extends Controller
         ];
 
         // Validate first
-        $validator = Validator::make($payload, (new StoreContactMessageRequest())->rules());
+        $validator = Validator::make($payload, (new StoreContactMessageRequest)->rules());
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'The given data was invalid.',
@@ -86,7 +86,7 @@ class ContactMessageController extends Controller
         ];
 
         // Validate first
-        $validator = Validator::make($payload, (new StoreContactMessageRequest())->rules());
+        $validator = Validator::make($payload, (new StoreContactMessageRequest)->rules());
         $validator->validate();
         $data = $validator->validated();
 
@@ -129,6 +129,6 @@ class ContactMessageController extends Controller
         $emailRaw = $email !== null ? trim((string) $email) : trim((string) $request->input('email', ''));
         $emailValid = filter_var($emailRaw, FILTER_VALIDATE_EMAIL) ? strtolower($emailRaw) : '';
 
-        return 'contact:ip:' . $request->ip() . ':email:' . $emailValid;
+        return 'contact:ip:'.$request->ip().':email:'.$emailValid;
     }
 }

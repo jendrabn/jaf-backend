@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\View\View;
-use App\Models\ProductBrand;
-use Illuminate\Http\JsonResponse;
-use App\Traits\MediaUploadingTrait;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use App\DataTables\ProductBrandsDataTable;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductBrandRequest;
+use App\Models\ProductBrand;
+use App\Traits\MediaUploadingTrait;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ProductBrandController extends Controller
@@ -18,9 +18,6 @@ class ProductBrandController extends Controller
 
     /**
      * Renders the index view for the ProductBrandsDataTable.
-     *
-     * @param ProductBrandsDataTable $dataTable
-     * @return mixed
      */
     public function index(ProductBrandsDataTable $dataTable): mixed
     {
@@ -29,8 +26,6 @@ class ProductBrandController extends Controller
 
     /**
      * Display the create form for a new product brand.
-     *
-     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -40,7 +35,6 @@ class ProductBrandController extends Controller
     /**
      * Store a new product brand.
      *
-     * @param ProductBrandRequest $request
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(ProductBrandRequest $request)
@@ -48,7 +42,7 @@ class ProductBrandController extends Controller
         $productBrand = ProductBrand::create($request->validated());
 
         if ($request->input('logo', false)) {
-            $productBrand->addMedia(storage_path('tmp/uploads/' . basename($request->input('logo'))))
+            $productBrand->addMedia(storage_path('tmp/uploads/'.basename($request->input('logo'))))
                 ->toMediaCollection(ProductBrand::MEDIA_COLLECTION_NAME);
         }
 
@@ -63,9 +57,6 @@ class ProductBrandController extends Controller
 
     /**
      * Displays the edit view for a product brand.
-     *
-     * @param ProductBrand $productBrand
-     * @return \Illuminate\View\View
      */
     public function edit(ProductBrand $productBrand): View
     {
@@ -76,22 +67,18 @@ class ProductBrandController extends Controller
 
     /**
      * Updates a product brand with the given request data.
-     *
-     * @param ProductBrandRequest $request
-     * @param ProductBrand $productBrand
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(ProductBrandRequest $request, ProductBrand $productBrand): RedirectResponse
     {
         $productBrand->update($request->validated());
 
         if ($request->input('logo', false)) {
-            if (!$productBrand->logo || $request->input('logo') !== $productBrand->logo->file_name) {
+            if (! $productBrand->logo || $request->input('logo') !== $productBrand->logo->file_name) {
                 if ($productBrand->logo) {
                     $productBrand->logo->delete();
                 }
 
-                $productBrand->addMedia(storage_path('tmp/uploads/' . basename($request->input('logo'))))
+                $productBrand->addMedia(storage_path('tmp/uploads/'.basename($request->input('logo'))))
                     ->toMediaCollection(ProductBrand::MEDIA_COLLECTION_NAME);
             }
         } elseif ($productBrand->logo) {
@@ -105,9 +92,6 @@ class ProductBrandController extends Controller
 
     /**
      * Deletes a product brand from the database.
-     *
-     * @param ProductBrand $productBrand
-     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(ProductBrand $productBrand): JsonResponse
     {
@@ -118,9 +102,6 @@ class ProductBrandController extends Controller
 
     /**
      * Deletes multiple product brands based on the provided request.
-     *
-     * @param ProductBrandRequest $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function massDestroy(ProductBrandRequest $request): JsonResponse
     {
@@ -135,9 +116,9 @@ class ProductBrandController extends Controller
             before: null,
             after: null,
             extra: [
-                'changed'    => ['ids' => $ids, 'count' => $count],
+                'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' product brands.'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' product brands.'],
             ],
             subjectId: null,
             subjectType: \App\Models\ProductBrand::class
