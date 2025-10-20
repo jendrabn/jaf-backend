@@ -45,9 +45,8 @@ class BlogController extends Controller
             ->setStatusCode(Response::HTTP_OK);
     }
 
-    public function get(string $slug)
+    public function get(Blog $blog)
     {
-        $blog = Blog::where('slug', $slug)->firstOrFail();
         $blog->increment('views_count');
 
         return BlogDetailResource::make($blog)

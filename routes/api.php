@@ -12,12 +12,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\RegionController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\WishlistController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
 
 // Landi Page
 Route::get('/landing', LandingController::class);
@@ -32,8 +27,8 @@ Route::controller(ProductController::class)->group(function () {
     Route::get('/brands', 'brands');
     Route::get('/products', 'list');
     Route::get('/products/suggestions', 'suggestions');
-    Route::get('/products/{slug}', 'get');
-    Route::get('/products/{slug}/similars', 'similars');
+    Route::get('/products/{product:slug}', 'get');
+    Route::get('/products/{product:slug}/similars', 'similars');
 });
 
 // Region
@@ -113,7 +108,7 @@ Route::controller(BlogController::class)->group(function () {
     Route::get('/blogs', 'list');
     Route::get('/blogs/categories', 'categories');
     Route::get('/blogs/tags', 'tags');
-    Route::get('/blogs/{slug}', 'get');
+    Route::get('/blogs/{blog:slug}', 'get');
 });
 
 // Route::fallback(fn () => abort(404));
