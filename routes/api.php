@@ -32,8 +32,8 @@ Route::controller(ProductController::class)->group(function () {
     Route::get('/brands', 'brands');
     Route::get('/products', 'list');
     Route::get('/products/suggestions', 'suggestions');
-    Route::get('/products/{product}', 'get');
-    Route::get('/products/{product}/similars', 'similars');
+    Route::get('/products/{slug}', 'get');
+    Route::get('/products/{slug}/similars', 'similars');
 });
 
 // Region
