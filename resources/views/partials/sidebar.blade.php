@@ -243,39 +243,6 @@
                     </li>
                 @endcanany
 
-                {{-- Newsletter (treeview) --}}
-                @canany(['newsletters.view', 'campaigns.view'])
-                    <li class="nav-item has-treeview {{ $newsletterActive ? 'menu-open' : '' }}">
-                        <a class="nav-link d-flex align-items-center {{ $newsletterActive ? 'active' : '' }}"
-                           href="#">
-                            <i class="nav-icon bi bi-envelope-paper mr-2"></i>
-                            <p class="mb-0">Newsletter</p>
-                            <i class="right bi bi-chevron-left ml-auto"></i>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            @can('newsletters.view')
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.newsletters.*') ? 'active' : '' }}"
-                                       href="{{ route('admin.newsletters.index') }}">
-                                        <i class="nav-icon bi bi-circle mr-2"></i>
-                                        <p class="mb-0">Subscribers</p>
-                                    </a>
-                                </li>
-                            @endcan
-
-                            @can('campaigns.view')
-                                <li class="nav-item">
-                                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.campaigns.*') ? 'active' : '' }}"
-                                       href="{{ route('admin.campaigns.index') }}">
-                                        <i class="nav-icon bi bi-circle mr-2"></i>
-                                        <p class="mb-0">Campaigns</p>
-                                    </a>
-                                </li>
-                            @endcan
-                        </ul>
-                    </li>
-                @endcanany
-
                 {{-- Support - Contact Messages --}}
                 @can('contact_messages.view')
                     <li class="nav-item">

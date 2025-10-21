@@ -113,10 +113,5 @@ Route::controller(BlogController::class)->group(function () {
 });
 
 // Newsletter
-Route::controller(NewsletterController::class)->group(function () {
-    Route::post('/newsletter/subscribe', 'subscribe');
-    Route::get('/newsletter/unsubscribe/{token}', 'unsubscribe');
-    Route::get('/newsletter/confirm/{token}', 'confirm');
-});
 
 // Route::fallback(fn () => abort(404));
