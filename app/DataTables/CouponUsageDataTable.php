@@ -49,8 +49,8 @@ class CouponUsageDataTable extends DataTable
             ->setTableId('datatable-couponusage')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            // ->dom('Bfrtip')
-            ->orderBy(0, 'desc')
+            ->dom('lBfrtip<"actions">')
+            ->orderBy(1, 'desc')
             ->selectStyleSingle()
             ->buttons([]);
     }

@@ -250,5 +250,11 @@ return [
 
         // Contact Messages (resource-ish: index/show/reply/delete/massDestroy)
         'contact_messages' => ['view', 'show', 'reply', 'delete', 'mass_delete'],
+
+        // Newsletters (resource + massDestroy + statistics)
+        'newsletters' => ['view', 'show', 'create', 'edit', 'delete', 'mass_delete'],
+
+        // Campaigns (resource + send + test + statistics)
+        'campaigns' => ['view', 'show', 'create', 'edit', 'delete', 'send', 'test'],
     ],
 ];

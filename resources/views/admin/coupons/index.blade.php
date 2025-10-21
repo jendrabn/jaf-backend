@@ -20,63 +20,67 @@
 @endsection
 
 @section('scripts')
+    <script>
+        let table;
+
+        $.fn.dataTable.ext.buttons.bulkDelete = {
+            text: 'Delete selected',
+            url: "{{ route('admin.coupons.massDestroy') }}",
+            action: function(e, dt, button, config) {
+                let ids = $.map(
+                    dt
+                    .rows({
+                        selected: true,
+                    })
+                    .data(),
+                    function(entry) {
+                        return entry.id;
+                    }
+                );
+
+                if (ids.length === 0) {
+                    toastr.warning("No rows selected", 'Warning');
+
+                    return;
+                }
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Delete",
+                    cancelButtonText: "Cancel",
+                }).then(function(result) {
+
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            headers: {
+                                "x-csrf-token": _token,
+                            },
+                            method: "POST",
+                            url: config.url,
+                            data: {
+                                ids: ids,
+                            },
+                            success: function() {
+                                toastr.success('Coupons deleted successfully.');
+                                table.ajax.reload();
+                            },
+                            error: function() {
+                                toastr.error("Something went wrong", 'Error');
+                            }
+                        })
+                    }
+                });
+            }
+        };
+    </script>
+
     {{ $dataTable->scripts(attributes: ['type' => 'text/javascript']) }}
     <script>
         $(function() {
-            $.fn.dataTable.ext.buttons.bulkDelete = {
-                text: 'Delete selected',
-                url: "{{ route('admin.coupons.massDestroy') }}",
-                action: function(e, dt, button, config) {
-                    let ids = $.map(
-                        dt
-                        .rows({
-                            selected: true,
-                        })
-                        .data(),
-                        function(entry) {
-                            return entry.id;
-                        }
-                    );
-
-                    if (ids.length === 0) {
-                        toastr.warning("No rows selected", 'Warning');
-
-                        return;
-                    }
-
-                    Swal.fire({
-                        title: "Are you sure?",
-                        text: "You won't be able to revert this!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Delete",
-                        cancelButtonText: "Cancel",
-                    }).then(function(result) {
-
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                headers: {
-                                    "x-csrf-token": _token,
-                                },
-                                method: "POST",
-                                url: config.url,
-                                data: {
-                                    ids: ids,
-                                },
-                                success: function() {
-                                    toastr.success('Coupons deleted successfully.');
-                                    table.ajax.reload();
-                                },
-                                error: function() {
-                                    toastr.error("Something went wrong", 'Error');
-                                }
-                            })
-                        }
-                    });
-                }
-            }
-
-            const table = window.LaravelDataTables["datatable-coupon"];
+            table = window.LaravelDataTables["datatable-coupon"];
 
             table.on('click', '.btn-delete', function(e) {
                 e.preventDefault();

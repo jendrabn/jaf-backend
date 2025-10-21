@@ -13,6 +13,7 @@ use App\Models\ProductBrand;
 use App\Models\ProductCategory;
 use App\Models\User;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Concurrency;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -178,5 +179,179 @@ class DashboardController extends Controller
                 'default_grain'
             )
         );
+    }
+
+    public function index2(): View
+    {
+        $now = now(); // satu referensi waktu untuk semua query
+
+        [
+            $total_admin,
+            $total_users,
+            $total_categories,
+            $total_brands,
+            $total_products,
+            $total_orders,
+            $total_banners,
+            $total_payment_banks,
+            $total_payment_ewallets,
+            $total_coupons,
+            $total_revenues,
+            $orders_count,
+            $dayRows,
+            $weekRows,
+            $monthRows,
+            $yearRows,
+        ] = Concurrency::run([
+
+            // ===== COUNTS (ringan & independen) =====
+            fn () => User::role(User::ROLE_ADMIN)->count(),
+            fn () => User::role(User::ROLE_USER)->count(),
+            fn () => ProductCategory::count(),
+            fn () => ProductBrand::count(),
+            fn () => Product::count(),
+            fn () => Order::count(),
+            fn () => Banner::count(),
+            fn () => Bank::count(),
+            fn () => Ewallet::count(),
+            fn () => Coupon::active()->count(),
+
+            // Total revenue (completed)
+            fn () => (int) (Order::where('status', Order::STATUS_COMPLETED)
+                ->selectRaw('SUM(total_price + COALESCE(shipping_cost,0)) AS revenue')
+                ->value('revenue') ?? 0),
+
+            // Orders count per status
+            fn () => Order::selectRaw('COUNT(*) AS total, status')
+                ->groupBy('status')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'status' => Str::title(str_replace('_', ' ', $item->status)),
+                        'total' => (int) $item->total,
+                    ];
+                }),
+
+            // ===== REVENUE SERIES =====
+
+            // 1) Harian (30 hari)
+            fn () => Order::selectRaw('
+                DATE(created_at) AS d,
+                SUM(total_price + COALESCE(shipping_cost,0)) AS revenue,
+                COUNT(*) AS total
+            ')
+                ->where('status', Order::STATUS_COMPLETED)
+                ->where('created_at', '>=', $now->copy()->subDays(30)->startOfDay())
+                ->groupBy(DB::raw('DATE(created_at)'))
+                ->orderBy('d')
+                ->get()
+                ->map(function ($r) {
+                    $d = Carbon::parse($r->d);
+
+                    return [
+                        'label' => $d->format('d M'),
+                        'revenue' => (int) $r->revenue,
+                        'total' => (int) $r->total,
+                        'sort' => $d->timestamp,
+                    ];
+                })->values(),
+
+            // 2) Mingguan ISO (26 minggu)
+            fn () => Order::selectRaw("
+                SUM(total_price + COALESCE(shipping_cost,0)) AS revenue,
+                COUNT(*) AS total,
+                DATE_FORMAT(created_at, '%x') AS iso_year,
+                DATE_FORMAT(created_at, '%v') AS iso_week
+            ")
+                ->where('status', Order::STATUS_COMPLETED)
+                ->where('created_at', '>=', $now->copy()->subWeeks(26)->startOfWeek())
+                ->groupBy('iso_year', 'iso_week')
+                ->orderBy('iso_year')
+                ->orderBy('iso_week')
+                ->get()
+                ->map(function ($r) {
+                    $start = Carbon::now()->setISODate((int) $r->iso_year, (int) $r->iso_week)->startOfWeek(); // Mon
+                    $end = (clone $start)->endOfWeek(); // Sun
+
+                    return [
+                        'label' => $start->format('d M').'–'.$end->format('d M Y'),
+                        'revenue' => (int) $r->revenue,
+                        'total' => (int) $r->total,
+                        'sort' => $start->timestamp,
+                    ];
+                })->values(),
+
+            // 3) Bulanan (12 bulan)
+            fn () => Order::selectRaw('
+                YEAR(created_at)  AS y,
+                MONTH(created_at) AS m,
+                SUM(total_price + COALESCE(shipping_cost,0)) AS revenue,
+                COUNT(*) AS total
+            ')
+                ->where('status', Order::STATUS_COMPLETED)
+                ->where('created_at', '>=', $now->copy()->subMonths(12)->startOfMonth())
+                ->groupBy('y', 'm')
+                ->orderBy('y')
+                ->orderBy('m')
+                ->get()
+                ->map(function ($r) {
+                    $d = Carbon::createFromDate($r->y, $r->m, 1);
+
+                    return [
+                        'label' => $d->format('M Y'),
+                        'revenue' => (int) $r->revenue,
+                        'total' => (int) $r->total,
+                        'sort' => $d->timestamp,
+                    ];
+                })->values(),
+
+            // 4) Tahunan (5 tahun)
+            fn () => Order::selectRaw('
+                YEAR(created_at) AS y,
+                SUM(total_price + COALESCE(shipping_cost,0)) AS revenue,
+                COUNT(*) AS total
+            ')
+                ->where('status', Order::STATUS_COMPLETED)
+                ->where('created_at', '>=', $now->copy()->subYears(5)->startOfYear())
+                ->groupBy('y')
+                ->orderBy('y')
+                ->get()
+                ->map(function ($r) {
+                    $d = Carbon::createFromDate($r->y, 1, 1);
+
+                    return [
+                        'label' => $d->format('Y'),
+                        'revenue' => (int) $r->revenue,
+                        'total' => (int) $r->total,
+                        'sort' => $d->timestamp,
+                    ];
+                })->values(),
+        ]);
+
+        $revenues_series = [
+            'day' => $dayRows,
+            'week' => $weekRows,
+            'month' => $monthRows,
+            'year' => $yearRows,
+        ];
+
+        $default_grain = 'week';
+
+        return view('admin.dashboard', compact(
+            'total_admin',
+            'total_users',
+            'total_categories',
+            'total_brands',
+            'total_products',
+            'total_orders',
+            'total_banners',
+            'total_payment_banks',
+            'total_payment_ewallets',
+            'total_coupons',
+            'total_revenues',
+            'orders_count',
+            'revenues_series',
+            'default_grain'
+        ));
     }
 }

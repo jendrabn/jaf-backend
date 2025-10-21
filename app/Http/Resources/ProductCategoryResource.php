@@ -19,6 +19,7 @@ class ProductCategoryResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'products_count' => $this->products_count,
+            'logo' => $this->logo ?? null,
         ];
     }
 }

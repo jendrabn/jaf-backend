@@ -22,62 +22,66 @@
 @endsection
 
 @section('scripts')
+    <script>
+        let table;
+
+        $.fn.dataTable.ext.buttons.bulkDelete = {
+            text: "Delete selected",
+            url: "{{ route('admin.audit-logs.massDestroy') }}",
+            className: "btn-danger",
+            action: function(e, dt, node, config) {
+                let ids = $.map(
+                    dt
+                    .rows({
+                        selected: true,
+                    })
+                    .data(),
+                    function(entry) {
+                        return entry.id;
+                    }
+                );
+
+                if (ids.length === 0) {
+                    toastr.warning("No rows selected", 'Warning');
+
+                    return;
+                }
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Delete",
+                    cancelButtonText: "Cancel",
+                    reverseButtons: true,
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+                            method: 'POST',
+                            url: config.url,
+                            data: {
+                                ids: ids,
+                                _token: "{{ csrf_token() }}",
+                            },
+                        }).done(function() {
+                            toastr.success("Deleted successfully", 'Success');
+
+                            table.ajax.reload();
+                        });
+
+                    }
+                });
+            }
+        };
+    </script>
+
     {{ $dataTable->scripts(attributes: ['type' => 'text/javascript']) }}
 
     <script>
         $(function() {
-            const table = window.LaravelDataTables["auditlog-datatable"];
-
-            $.fn.dataTable.ext.buttons.bulkDelete = {
-                text: "Delete selected",
-                url: "{{ route('admin.audit-logs.massDestroy') }}",
-                className: "btn-danger",
-                action: function(e, dt, node, config) {
-                    let ids = $.map(
-                        dt
-                        .rows({
-                            selected: true,
-                        })
-                        .data(),
-                        function(entry) {
-                            return entry.id;
-                        }
-                    );
-
-                    if (ids.length === 0) {
-                        toastr.warning("No rows selected", 'Warning');
-
-                        return;
-                    }
-
-                    Swal.fire({
-                        title: "Are you sure?",
-                        text: "You won't be able to revert this!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Delete",
-                        cancelButtonText: "Cancel",
-                        reverseButtons: true,
-                    }).then(function(result) {
-                        if (result.isConfirmed) {
-
-                            $.ajax({
-                                method: 'POST',
-                                url: config.url,
-                                data: {
-                                    ids: ids,
-                                    _token: "{{ csrf_token() }}",
-                                },
-                            }).done(function() {
-                                toastr.success("Deleted successfully", 'Success');
-
-                                table.ajax.reload();
-                            });
-
-                        }
-                    });
-                }
-            }
+            table = window.LaravelDataTables["auditlog-datatable"];
 
             table.on('click', '.btn-delete', function(e) {
                 e.preventDefault();

@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\LandingController;
+use App\Http\Controllers\Api\NewsletterController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentGatewayController;
 use App\Http\Controllers\Api\ProductController;
@@ -109,6 +110,13 @@ Route::controller(BlogController::class)->group(function () {
     Route::get('/blogs/categories', 'categories');
     Route::get('/blogs/tags', 'tags');
     Route::get('/blogs/{blog:slug}', 'get');
+});
+
+// Newsletter
+Route::controller(NewsletterController::class)->group(function () {
+    Route::post('/newsletter/subscribe', 'subscribe');
+    Route::get('/newsletter/unsubscribe/{token}', 'unsubscribe');
+    Route::get('/newsletter/confirm/{token}', 'confirm');
 });
 
 // Route::fallback(fn () => abort(404));

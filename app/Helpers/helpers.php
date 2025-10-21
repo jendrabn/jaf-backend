@@ -85,4 +85,28 @@ if (! function_exists('audit_log')) {
             logger()->warning('Failed to write manual audit: '.$e->getMessage(), ['exception' => $e]);
         }
     }
+
+    if (! function_exists('normalizePhoneNumber')) {
+        function normalizePhoneNumber(string $phone): string
+        {
+            // Hapus semua spasi, strip, titik
+            $phone = preg_replace('/[\s\.\-]/', '', $phone);
+
+            // Jika diawali dengan 08 → ubah jadi +62
+            if (preg_match('/^08/', $phone)) {
+                $phone = '+62'.substr($phone, 1);
+            }
+            // Jika diawali dengan 62 tanpa plus → tambahkan +
+            elseif (preg_match('/^62/', $phone)) {
+                $phone = '+'.$phone;
+            }
+            // Jika sudah diawali +62 → biarkan
+            elseif (! preg_match('/^\+62/', $phone)) {
+                // Jika prefix tidak dikenal, bisa langsung ditambahkan +
+                $phone = '+'.$phone;
+            }
+
+            return $phone;
+        }
+    }
 }

@@ -143,6 +143,8 @@ class AuditLogDataTable extends DataTable
                 'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
                 'language' => [],
             ])
+            ->dom('lBfrtip<"actions">')
+            ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('selectAll')
                     ->className('btn btn-primary')
@@ -159,12 +161,10 @@ class AuditLogDataTable extends DataTable
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-filetype-csv me-1"></i> CSV'),
-                Button::make('excel')
+                Button::make('excelHtml5')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-file-earmark-excel me-1"></i> Excel'),
-                Button::make('print')
-                    ->className('btn btn-default')
-                    ->text('<i class="bi bi-printer me-1"></i> Print'),
+                // removed built-in print button per project conventions
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
                     ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),

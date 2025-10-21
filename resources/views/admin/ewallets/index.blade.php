@@ -22,58 +22,60 @@
 @endsection
 
 @section('scripts')
+    <script>
+        $.fn.dataTable.ext.buttons.bulkDelete = {
+            text: "Delete selected",
+            url: "{{ route('admin.banks.massDestroy') }}",
+            action: function(e, dt, node, config) {
+                let ids = $.map(
+                    dt
+                    .rows({
+                        selected: true,
+                    })
+                    .data(),
+                    function(entry) {
+                        return entry.id;
+                    }
+                );
+
+                if (ids.length === 0) {
+                    toastr.warning("No rows selected", 'Warning');
+
+                    return;
+                }
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Delete",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            headers: {
+                                "x-csrf-token": _token,
+                            },
+                            method: "POST",
+                            url: config.url,
+                            data: {
+                                ids: ids,
+                                _method: "DELETE",
+                            },
+                            success: function(data) {
+                                toastr.success(data.message);
+                                dt.ajax.reload();
+                            },
+                        });
+                    }
+                });
+            },
+        };
+    </script>
+
     {{ $dataTable->scripts(attributes: ['type' => 'text/javascript']) }}
     <script>
         $(function() {
-            $.fn.dataTable.ext.buttons.bulkDelete = {
-                text: "Delete selected",
-                url: "{{ route('admin.banks.massDestroy') }}",
-                action: function(e, dt, node, config) {
-                    let ids = $.map(
-                        dt
-                        .rows({
-                            selected: true,
-                        })
-                        .data(),
-                        function(entry) {
-                            return entry.id;
-                        }
-                    );
-
-                    if (ids.length === 0) {
-                        toastr.warning("No rows selected", 'Warning');
-
-                        return;
-                    }
-
-                    Swal.fire({
-                        title: "Are you sure?",
-                        text: "You won't be able to revert this!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Delete",
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                headers: {
-                                    "x-csrf-token": _token,
-                                },
-                                method: "POST",
-                                url: config.url,
-                                data: {
-                                    ids: ids,
-                                    _method: "DELETE",
-                                },
-                                success: function(data) {
-                                    toastr.success(data.message);
-                                    dt.ajax.reload();
-                                },
-                            });
-                        }
-                    });
-                },
-            };
-
             const table = window.LaravelDataTables["dataTable-ewallets"];
 
             table.on("click", ".btn-delete", function(e) {

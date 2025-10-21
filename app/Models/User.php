@@ -123,4 +123,12 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
             return $file;
         });
     }
+
+    // Normalize phone number before saving to database
+    protected function phone(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => normalizePhoneNumber($value),
+        );
+    }
 }

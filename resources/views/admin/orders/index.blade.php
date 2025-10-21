@@ -63,6 +63,119 @@
 @section('scripts')
     <script type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script>
+        $.fn.dataTable.ext.buttons.filter = {
+            text: '<i class="fas fa-filter"></i> Filter',
+            action: function(e, dt, node, config) {
+                $("#modal-filter").modal("show");
+            },
+        };
+
+        $.fn.dataTable.ext.buttons.printInvoice = {
+            text: '<i class="fa-solid fa-file-invoice"></i> Invoice',
+            url: "{{ route('admin.orders.invoices') }}",
+            action: function(e, dt, node, config) {
+                let ids = $.map(
+                    dt
+                    .rows({
+                        selected: true,
+                    })
+                    .data(),
+                    function(entry) {
+                        return entry.id;
+                    }
+                );
+
+                if (ids.length === 0) {
+                    toastr.warning("No rows selected", "Warning");
+
+                    return;
+                }
+
+                $.ajax({
+                    headers: {
+                        "x-csrf-token": _token,
+                    },
+                    method: "POST",
+                    url: config.url,
+                    data: {
+                        ids: ids,
+                    },
+                    beforeSend: function() {
+                        $(node).attr("disabled", true);
+                    },
+                    success: function(data) {
+                        const base64pdf = data.data;
+                        const binary = atob(base64pdf);
+                        const array = Uint8Array.from(binary, (char) =>
+                            char.charCodeAt(0)
+                        );
+                        const blob = new Blob([array], {
+                            type: "application/pdf",
+                        });
+
+                        const link = document.createElement("a");
+                        link.href = URL.createObjectURL(blob);
+                        link.download = data.filename;
+                        link.click();
+                    },
+                    complete: function() {
+                        $(node).attr("disabled", false);
+                    },
+                });
+            },
+        };
+
+        $.fn.dataTable.ext.buttons.bulkDelete = {
+            text: "Delete selected",
+            url: "{{ route('admin.orders.massDestroy') }}",
+            action: function(e, dt, node, config) {
+                let ids = $.map(
+                    dt
+                    .rows({
+                        selected: true,
+                    })
+                    .data(),
+                    function(entry) {
+                        return entry.id;
+                    }
+                );
+
+                if (ids.length === 0) {
+                    toastr.warning("No rows selected", "Warning");
+
+                    return;
+                }
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Delete",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            headers: {
+                                "x-csrf-token": _token,
+                            },
+                            method: "POST",
+                            url: config.url,
+                            data: {
+                                ids: ids,
+                                _method: "DELETE",
+                            },
+                            success: function(data) {
+                                toastr.success(data.message);
+
+                                dt.ajax.reload();
+                            },
+                        });
+                    }
+                });
+            },
+        };
+    </script>
     {{ $dataTable->scripts(attributes: ['type' => 'text/javascript']) }}
     <script>
         $(function() {
@@ -106,118 +219,6 @@
 
                 table.ajax.reload();
             });
-
-            $.fn.dataTable.ext.buttons.filter = {
-                text: '<i class="fas fa-filter"></i> Filter',
-                action: function(e, dt, node, config) {
-                    $("#modal-filter").modal("show");
-                },
-            };
-
-            $.fn.dataTable.ext.buttons.printInvoice = {
-                text: '<i class="fa-solid fa-file-invoice"></i> Invoice',
-                url: "{{ route('admin.orders.invoices') }}",
-                action: function(e, dt, node, config) {
-                    let ids = $.map(
-                        dt
-                        .rows({
-                            selected: true,
-                        })
-                        .data(),
-                        function(entry) {
-                            return entry.id;
-                        }
-                    );
-
-                    if (ids.length === 0) {
-                        toastr.warning("No rows selected", "Warning");
-
-                        return;
-                    }
-
-                    $.ajax({
-                        headers: {
-                            "x-csrf-token": _token,
-                        },
-                        method: "POST",
-                        url: config.url,
-                        data: {
-                            ids: ids,
-                        },
-                        beforeSend: function() {
-                            $(node).attr("disabled", true);
-                        },
-                        success: function(data) {
-                            const base64pdf = data.data;
-                            const binary = atob(base64pdf);
-                            const array = Uint8Array.from(binary, (char) =>
-                                char.charCodeAt(0)
-                            );
-                            const blob = new Blob([array], {
-                                type: "application/pdf",
-                            });
-
-                            const link = document.createElement("a");
-                            link.href = URL.createObjectURL(blob);
-                            link.download = data.filename;
-                            link.click();
-                        },
-                        complete: function() {
-                            $(node).attr("disabled", false);
-                        },
-                    });
-                },
-            };
-
-            $.fn.dataTable.ext.buttons.bulkDelete = {
-                text: "Delete selected",
-                url: "{{ route('admin.orders.massDestroy') }}",
-                action: function(e, dt, node, config) {
-                    let ids = $.map(
-                        dt
-                        .rows({
-                            selected: true,
-                        })
-                        .data(),
-                        function(entry) {
-                            return entry.id;
-                        }
-                    );
-
-                    if (ids.length === 0) {
-                        toastr.warning("No rows selected", "Warning");
-
-                        return;
-                    }
-
-                    Swal.fire({
-                        title: "Are you sure?",
-                        text: "You won't be able to revert this!",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonText: "Delete",
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            $.ajax({
-                                headers: {
-                                    "x-csrf-token": _token,
-                                },
-                                method: "POST",
-                                url: config.url,
-                                data: {
-                                    ids: ids,
-                                    _method: "DELETE",
-                                },
-                                success: function(data) {
-                                    toastr.success(data.message);
-
-                                    dt.ajax.reload();
-                                },
-                            });
-                        }
-                    });
-                },
-            };
 
             $(".datatable thead").on("input", ".search", function() {
                 let strict = $(this).attr("strict") || false;

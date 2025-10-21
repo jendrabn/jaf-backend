@@ -50,8 +50,8 @@ class CourierDataTable extends DataTable
             ->setTableId('courier-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            // ->dom('Bfrtip')
-            ->orderBy(0, 'asc')
+            ->dom('lBfrtip<"actions">')
+            ->orderBy(1, 'desc')
             ->selectStyleSingle()
             ->buttons([]);
     }

@@ -80,7 +80,8 @@ class ContactMessagesDataTable extends DataTable
             ->setTableId('contact-messages-table')
             ->columns($this->getColumns())
             ->minifiedAjax(route('admin.messages.index'))
-            ->orderBy(0, 'desc')
+            ->dom('lBfrtip<"actions">')
+            ->orderBy(1, 'desc')
             ->parameters([
                 'processing' => true,
                 'serverSide' => true,

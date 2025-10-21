@@ -18,87 +18,96 @@
         </div>
     </div>
 
-    <div class="modal fade" id="blogCategoryModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
+    <div aria-hidden="true"
+         class="modal fade"
+         id="blogCategoryModal"
+         role="dialog"
+         tabindex="-1">
+        <div class="modal-dialog modal-lg"
+             role="document">
             <div class="modal-content"></div>
         </div>
     </div>
 @endsection
 
 @section('scripts')
+    <script>
+        $.fn.dataTable.ext.buttons.bulkDelete = {
+            text: '<i class="bi bi-trash3 mr-1"></i> Delete Selected',
+            action: function(e, dt) {
+                const ids = $.map(dt.rows({
+                    selected: true
+                }).data(), function(row) {
+                    return row.id;
+                });
+
+                if (!ids.length) {
+                    if (window.toastr) {
+                        toastr.warning('No rows selected.');
+                    }
+
+                    return;
+                }
+
+                if (!confirm('Delete selected categories?')) {
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('admin.blog-categories.massDestroy') }}",
+                    method: 'POST',
+                    data: {
+                        ids: ids,
+                        _method: 'DELETE',
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        dt.ajax.reload(null, false);
+                        if (window.toastr) {
+                            toastr.success(response?.message ?? 'Deleted successfully.');
+                        }
+                    },
+                    error: function() {
+                        if (window.toastr) {
+                            toastr.error('Delete failed.');
+                        }
+                    }
+                });
+            }
+        };
+    </script>
+
     {!! $dataTable->scripts() !!}
     <script>
-        $(function () {
-            const table = window.LaravelDataTables && window.LaravelDataTables['blogcategory-table']
-                ? window.LaravelDataTables['blogcategory-table']
-                : $('#blogcategory-table').DataTable();
+        $(function() {
+            const table = window.LaravelDataTables && window.LaravelDataTables['blogcategory-table'] ?
+                window.LaravelDataTables['blogcategory-table'] :
+                $('#blogcategory-table').DataTable();
             const $modal = $('#blogCategoryModal');
 
-            $.fn.dataTable.ext.buttons.bulkDelete = {
-                text: '<i class="bi bi-trash3 mr-1"></i> Delete Selected',
-                action: function (e, dt) {
-                    const ids = $.map(dt.rows({ selected: true }).data(), function (row) {
-                        return row.id;
-                    });
-
-                    if (!ids.length) {
-                        if (window.toastr) {
-                            toastr.warning('No rows selected.');
-                        }
-
-                        return;
-                    }
-
-                    if (!confirm('Delete selected categories?')) {
-                        return;
-                    }
-
-                    $.ajax({
-                        url: "{{ route('admin.blog-categories.massDestroy') }}",
-                        method: 'POST',
-                        data: {
-                            ids: ids,
-                            _method: 'DELETE',
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function (response) {
-                            dt.ajax.reload(null, false);
-                            if (window.toastr) {
-                                toastr.success(response?.message ?? 'Deleted successfully.');
-                            }
-                        },
-                        error: function () {
-                            if (window.toastr) {
-                                toastr.error('Delete failed.');
-                            }
-                        }
-                    });
-                }
-            };
-
-            $modal.on('hidden.bs.modal', function () {
+            $modal.on('hidden.bs.modal', function() {
                 $(this).find('.modal-content').empty();
             });
 
-            $(document).on('click', '.buttons-create', function (e) {
+            $(document).on('click', '.buttons-create', function(e) {
                 e.preventDefault();
 
-                $.get("{{ route('admin.blog-categories.create') }}", function (html) {
+                $.get("{{ route('admin.blog-categories.create') }}", function(html) {
                     $modal.find('.modal-content').html(html);
                     $modal.modal('show');
                 });
             });
 
-            $(document).on('click', '.btn-edit-blog-category', function () {
+            $(document).on('click', '.btn-edit-blog-category', function() {
                 const url = $(this).data('url');
 
-                $.get(url, function (html) {
+                $.get(url, function(html) {
                     $modal.find('.modal-content').html(html);
                     $modal.modal('show');
                 });
             });
 
-            $(document).on('submit', '#blogCategoryForm', function (e) {
+            $(document).on('submit', '#blogCategoryForm', function(e) {
                 e.preventDefault();
 
                 const $form = $(this);
@@ -113,21 +122,22 @@
                     url: action,
                     method: method,
                     data: data,
-                    success: function (response) {
+                    success: function(response) {
                         $modal.modal('hide');
                         table.ajax.reload(null, false);
                         if (window.toastr) {
                             toastr.success(response?.message ?? 'Saved successfully.');
                         }
                     },
-                    error: function (xhr) {
+                    error: function(xhr) {
                         if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
                             const errors = xhr.responseJSON.errors;
 
-                            Object.keys(errors).forEach(function (field) {
+                            Object.keys(errors).forEach(function(field) {
                                 const $input = $form.find('[name="' + field + '"]');
                                 $input.addClass('is-invalid');
-                                $input.siblings('.invalid-feedback').removeClass('d-none').text(errors[field][0]);
+                                $input.siblings('.invalid-feedback').removeClass(
+                                    'd-none').text(errors[field][0]);
                             });
                         } else {
                             if (window.toastr) {
@@ -138,7 +148,7 @@
                 });
             });
 
-            $(document).on('click', '.btn-delete-blog-category', function () {
+            $(document).on('click', '.btn-delete-blog-category', function() {
                 if (!confirm('Delete this category?')) {
                     return;
                 }
@@ -152,13 +162,13 @@
                         _method: 'DELETE',
                         _token: '{{ csrf_token() }}'
                     },
-                    success: function (response) {
+                    success: function(response) {
                         table.ajax.reload(null, false);
                         if (window.toastr) {
                             toastr.success(response?.message ?? 'Deleted successfully.');
                         }
                     },
-                    error: function () {
+                    error: function() {
                         if (window.toastr) {
                             toastr.error('Delete failed.');
                         }

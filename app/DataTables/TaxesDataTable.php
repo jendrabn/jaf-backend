@@ -38,6 +38,8 @@ class TaxesDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->dom('lBfrtip<"actions">')
+            ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
@@ -49,7 +51,7 @@ class TaxesDataTable extends DataTable
                 Button::make('selectNone')
                     ->className('btn btn-primary')
                     ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
-                Button::make('excel')
+                Button::make('excelHtml5')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-file-earmark-excel mr-1"></i> Excel'),
                 Button::make('colvis')

@@ -62,13 +62,13 @@ class RoleDataTable extends DataTable
             ->setTableId('role-datatable')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            // ->dom('Bfrtip')
-            ->orderBy(0, 'desc')
+            ->dom('lBfrtip<"actions">')
+            ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
                     ->text('<i class="bi bi-plus-circle me-1"></i> Create Role'),
-                Button::make('excel')
+                Button::make('excelHtml5')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-file-earmark-excel me-1"></i> Excel'),
                 Button::make('colvis')

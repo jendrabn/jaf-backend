@@ -55,6 +55,8 @@ class ProductCategoriesDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->dom('lBfrtip<"actions">')
+            ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
@@ -65,7 +67,7 @@ class ProductCategoriesDataTable extends DataTable
                 Button::make('selectNone')
                     ->className('btn btn-primary')
                     ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
-                Button::make('excel')
+                Button::make('excelHtml5')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-file-earmark-excel me-1"></i> Excel'),
                 Button::make('colvis')
