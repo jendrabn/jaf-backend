@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\SubscriberStatus;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +21,7 @@ class SubscriberFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'name' => fake()->name(),
             'token' => fake()->unique()->sha256(),
-            'status' => fake()->randomElement(['pending', 'subscribed', 'unsubscribed']),
+            'status' => fake()->randomElement(SubscriberStatus::cases()),
             'subscribed_at' => fake()->optional(0.7)->dateTimeBetween('-1 year', 'now'),
             'unsubscribed_at' => fake()->optional(0.2)->dateTimeBetween('-6 months', 'now'),
         ];

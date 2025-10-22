@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\BlogCategory;
+use App\Models\Subscriber;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -10,7 +10,7 @@ use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
-class BlogCategoriesDataTable extends DataTable
+class SubscribersDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -20,16 +20,40 @@ class BlogCategoriesDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', 'admin.blogCategories.partials.action')
+            ->addColumn('action', 'admin.subscribers.partials.action')
+            ->editColumn('status', function ($row) {
+                $badgeClass = match ($row->status->value) {
+                    'pending' => 'badge-warning',
+                    'subscribed' => 'badge-success',
+                    'unsubscribed' => 'badge-danger',
+                    default => 'badge-secondary'
+                };
+
+                $statusText = match ($row->status->value) {
+                    'pending' => 'Pending',
+                    'subscribed' => 'Subscribed',
+                    'unsubscribed' => 'Unsubscribed',
+                    default => ucfirst($row->status->value)
+                };
+
+                return '<span class="badge '.$badgeClass.'">'.$statusText.'</span>';
+            })
+            ->editColumn('subscribed_at', function ($row) {
+                return $row->subscribed_at ? $row->subscribed_at->format('d M Y H:i') : '-';
+            })
+            ->editColumn('unsubscribed_at', function ($row) {
+                return $row->unsubscribed_at ? $row->unsubscribed_at->format('d M Y H:i') : '-';
+            })
+            ->rawColumns(['action', 'status'])
             ->setRowId('id');
     }
 
     /**
      * Get the query source of dataTable.
      */
-    public function query(BlogCategory $model): QueryBuilder
+    public function query(Subscriber $model): QueryBuilder
     {
-        return $model->newQuery()->withCount('blogs');
+        return $model->newQuery();
     }
 
     /**
@@ -38,18 +62,17 @@ class BlogCategoriesDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('blogcategory-table')
+            ->setTableId('subscribers-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(1)
+            ->orderBy(1, 'desc')
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->dom('lBfrtip<"actions">')
-            ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
-                    ->text('<i class="bi bi-plus-circle mr-1"></i> Create Category')
+                    ->text('<i class="bi bi-plus-circle mr-1"></i> Create Subscriber')
                     ->action('function (e, dt, node, config) { return false; }'),
                 Button::make('selectAll')
                     ->className('btn btn-primary')
@@ -84,27 +107,35 @@ class BlogCategoriesDataTable extends DataTable
                 ->title('ID'),
 
             Column::make('name')
-                ->title('NAME'),
+                ->title('Name'),
 
-            Column::make('slug')
-                ->title('SLUG')
+            Column::make('email')
+                ->title('Email'),
+
+            Column::make('status')
+                ->title('Status'),
+
+            Column::make('subscribed_at')
+                ->title('Subscribed At')
                 ->visible(false),
 
-            Column::make('blogs_count')
-                ->title('BLOGS COUNT'),
+            Column::make('unsubscribed_at')
+                ->title('Unsubscribed At')
+                ->visible(false),
 
             Column::make('created_at')
-                ->title('DATE & TIME CREATED')
+                ->title('Date & Time Created')
                 ->visible(false),
 
             Column::make('updated_at')
-                ->title('DATE & TIME UPDATED')
+                ->title('Date & Time Updated')
                 ->visible(false),
 
             Column::computed('action')
-                ->title('ACTION')
+                ->title('Action')
                 ->exportable(false)
-                ->printable(false),
+                ->printable(false)
+                ->width(120),
         ];
     }
 
@@ -113,6 +144,6 @@ class BlogCategoriesDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'BlogCategory_'.date('dmY');
+        return 'Subscribers_'.date('dmY');
     }
 }

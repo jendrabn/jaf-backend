@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\CampaignReceiptStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -29,6 +30,7 @@ class CampaignReceipt extends Model
     protected function casts(): array
     {
         return [
+            'status' => CampaignReceiptStatus::class,
             'sent_at' => 'datetime',
             'opened_at' => 'datetime',
             'clicked_at' => 'datetime',

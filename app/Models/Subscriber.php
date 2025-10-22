@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\SubscriberStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -29,6 +30,7 @@ class Subscriber extends Model
     protected function casts(): array
     {
         return [
+            'status' => SubscriberStatus::class,
             'subscribed_at' => 'datetime',
             'unsubscribed_at' => 'datetime',
         ];

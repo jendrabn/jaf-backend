@@ -68,9 +68,9 @@ class RoleDataTable extends DataTable
                 Button::make('create')
                     ->className('btn btn-success')
                     ->text('<i class="bi bi-plus-circle me-1"></i> Create Role'),
-                Button::make('excelHtml5')
+                Button::make('csv')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-file-earmark-excel me-1"></i> Excel'),
+                    ->text('CSV'),
                 Button::make('colvis')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),

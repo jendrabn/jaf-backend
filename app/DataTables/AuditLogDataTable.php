@@ -161,9 +161,9 @@ class AuditLogDataTable extends DataTable
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-filetype-csv me-1"></i> CSV'),
-                Button::make('excelHtml5')
+                Button::make('csv')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-file-earmark-excel me-1"></i> Excel'),
+                    ->text('CSV'),
                 // removed built-in print button per project conventions
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')

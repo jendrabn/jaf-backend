@@ -251,10 +251,10 @@ return [
         // Contact Messages (resource-ish: index/show/reply/delete/massDestroy)
         'contact_messages' => ['view', 'show', 'reply', 'delete', 'mass_delete'],
 
-        // Newsletters (resource + massDestroy + statistics)
-        'newsletters' => ['view', 'show', 'create', 'edit', 'delete', 'mass_delete'],
+        // Subscribers (resource + export + massDestroy)
+        'subscribers' => ['view', 'show', 'create', 'edit', 'delete', 'export', 'mass_delete'],
 
-        // Campaigns (resource + send + test + statistics)
-        'campaigns' => ['view', 'show', 'create', 'edit', 'delete', 'send', 'test'],
+        // Campaigns (resource + custom actions)
+        'campaigns' => ['view', 'show', 'create', 'edit', 'delete', 'mass_delete'],
     ],
 ];

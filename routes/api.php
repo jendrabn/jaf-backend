@@ -113,5 +113,20 @@ Route::controller(BlogController::class)->group(function () {
 });
 
 // Newsletter
+Route::controller(NewsletterController::class)->group(function () {
+    Route::post('/newsletter/subscribe', 'subscribe');
+    Route::get('/newsletter/unsubscribe/{token}', 'unsubscribe')->name('unsubscribe');
+    Route::get('/newsletter/confirm/{token}', 'confirm');
+
+    // Newsletter tracking
+    Route::get('/newsletter/track/open/{receipt}/{token}', 'trackOpen')
+        ->name('newsletter.track.open');
+
+    Route::get('/newsletter/track/click/{receipt}/{token}', 'trackClick')
+        ->name('newsletter.track.click');
+
+    Route::get('/newsletter/webview/{receipt}/{token}', 'webview')
+        ->name('newsletter.webview');
+});
 
 // Route::fallback(fn () => abort(404));

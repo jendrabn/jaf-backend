@@ -6,16 +6,17 @@ use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\BlogTagController;
+use App\Http\Controllers\Admin\CampaignController;
 use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageController;
 use App\Http\Controllers\Admin\ContactReplyController as AdminContactReplyController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EwalletController;
-use App\Http\Controllers\Admin\NewsletterController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductBrandController;
 use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProfileController;
+use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\TaxController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Api\ContactMessageController as PublicContactController;
@@ -459,6 +460,38 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->whereNumber('blog_category')
             ->name('blog-categories.destroy')
             ->middleware('permission:blog_categories.delete');
+
+        // -------- Subscribers (custom + massDestroy) --------
+        Route::delete('subscribers/destroy', [SubscriberController::class, 'massDestroy'])
+            ->name('subscribers.massDestroy')
+            ->middleware('permission:subscribers.mass_delete');
+
+        Route::get('subscribers', [SubscriberController::class, 'index'])
+            ->name('subscribers.index')
+            ->middleware('permission:subscribers.view');
+
+        Route::get('subscribers/create', [SubscriberController::class, 'create'])
+            ->name('subscribers.create')
+            ->middleware('permission:subscribers.create');
+
+        Route::post('subscribers', [SubscriberController::class, 'store'])
+            ->name('subscribers.store')
+            ->middleware('permission:subscribers.create');
+
+        Route::get('subscribers/{subscriber}/edit', [SubscriberController::class, 'edit'])
+            ->whereNumber('subscriber')
+            ->name('subscribers.edit')
+            ->middleware('permission:subscribers.edit');
+
+        Route::put('subscribers/{subscriber}', [SubscriberController::class, 'update'])
+            ->whereNumber('subscriber')
+            ->name('subscribers.update')
+            ->middleware('permission:subscribers.edit');
+
+        Route::delete('subscribers/{subscriber}', [SubscriberController::class, 'destroy'])
+            ->whereNumber('subscriber')
+            ->name('subscribers.destroy')
+            ->middleware('permission:subscribers.delete');
 
         // -------- Blogs (resource + published + uploads + massDestroy) --------
         Route::delete('blogs/destroy', [BlogController::class, 'massDestroy'])

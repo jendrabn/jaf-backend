@@ -24,7 +24,8 @@
                     <div class="card-header">
                         <div class="card-tools">
                             <a class="btn btn-default"
-                               href="{{ route('admin.products.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to list</a>
+                               href="{{ route('admin.products.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to
+                                list</a>
                         </div>
                     </div>
                     <div class="card-body">

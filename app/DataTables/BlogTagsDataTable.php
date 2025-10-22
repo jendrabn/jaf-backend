@@ -57,9 +57,9 @@ class BlogTagsDataTable extends DataTable
                 Button::make('selectNone')
                     ->className('btn btn-primary')
                     ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
-                Button::make('excelHtml5')
+                Button::make('csv')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-file-earmark-excel mr-1"></i> Excel'),
+                    ->text('CSV'),
                 Button::make('colvis')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
