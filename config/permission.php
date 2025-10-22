@@ -254,7 +254,7 @@ return [
         // Subscribers (resource + export + massDestroy)
         'subscribers' => ['view', 'show', 'create', 'edit', 'delete', 'export', 'mass_delete'],
 
-        // Campaigns (resource + custom actions)
-        'campaigns' => ['view', 'show', 'create', 'edit', 'delete', 'mass_delete'],
+        // Campaigns (resource + custom actions aligned with routes)
+        'campaigns' => ['view', 'show', 'create', 'edit', 'delete', 'send_all', 'test_send'],
     ],
 ];

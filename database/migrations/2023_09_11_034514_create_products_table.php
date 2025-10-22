@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('product_category_id')->nullable()->constrained('product_categories')->onDelete('set null');
             $table->foreignId('product_brand_id')->nullable()->constrained('product_brands')->onDelete('set null');
             $table->string('name', 200)->unique('uniq_products_name');
-            $table->fullText('name', 'products_fulltext_name');
             $table->string('slug')->unique('uniq_products_slug');
             $table->integer('weight')->comment('gram');
             $table->integer('price');
@@ -30,6 +29,13 @@ return new class extends Migration
             $table->timestamps();
             $table->index('created_at', 'idx_products_created_at');
         });
+
+        // Add FULLTEXT index only on supported drivers (e.g., MySQL). Skip on SQLite for tests.
+        if (Schema::getConnection()->getDriverName() !== 'sqlite') {
+            Schema::table('products', function (Blueprint $table) {
+                $table->fullText('name', 'products_fulltext_name');
+            });
+        }
     }
 
     /**

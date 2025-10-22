@@ -652,6 +652,51 @@ Route::middleware(['auth', 'permission:backoffice.access'])
                 ->name('messages.reply')
                 ->middleware('permission:contact_messages.reply');
         });
+        // -------- Campaigns (newsletter, queued emails, stats) --------
+        Route::get('campaigns', [CampaignController::class, 'index'])
+            ->name('campaigns.index')
+            ->middleware('permission:campaigns.view');
+
+        Route::get('campaigns/create', [CampaignController::class, 'create'])
+            ->name('campaigns.create')
+            ->middleware('permission:campaigns.create');
+
+        Route::post('campaigns', [CampaignController::class, 'store'])
+            ->name('campaigns.store')
+            ->middleware('permission:campaigns.create');
+
+        Route::get('campaigns/{campaign}', [CampaignController::class, 'show'])
+            ->whereNumber('campaign')
+            ->name('campaigns.show')
+            ->middleware('permission:campaigns.show');
+
+        Route::get('campaigns/{campaign}/edit', [CampaignController::class, 'edit'])
+            ->whereNumber('campaign')
+            ->name('campaigns.edit')
+            ->middleware('permission:campaigns.edit');
+
+        Route::put('campaigns/{campaign}', [CampaignController::class, 'update'])
+            ->whereNumber('campaign')
+            ->name('campaigns.update')
+            ->middleware('permission:campaigns.edit');
+
+        Route::delete('campaigns/{campaign}', [CampaignController::class, 'destroy'])
+            ->whereNumber('campaign')
+            ->name('campaigns.destroy')
+            ->middleware('permission:campaigns.delete');
+
+        Route::post('campaigns/{campaign}/send_all', [CampaignController::class, 'sendAll'])
+            ->whereNumber('campaign')
+            ->name('campaigns.send_all')
+            ->middleware('permission:campaigns.send_all');
+
+        Route::post('campaigns/{campaign}/test_send', [CampaignController::class, 'testSend'])
+            ->whereNumber('campaign')
+            ->name('campaigns.test_send')
+            ->middleware('permission:campaigns.test_send');
+        Route::post('campaigns/upload-image', [CampaignController::class, 'uploadImage'])
+            ->name('campaigns.upload_image')
+            ->middleware('permission:campaigns.edit');
     });
 
 Route::get('swagger', function () {
