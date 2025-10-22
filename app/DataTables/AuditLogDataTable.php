@@ -161,9 +161,15 @@ class AuditLogDataTable extends DataTable
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-filetype-csv me-1"></i> CSV'),
+                Button::make('reload')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
+                Button::make('reload')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
                 // removed built-in print button per project conventions
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
@@ -231,3 +237,4 @@ class AuditLogDataTable extends DataTable
         return 'AuditLog_'.date('YmdHis');
     }
 }
+

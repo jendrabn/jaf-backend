@@ -3,9 +3,12 @@
 namespace App\DataTables;
 
 use App\Models\ContactMessage;
+use App\Enums\ContactMessageStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 use Yajra\DataTables\EloquentDataTable;
+use Yajra\DataTables\Html\Button;
+use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 
 class ContactMessagesDataTable extends DataTable
@@ -30,22 +33,27 @@ class ContactMessagesDataTable extends DataTable
             return $row->handled_at ? $row->handled_at->format('d-m-Y H:i') : '-';
         });
 
-        $dataTable->editColumn('status', function (ContactMessage $row) {
-            $map = [
-                'new' => ['label' => 'New', 'color' => 'secondary'],
-                'in_progress' => ['label' => 'In Progress', 'color' => 'warning'],
-                'resolved' => ['label' => 'Resolved', 'color' => 'success'],
-                'spam' => ['label' => 'Spam', 'color' => 'danger'],
-            ];
-            $conf = $map[$row->status] ?? ['label' => ucfirst($row->status), 'color' => 'secondary'];
+        $dataTable->editColumn('updated_at', function (ContactMessage $row) {
+            return optional($row->updated_at)->format('d-m-Y H:i');
+        });
 
-            return '<span class="badge badge-'.e($conf['color']).' badge-pill">'.e($conf['label']).'</span>';
+        $dataTable->editColumn('status', function (ContactMessage $row) {
+            try {
+                $status = ContactMessageStatus::from((string) $row->status);
+                $label = $status->label();
+                $color = $status->color();
+            } catch (\ValueError $e) {
+                $label = ucfirst((string) $row->status);
+                $color = 'secondary';
+            }
+
+            return '<span class="badge badge-' . e($color) . ' badge-pill">' . e($label) . '</span>';
         });
 
         $dataTable->addColumn('actions', function (ContactMessage $row) {
             $url = route('admin.messages.show', $row->id);
 
-            return '<a href="'.e($url).'" class="btn btn-sm btn-outline-primary">Show</a>';
+            return '<a href="' . e($url) . '" class="btn btn-sm btn-outline-primary">Show</a>';
         });
 
         $dataTable->rawColumns(['status', 'actions']);
@@ -80,34 +88,86 @@ class ContactMessagesDataTable extends DataTable
             ->setTableId('contact-messages-table')
             ->columns($this->getColumns())
             ->minifiedAjax(route('admin.messages.index'))
+            ->selectStyleMultiShift()
+            ->selectSelector('td:first-child')
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
-            ->parameters([
-                'processing' => true,
-                'serverSide' => true,
-                'searchDelay' => 350,
-                'order' => [[0, 'desc']],
-            ]);
+            ->buttons(
+                Button::make('selectAll')
+                    ->className('btn btn-primary')
+                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                Button::make('selectNone')
+                    ->className('btn btn-primary')
+                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                Button::make('csv')
+                    ->className('btn btn-default')
+                    ->text('CSV'),
+                Button::make('reload')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                Button::make('filter')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-filter me-1"></i> Filter'),
+                Button::make('colvis')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                Button::make('bulkDelete')
+                    ->className('btn btn-danger')
+                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),    //
+            );
     }
 
     protected function getColumns(): array
     {
         return [
-            ['data' => 'id', 'name' => 'id', 'title' => 'ID'],
-            ['data' => 'created_at', 'name' => 'created_at', 'title' => 'Created At'],
-            ['data' => 'name', 'name' => 'name', 'title' => 'Name'],
-            ['data' => 'email', 'name' => 'email', 'title' => 'Email'],
-            ['data' => 'phone', 'name' => 'phone', 'title' => 'Phone'],
-            ['data' => 'message', 'name' => 'message', 'title' => 'Message'],
-            ['data' => 'status', 'name' => 'status', 'title' => 'Status'],
-            ['data' => 'handled_by', 'name' => 'handler.name', 'title' => 'Handled By', 'orderable' => false, 'searchable' => false],
-            ['data' => 'handled_at', 'name' => 'handled_at', 'title' => 'Handled At'],
-            ['data' => 'actions', 'name' => 'actions', 'title' => 'Actions', 'orderable' => false, 'searchable' => false],
+            Column::checkbox('&nbsp;')
+                ->exportable(false)
+                ->printable(false)
+                ->width(35),
+
+            Column::make('id')
+                ->title('ID'),
+
+            Column::make('name')
+                ->title('NAME'),
+
+            Column::make('email')
+                ->title('EMAIL'),
+
+            Column::make('phone')
+                ->title('PHONE'),
+
+            Column::make('message')
+                ->title('MESSAGE'),
+
+            Column::make('status')
+                ->title('STATUS'),
+
+            Column::make('handled_by', 'handler.name')
+                ->title('HANDLED BY')
+                ->orderable(false)
+                ->searchable(false),
+
+            Column::make('handled_at')
+                ->title('HANDLED AT'),
+
+            Column::make('created_at')
+                ->title('DATE & TIME CREATED'),
+
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED'),
+
+            Column::computed('actions')
+                ->title('ACTIONS')
+                ->exportable(false)
+                ->printable(false)
+                ->orderable(false)
+                ->searchable(false),
         ];
     }
 
     protected function filename(): string
     {
-        return 'contact_messages_'.date('YmdHis');
+        return 'contact_messages_' . date('YmdHis');
     }
 }

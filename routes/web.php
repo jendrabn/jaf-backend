@@ -365,6 +365,10 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->name('products.storeCKEditorImages')
             ->middleware('permission:products.upload_ckeditor');
 
+        Route::post('products/upload-image', [ProductController::class, 'uploadImage'])
+            ->name('products.upload_image')
+            ->middleware('permission:products.edit');
+
         Route::get('products', [ProductController::class, 'index'])
             ->name('products.index')
             ->middleware('permission:products.view');
@@ -512,6 +516,10 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->name('blogs.storeCKEditorImages')
             ->middleware('permission:blogs.upload_ckeditor');
 
+        Route::post('blogs/upload-image', [BlogController::class, 'uploadImage'])
+            ->name('blogs.upload_image')
+            ->middleware('permission:blogs.edit');
+
         Route::get('blogs', [BlogController::class, 'index'])
             ->name('blogs.index')
             ->middleware('permission:blogs.view');
@@ -642,6 +650,11 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             Route::get('/messages', [AdminContactMessageController::class, 'index'])
                 ->name('messages.index')
                 ->middleware('permission:contact_messages.view');
+
+            Route::delete('/messages/destroy', [AdminContactMessageController::class, 'massDestroy'])
+                ->name('messages.massDestroy')
+                ->middleware('permission:contact_messages.mass_delete');
+
             Route::get('/messages/{message}', [AdminContactMessageController::class, 'show'])
                 ->name('messages.show')
                 ->middleware('permission:contact_messages.show');
@@ -650,6 +663,10 @@ Route::middleware(['auth', 'permission:backoffice.access'])
                 ->middleware('permission:contact_messages.reply');
             Route::post('/messages/{message}/reply', [AdminContactReplyController::class, 'store'])
                 ->name('messages.reply')
+                ->middleware('permission:contact_messages.reply');
+
+            Route::post('/messages/upload-image', [AdminContactReplyController::class, 'uploadImage'])
+                ->name('messages.upload_image')
                 ->middleware('permission:contact_messages.reply');
         });
         // -------- Campaigns (newsletter, queued emails, stats) --------

@@ -68,6 +68,9 @@ class BanksDataTable extends DataTable
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
+                Button::make('reload')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
@@ -129,3 +132,4 @@ class BanksDataTable extends DataTable
         return 'BANKS_'.date('dmY');
     }
 }
+

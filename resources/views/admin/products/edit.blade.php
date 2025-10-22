@@ -71,11 +71,18 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="required">Product Description</label>
-                    <textarea class="form-control ckeditor {{ $errors->has('description') ? 'is-invalid' : '' }}"
+                    <label class="required d-block">Product Description</label>
+                    <div id="product-description-editor"
+                         style="min-height: 200px; border: 1px solid #ced4da; border-radius: .25rem;"></div>
+                    <input accept="image/*"
+                           class="d-none"
+                           id="quill-image-input"
+                           type="file">
+                    <textarea class="d-none"
+                              id="product-description-content"
                               name="description">{!! old('description', $product->description) !!}</textarea>
                     @if ($errors->has('description'))
-                        <span class="invalid-feedback">{{ $errors->first('description') }}</span>
+                        <span class="invalid-feedback d-block">{{ $errors->first('description') }}</span>
                     @endif
                 </div>
 
@@ -188,7 +195,7 @@
 @endsection
 
 @section('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ckeditor5/43.0.0/ckeditor.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
     <script>
         let uploadedImagesMap = {}
@@ -254,16 +261,130 @@
 
                 return _results
             }
-        }
+        };
 
-        ClassicEditor
-            .create(document.querySelector('.ckeditor'), {
-                ckfinder: {
-                    uploadUrl: '{{ route('admin.products.storeCKEditorImages') . '?_token=' . csrf_token() }}',
-                }
-            })
-            .catch(error => {
-                toastr.error(error, 'Error');
+        // Quill full-feature toolbar for Product Description
+        (function() {
+            const editorEl = document.getElementById('product-description-editor');
+            const contentEl = document.getElementById('product-description-content');
+            const imageInput = document.getElementById('quill-image-input');
+            const uploadUrl = "{{ route('admin.products.upload_image') }}";
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            const toolbarOptions = [
+                ['bold', 'italic', 'underline', 'strike'],
+                ['blockquote', 'code-block'],
+                ['link', 'image', 'video', 'formula'],
+
+                [{
+                    'header': 1
+                }, {
+                    'header': 2
+                }],
+                [{
+                    'list': 'ordered'
+                }, {
+                    'list': 'bullet'
+                }, {
+                    'list': 'check'
+                }],
+                [{
+                    'script': 'sub'
+                }, {
+                    'script': 'super'
+                }],
+                [{
+                    'indent': '-1'
+                }, {
+                    'indent': '+1'
+                }],
+                [{
+                    'direction': 'rtl'
+                }],
+
+                [{
+                    'size': ['small', false, 'large', 'huge']
+                }],
+                [{
+                    'header': [1, 2, 3, 4, 5, 6, false]
+                }],
+
+                [{
+                    'color': []
+                }, {
+                    'background': []
+                }],
+                [{
+                    'font': []
+                }],
+                [{
+                    'align': []
+                }],
+
+                ['clean']
+            ];
+
+            const quill = new Quill(editorEl, {
+                modules: {
+                    toolbar: toolbarOptions
+                },
+                theme: 'snow'
             });
+
+            // Initialize editor with existing content
+            if (contentEl.value) {
+                quill.root.innerHTML = contentEl.value;
+            }
+
+            // Handle toolbar image button: open file selector then upload
+            quill.getModule('toolbar').addHandler('image', function() {
+                imageInput.click();
+            });
+
+            imageInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('image', file);
+
+                try {
+                    const resp = await fetch(uploadUrl, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: formData
+                    });
+
+                    if (!resp.ok) {
+                        throw new Error('Upload failed (' + resp.status + ')');
+                    }
+
+                    const data = await resp.json();
+                    const imageUrl = data.url;
+
+                    const range = quill.getSelection(true);
+                    quill.insertEmbed(range ? range.index : quill.getLength(), 'image', imageUrl, 'user');
+
+                    if (window.toastr) {
+                        toastr.success('Image uploaded');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    if (window.toastr) {
+                        toastr.error(err.message || 'Failed to upload image');
+                    }
+                } finally {
+                    imageInput.value = '';
+                }
+            });
+
+            // Sync HTML to hidden textarea before submit
+            const form = editorEl.closest('form');
+            form.addEventListener('submit', function() {
+                contentEl.value = quill.root.innerHTML;
+            });
+        })();
     </script>
 @endsection

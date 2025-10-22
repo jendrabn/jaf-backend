@@ -54,6 +54,9 @@ class TaxesDataTable extends DataTable
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
+                Button::make('reload')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
@@ -92,3 +95,4 @@ class TaxesDataTable extends DataTable
         return 'TAXES_'.date('dmY');
     }
 }
+

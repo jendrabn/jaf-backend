@@ -10,6 +10,7 @@ use App\Models\BlogCategory;
 use App\Models\BlogTag;
 use App\Models\User;
 use App\Traits\MediaUploadingTrait;
+use App\Traits\QuillUploadImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 class BlogController extends Controller
 {
     use MediaUploadingTrait;
+    use QuillUploadImage;
 
     /**
      * Display a listing of the resources.
@@ -63,7 +65,7 @@ class BlogController extends Controller
         $blog->tags()->attach($request->validated('tag_ids'));
 
         if ($request->input('featured_image', false)) {
-            $path = storage_path('tmp/uploads/'.basename($request->input('featured_image')));
+            $path = storage_path('tmp/uploads/' . basename($request->input('featured_image')));
             $blog->addMedia($path)->toMediaCollection(Blog::MEDIA_COLLECTION_NAME);
         }
 
@@ -115,7 +117,7 @@ class BlogController extends Controller
                     $blog->featured_image->delete();
                 }
 
-                $path = storage_path('tmp/uploads/'.basename($request->input('featured_image')));
+                $path = storage_path('tmp/uploads/' . basename($request->input('featured_image')));
                 $blog->addMedia($path)->toMediaCollection(Blog::MEDIA_COLLECTION_NAME);
             }
         } elseif ($blog->featured_image) {
@@ -155,7 +157,7 @@ class BlogController extends Controller
             extra: [
                 'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted '.$count.' blogs'],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' blogs'],
             ],
             subjectId: null,
             subjectType: \App\Models\Blog::class
@@ -169,6 +171,11 @@ class BlogController extends Controller
      *
      * @return JsonResponse
      */
+    public function uploadImage(Request $request): JsonResponse
+    {
+        return $this->quillUploadImage($request);
+    }
+
     public function storeCKEditorImages(Request $request)
     {
         $model = new Blog;

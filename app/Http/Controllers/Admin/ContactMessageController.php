@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\DataTables\ContactMessagesDataTable;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\ContactMessageRequest;
 use App\Models\ContactMessage;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -49,5 +50,21 @@ class ContactMessageController extends Controller
         return redirect()
             ->back()
             ->with('success', 'Pesan berhasil diperbarui.');
+    }
+
+    public function massDestroy(ContactMessageRequest $request): JsonResponse
+    {
+        $ids = $request->input('ids', []);
+        $deleted = 0;
+
+        if (! empty($ids)) {
+            $deleted = ContactMessage::query()->whereIn('id', $ids)->delete();
+        }
+
+        return response()->json([
+            'message' => 'Berhasil menghapus ' . $deleted . ' pesan.',
+            'deleted' => $deleted,
+            'ids' => $ids,
+        ]);
     }
 }

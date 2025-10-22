@@ -32,14 +32,14 @@ class UsersDataTable extends DataTable
                 return implode(' ', $roles);
             })
             ->editColumn('email', function ($row) {
-                return $row->email.'<a class="ml-1 icon-btn text-muted small" href="mailto:'.$row->email.'"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return $row->email . '<a class="ml-1 icon-btn text-muted small" href="mailto:' . $row->email . '"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->editColumn('phone', function ($row) {
                 if (empty($row->phone)) {
                     return '-';
                 }
 
-                return e($row->phone).'<a class="ml-1 icon-btn text-muted small" href="tel:'.e($row->phone).'"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return e($row->phone) . '<a class="ml-1 icon-btn text-muted small" href="tel:' . e($row->phone) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->setRowId('id')
             ->rawColumns(['action', 'roles', 'email', 'phone']);
@@ -54,7 +54,7 @@ class UsersDataTable extends DataTable
             ->with(['roles'])
             ->select('users.*')
             ->withCount([
-                'orders' => fn ($q) => $q->where('status', Order::STATUS_COMPLETED),
+                'orders' => fn($q) => $q->where('status', Order::STATUS_COMPLETED),
             ]);
     }
 
@@ -84,6 +84,9 @@ class UsersDataTable extends DataTable
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
+                Button::make('reload')
+                    ->className('btn btn-default')
+                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
@@ -156,6 +159,7 @@ class UsersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Users_'.date('dmY');
+        return 'Users_' . date('dmY');
     }
 }
+

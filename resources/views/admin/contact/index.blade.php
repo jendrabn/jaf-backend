@@ -18,53 +18,77 @@
             <h3 class="card-title mb-0">Contact Messages</h3>
 
             <div class="card-tools">
-                <form class="form-inline"
-                      id="filters">
-                    <div class="form-group mr-2 mb-2">
-                        <label class="mr-2 small text-muted text-uppercase"
-                               for="status">Status</label>
-                        <select class="form-control form-control-sm"
-                                id="status">
-                            <option value="">All</option>
-                            <option value="new">New</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="resolved">Resolved</option>
-                            <option value="spam">Spam</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group mr-2 mb-2">
-                        <label class="mr-2 small text-muted text-uppercase"
-                               for="date_from">Date From</label>
-                        <input class="form-control form-control-sm"
-                               id="date_from"
-                               type="date" />
-                    </div>
-
-                    <div class="form-group mr-2 mb-2">
-                        <label class="mr-2 small text-muted text-uppercase"
-                               for="date_to">Date To</label>
-                        <input class="form-control form-control-sm"
-                               id="date_to"
-                               type="date" />
-                    </div>
-
-                    <button class="btn btn-sm btn-outline-primary mb-2"
-                            id="btn-filter"
-                            type="button">
-                        Apply
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary mb-2 ml-1"
-                            id="btn-reset"
-                            type="button">
-                        Reset
-                    </button>
-                </form>
+                <!-- Filters moved to the DataTable "Filter" button which opens the modal below -->
             </div>
         </div>
 
         <div class="card-body">
             {!! $dataTable->table(['class' => 'table table-striped table-bordered w-100', 'style' => 'width:100%']) !!}
+        </div>
+    </div>
+
+    <!-- Modal Filter -->
+    <div aria-hidden="true"
+         aria-labelledby="modalFilterLabel"
+         class="modal fade"
+         id="modal-filter"
+         role="dialog"
+         tabindex="-1">
+        <div class="modal-dialog modal-md"
+             role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"
+                        id="modalFilterLabel"><i class="bi bi-filter me-1"></i> Filter Contact Messages</h5>
+                    <button aria-label="Close"
+                            class="close"
+                            data-dismiss="modal"
+                            title="Close"
+                            type="button">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-filter">
+                        <div class="form-group">
+                            <label class="small text-muted text-uppercase"
+                                   for="filter_status">Status</label>
+                            <select class="form-control form-control-sm"
+                                    id="filter_status">
+                                <option value="">All</option>
+                                <option value="new">New</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="spam">Spam</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="small text-muted text-uppercase"
+                                   for="filter_date_from">Date From</label>
+                            <input class="form-control form-control-sm"
+                                   id="filter_date_from"
+                                   type="date" />
+                        </div>
+
+                        <div class="form-group mb-0">
+                            <label class="small text-muted text-uppercase"
+                                   for="filter_date_to">Date To</label>
+                            <input class="form-control form-control-sm"
+                                   id="filter_date_to"
+                                   type="date" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary"
+                            id="btn-filter-reset"
+                            type="button">Reset</button>
+                    <button class="btn btn-primary"
+                            id="btn-filter-apply"
+                            type="button">Apply</button>
+                </div>
+            </div>
         </div>
     </div>
 @endsection
@@ -82,7 +106,66 @@
 @endsection
 
 @section('scripts')
-    {!! $dataTable->scripts() !!}
+    <script>
+        // Define Bulk Delete button extension
+        $.fn.dataTable.ext.buttons.bulkDelete = {
+            text: "Delete selected",
+            url: "{{ route('admin.messages.massDestroy') }}",
+            action: function(e, dt, node, config) {
+                let ids = $.map(
+                    dt
+                    .rows({
+                        selected: true
+                    })
+                    .data(),
+                    function(entry) {
+                        return entry.id;
+                    }
+                );
+
+                if (ids.length === 0) {
+                    toastr.warning("No rows selected");
+                    return;
+                }
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Delete",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            headers: {
+                                "x-csrf-token": _token
+                            },
+                            method: "POST",
+                            url: config.url,
+                            data: {
+                                ids: ids,
+                                _method: "DELETE",
+                            },
+                            success: function(data) {
+                                toastr.success(data.message);
+                                dt.ajax.reload();
+                            },
+                        });
+                    }
+                });
+            },
+        };
+
+        // Define Filter button extension to open modal
+        $.fn.dataTable.ext.buttons.filter = {
+            text: "<i class='bi bi-filter me-1'></i> Filter",
+            action: function(e, dt, node, config) {
+                $('#modal-filter').modal('show');
+            },
+        };
+    </script>
+
+    {{ $dataTable->scripts(attributes: ['type' => 'text/javascript']) }}
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -91,24 +174,29 @@
             function attachFilters() {
                 if (!table) return;
 
-                // Inject filter params before each request
+                // Inject filter params before each request based on modal fields
                 table.on('preXhr.dt', function(e, settings, data) {
-                    data.status = document.getElementById('status').value || '';
-                    data.date_from = document.getElementById('date_from').value || '';
-                    data.date_to = document.getElementById('date_to').value || '';
+                    data.status = document.getElementById('filter_status').value || '';
+                    data.date_from = document.getElementById('filter_date_from').value || '';
+                    data.date_to = document.getElementById('filter_date_to').value || '';
                 });
             }
 
             attachFilters();
 
-            document.getElementById('btn-filter').addEventListener('click', function() {
-                if (table) table.draw();
+            // Apply filter from modal
+            document.getElementById('btn-filter-apply').addEventListener('click', function() {
+                if (table) {
+                    $('#modal-filter').modal('hide');
+                    table.draw();
+                }
             });
 
-            document.getElementById('btn-reset').addEventListener('click', function() {
-                document.getElementById('status').value = '';
-                document.getElementById('date_from').value = '';
-                document.getElementById('date_to').value = '';
+            // Reset filter from modal
+            document.getElementById('btn-filter-reset').addEventListener('click', function() {
+                document.getElementById('filter_status').value = '';
+                document.getElementById('filter_date_from').value = '';
+                document.getElementById('filter_date_to').value = '';
                 if (table) table.draw();
             });
         });
