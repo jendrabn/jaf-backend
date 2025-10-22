@@ -51,7 +51,7 @@ class RoleController extends Controller
     public function update(Request $request, Role $role)
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:roles,name,'.$role->id],
+            'name' => ['required', 'string', 'max:255', 'unique:roles,name,' . $role->id],
             'permissions' => ['required', 'array'],
         ]);
 
@@ -62,6 +62,8 @@ class RoleController extends Controller
         $role->syncPermissions($request->permissions);
 
         toastr('Role updated successfully.', 'success');
+
+        return redirect()->back();
     }
 
     public function destroy(Role $role)

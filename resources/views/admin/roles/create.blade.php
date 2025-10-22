@@ -21,6 +21,13 @@
                 @csrf
 
                 <div class="card shadow-lg">
+                    <div class="card-header border-bottom-0">
+                        <div class="card-tools">
+                            <a class="btn btn-default"
+                               href="{{ route('admin.roles.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to list</a>
+                        </div>
+                    </div>
+
                     <div class="card-body">
                         {{-- Role name --}}
                         <div class="form-group">
