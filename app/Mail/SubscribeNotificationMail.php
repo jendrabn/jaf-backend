@@ -39,6 +39,9 @@ class SubscribeNotificationMail extends Mailable
     {
         return new Content(
             markdown: 'emails.newsletter.subscribe',
+            with: [
+                'subscriber' => $this->subscriber,
+            ],
         );
     }
 

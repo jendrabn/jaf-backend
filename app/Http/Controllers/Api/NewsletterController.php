@@ -22,11 +22,12 @@ class NewsletterController extends Controller
     public function subscribe(SubscribeRequest $request): JsonResponse
     {
         $key = 'subscribe:'.$request->ip();
+        $response = null;
 
         $executed = RateLimiter::attempt(
             $key,
             1, // Max attempts
-            function () use ($request) {
+            function () use ($request, &$response) {
                 $subscriber = Subscriber::create([
                     'email' => $request->email,
                     'name' => $request->name,
@@ -38,7 +39,7 @@ class NewsletterController extends Controller
                 // Send notification email via queue
                 SendSubscribeNotificationJob::dispatch($subscriber);
 
-                return response()->json([
+                $response = response()->json([
                     'success' => true,
                     'message' => 'Thank you for subscribing to our newsletter!',
                     'data' => new SubscriberResource($subscriber),
@@ -57,7 +58,11 @@ class NewsletterController extends Controller
             ], 429);
         }
 
-        return $executed;
+        /** @var JsonResponse $response */
+        return $response ?? response()->json([
+            'success' => false,
+            'message' => 'Unable to process subscription',
+        ], 500);
     }
 
     /**
