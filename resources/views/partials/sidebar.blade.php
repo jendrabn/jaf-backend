@@ -247,7 +247,7 @@
                 @endcanany
 
                 {{-- Newsletter (treeview) --}}
-                @can('subscribers.view')
+                @canany(['subscribers.view', 'campaigns.view'])
                     <li class="nav-item has-treeview {{ $newsletterActive ? 'menu-open' : '' }}">
                         <a class="nav-link d-flex align-items-center {{ $newsletterActive ? 'active' : '' }}"
                            href="#">
@@ -276,7 +276,7 @@
                             @endcan
                         </ul>
                     </li>
-                @endcan
+                @endcanany
 
                 {{-- Support - Contact Messages --}}
                 @can('contact_messages.view')
