@@ -82,7 +82,7 @@ class OrderController extends Controller
                 ]);
                 $order->invoice->update(['status' => Invoice::STATUS_UNPAID]);
                 $order->invoice->payment->update(['status' => Payment::STATUS_CANCELLED]);
-                $order->items->each(fn ($item) => $item->product->increment('stock', $item->quantity));
+                $order->items->each(fn($item) => $item->product->increment('stock', $item->quantity));
             }
         }, 3);
 
@@ -148,7 +148,7 @@ class OrderController extends Controller
             extra: [
                 'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted '.$count.' orders.'],
+                'meta' => ['note' => 'Bulk deleted ' . $count . ' orders.'],
             ],
             subjectId: null,
             subjectType: \App\Models\Order::class
@@ -183,12 +183,12 @@ class OrderController extends Controller
             // $html .= '<div style="page-break-after: always;"></div>';
         }
 
-        $pdf = Pdf::loadHTML($html)->setPaper('a4', 'potrait');
+        $pdf = Pdf::loadHTML($html)->setPaper('a5', 'potrait');
         $base64Pdf = base64_encode($pdf->output());
 
         $filename = $orders->count() > 1
-            ? $orders->map(fn ($order) => $order->invoice->number)->join('_').'.pdf'
-            : $orders->first()->invoice->number.'.pdf';
+            ? $orders->map(fn($order) => $order->invoice->number)->join('_') . '.pdf'
+            : $orders->first()->invoice->number . '.pdf';
 
         return response()->json(['data' => $base64Pdf, 'filename' => $filename], Response::HTTP_OK);
     }
@@ -241,7 +241,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'meta' => [
-                    'message' => 'Gagal mengambil data tracking: '.$e->getMessage(),
+                    'message' => 'Gagal mengambil data tracking: ' . $e->getMessage(),
                     'code' => 500,
                     'status' => 'error',
                 ],

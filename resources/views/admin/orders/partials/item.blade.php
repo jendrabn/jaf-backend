@@ -1,6 +1,6 @@
 <div class="list-group list-group-flush">
     @foreach ($items as $item)
-        <div class="list-group-item py-1 px-0 d-flex align-items-center justify-content-between">
+        <div class="list-group-item bg-transparent py-1 px-0 d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center flex-grow-1 min-w-0"
                  style="font-size: 0.85rem;">
                 <span class="text-muted mr-2">{{ $loop->iteration }}.</span>

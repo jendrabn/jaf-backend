@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('product_brand_id')->nullable()->constrained('product_brands')->onDelete('set null');
             $table->string('name', 200)->unique('uniq_products_name');
             $table->string('slug')->unique('uniq_products_slug');
+            $table->string('sku', 50)->nullable()->unique();
             $table->integer('weight')->comment('gram');
             $table->integer('price');
             $table->integer('stock')->default(1);

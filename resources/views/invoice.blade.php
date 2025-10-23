@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
@@ -7,19 +7,31 @@
           name="viewport">
     <meta content="ie=edge"
           http-equiv="X-UA-Compatible">
-    <title>Invoice</title>
+    <title>Faktur</title>
 
     <style>
+        @page {
+            size: A5 portrait;
+            margin: 10mm;
+        }
+
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
             color: #333;
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 18px;
+            margin-bottom: 16px;
+            font-size: 16px;
             font-weight: bold;
             color: #4A4A4A;
         }
@@ -27,14 +39,16 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
+            table-layout: fixed;
         }
 
         table th,
         table td {
-            padding: 10px;
-            font-size: 12px;
+            padding: 6px;
+            font-size: 10px;
             border: 1px solid #ddd;
+            word-break: break-word;
         }
 
         table th {
@@ -48,54 +62,54 @@
         }
 
         .total-section {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             border-top: 2px solid #333;
-            padding-top: 10px;
-            margin-top: 10px;
+            padding-top: 8px;
+            margin-top: 8px;
         }
 
         .total-section .title {
             text-align: right;
-            font-size: 12px;
+            font-size: 11px;
             color: #555;
         }
 
         .total-section .amount {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             color: #000;
         }
 
         .info-table td {
             vertical-align: top;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
         .address-section {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .header-table {
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
     </style>
 </head>
 
 <body>
-    <h2>INVOICE {{ $order->invoice->number }}</h2>
+    <h2>FAKTUR {{ $order->invoice->number }}</h2>
 
     <table class="header-table info-table">
         <tbody>
             <tr>
                 <td style="width: 50%;">
-                    <strong>Buyer:</strong> {{ $order->user->name ?? '-' }}<br>
-                    <strong>Order Date:</strong> {{ $order->created_at }}<br>
-                    <strong>Order ID:</strong> {{ $order->id }}<br>
-                    <strong>Payment Status:</strong> {{ strtoupper($order->invoice->payment->status) }}
+                    <strong>Pembeli:</strong> {{ $order->user->name ?? '-' }}<br>
+                    <strong>Tanggal Pesanan:</strong> {{ $order->created_at->format('d-m-Y H:i') }}<br>
+                    <strong>ID Pesanan:</strong> {{ $order->id }}<br>
+                    <strong>Status Pembayaran:</strong> {{ strtoupper($order->invoice->payment->status) }}
                 </td>
                 <td style="width: 50%;">
-                    <strong>Courier:</strong> {{ strtoupper($order->shipping->courier) }} -
+                    <strong>Kurir:</strong> {{ strtoupper($order->shipping->courier) }} -
                     {{ $order->shipping->courier_name }}<br>
                     {{ $order->shipping->service }}
                     {{ $order->shipping->service_name ? ' - ' . $order->shipping->service_name : '' }}
@@ -103,14 +117,14 @@
             </tr>
             <tr>
                 <td style="width: 50%;">
-                    <strong>From:</strong><br>
+                    <strong>Dari:</strong><br>
                     <div class="address-section">
                         <strong>JAF Parfum's</strong><br>
                         Jember, Jawa Timur
                     </div>
                 </td>
                 <td style="width: 50%;">
-                    <strong>To:</strong><br>
+                    <strong>Kepada:</strong><br>
                     <div class="address-section">
                         <strong>{{ $order->shipping->address['name'] }}</strong><br>
                         {{ $order->shipping->address['phone'] ?? '-' }}<br>
@@ -130,9 +144,9 @@
         <thead>
             <tr>
                 <th>No.</th>
-                <th>Product</th>
-                <th class="text-right">Price</th>
-                <th class="text-right">Quantity</th>
+                <th>Produk</th>
+                <th class="text-right">Harga</th>
+                <th class="text-right">Kuantitas</th>
                 <th class="text-right">Subtotal</th>
             </tr>
         </thead>
@@ -148,25 +162,60 @@
             @endforeach
             <tr class="total-section">
                 <td class="title"
-                    colspan="3">Total Price</td>
+                    colspan="3">Total Harga</td>
                 <td class="text-right amount"
                     colspan="2">@Rp($order->total_price)</td>
             </tr>
+            @if ((int) $order->discount > 0)
+                <tr class="total-section">
+                    <td class="title"
+                        colspan="3">
+                        Diskon @if ($order->discount_name)
+                            ({{ $order->discount_name }})
+                        @endif
+                    </td>
+                    <td class="text-right amount"
+                        colspan="2">-@Rp($order->discount)</td>
+                </tr>
+            @endif
+            @if ((int) $order->tax_amount > 0)
+                @php($__dpp = max(0, (int) $order->total_price - (int) $order->discount))
+                <tr class="total-section">
+                    <td class="title"
+                        colspan="3">DPP (Dasar Pengenaan Pajak)</td>
+                    <td class="text-right amount"
+                        colspan="2">@Rp($__dpp)</td>
+                </tr>
+                <tr class="total-section">
+                    <td class="title"
+                        colspan="3">{{ $order->tax_name ?? 'Pajak' }}</td>
+                    <td class="text-right amount"
+                        colspan="2">@Rp($order->tax_amount)</td>
+                </tr>
+            @endif
             <tr class="total-section">
                 <td class="title"
-                    colspan="3">Shipping Cost</td>
+                    colspan="3">Biaya Pengiriman</td>
                 <td class="text-right amount"
                     colspan="2">@Rp($order->shipping_cost)</td>
             </tr>
+            @if ((int) $order->gateway_fee > 0)
+                <tr class="total-section">
+                    <td class="title"
+                        colspan="3">Biaya Layanan Pembayaran</td>
+                    <td class="text-right amount"
+                        colspan="2">@Rp($order->gateway_fee)</td>
+                </tr>
+            @endif
             <tr class="total-section">
                 <td class="title"
-                    colspan="3">Total Amount</td>
+                    colspan="3">Total Bayar</td>
                 <td class="text-right amount"
                     colspan="2">@Rp($order->invoice->amount)</td>
             </tr>
             <tr class="payment-method">
                 <td class="title"
-                    colspan="3">Payment Method</td>
+                    colspan="3">Metode Pembayaran</td>
                 <td class="text-right"
                     colspan="2">{{ $order->invoice->payment->info['name'] }}</td>
             </tr>
