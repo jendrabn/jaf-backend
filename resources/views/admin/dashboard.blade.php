@@ -234,21 +234,25 @@
                         <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'day' ? 'active' : '' }}">
                             <input {{ $default_grain === 'day' ? 'checked' : '' }}
                                    data-grain="day"
+                                   name="grain"
                                    type="radio"> Daily
                         </label>
                         <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'week' ? 'active' : '' }}">
                             <input {{ $default_grain === 'week' ? 'checked' : '' }}
                                    data-grain="week"
+                                   name="grain"
                                    type="radio"> Weeekly
                         </label>
                         <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'month' ? 'active' : '' }}">
                             <input {{ $default_grain === 'month' ? 'checked' : '' }}
                                    data-grain="month"
+                                   name="grain"
                                    type="radio"> Monthly
                         </label>
                         <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'year' ? 'active' : '' }}">
                             <input {{ $default_grain === 'year' ? 'checked' : '' }}
                                    data-grain="year"
+                                   name="grain"
                                    type="radio"> Yearly
                         </label>
                     </div>
@@ -285,7 +289,7 @@
     <script>
         (function() {
             const revenuesDict = @json($revenues_series); // {day:[{label,revenue,total}], week:[], ...}
-            const currentGrain = @json($default_grain ?? 'week');
+            let currentGrain = @json($default_grain ?? 'week');
 
             const ordersCount = {!! $orders_count !!};
 
@@ -428,12 +432,33 @@
                 chartRevenue.update();
             }
 
-            // toggle granularitas
-            document.querySelectorAll('#grainToggle input[type="radio"]').forEach(function(el) {
-                el.addEventListener('change', function() {
-                    currentGrain = this.getAttribute('data-grain');
-                    applySeries(currentGrain);
+            // toggle granularitas (delegated click; robust in Bootstrap 5 without jQuery plugin)
+            const grainToggleEl = document.getElementById('grainToggle');
+            grainToggleEl.addEventListener('click', function(e) {
+                const target = e.target;
+                const input = target.tagName === 'INPUT' ? target : target.closest('label')?.querySelector(
+                    'input');
+                if (!input) {
+                    return;
+                }
+
+                const grain = input.getAttribute('data-grain') || input.value;
+                if (!grain) {
+                    return;
+                }
+
+                // ensure radio checked states are consistent
+                grainToggleEl.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+                    radio.checked = (radio === input);
                 });
+
+                // ensure label active classes reflect the selection
+                grainToggleEl.querySelectorAll('label').forEach(function(lbl) {
+                    lbl.classList.toggle('active', lbl.contains(input));
+                });
+
+                currentGrain = grain;
+                applySeries(currentGrain);
             });
 
             // init

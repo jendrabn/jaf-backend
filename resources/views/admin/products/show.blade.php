@@ -38,6 +38,10 @@
                             <th>SLUG</th>
                             <td>{{ $product->slug }}</td>
                         </tr>
+                        <tr>
+                            <th>SKU</th>
+                            <td>{{ $product->sku }}</td>
+                        </tr>
 
                         <tr>
                             <th>IMAGES</th>

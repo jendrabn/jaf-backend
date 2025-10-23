@@ -140,6 +140,9 @@ class ProductsDataTable extends DataTable
             Column::make('brand.name', 'brand.name')
                 ->title('BRAND'),
 
+            Column::make('sku')
+                ->title('SKU'),
+
             Column::computed('sex_label')
                 ->title('SEX')
                 ->visible(false),
@@ -185,4 +188,3 @@ class ProductsDataTable extends DataTable
         return 'Products_'.date('dmY');
     }
 }
-

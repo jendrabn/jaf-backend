@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -33,6 +34,7 @@ class Product extends Model implements HasMedia
         'product_brand_id',
         'name',
         'slug',
+        'sku',
         'weight',
         'price',
         'stock',
@@ -141,6 +143,21 @@ class Product extends Model implements HasMedia
                     ->whereHas('order', fn ($q) => $q->where('status', Order::STATUS_COMPLETED)),
             ])
         );
+
+        // Ensure SKU is generated on create when not provided
+        static::creating(function (self $product): void {
+            if (! filled($product->sku)) {
+                // Trigger the mutator to sanitize/generate later
+                $product->sku = '';
+            }
+        });
+
+        // Ensure SKU is generated on save when left empty (and keep existing if already set)
+        static::saving(function (self $product): void {
+            if (! filled($product->sku)) {
+                $product->sku = self::generateSkuForModel($product);
+            }
+        });
     }
 
     public function sexLabel(): Attribute
@@ -212,5 +229,166 @@ class Product extends Model implements HasMedia
 
             return max(0, $this->price - ($this->discount->discount_amount / 100) * $this->price);
         });
+    }
+
+    public function sku(): Attribute
+    {
+        return Attribute::make(
+            set: function ($value, array $attributes) {
+                $value = is_string($value) ? trim($value) : '';
+
+                if ($value !== '') {
+                    $sanitized = strtoupper(preg_replace('/[^A-Za-z0-9\-_]/', '', $value));
+
+                    return $sanitized !== '' ? mb_substr($sanitized, 0, 50) : null;
+                }
+
+                // Leave empty here; it will be generated deterministically in saving() hook
+                return null;
+            }
+        );
+    }
+
+    private static function generateSkuFromAttributes(array $attributes): string
+    {
+        $brandName = null;
+        if (! empty($attributes['product_brand_id'])) {
+            $brand = ProductBrand::find($attributes['product_brand_id']);
+            $brandName = $brand?->name;
+        }
+
+        $categoryName = null;
+        if (! empty($attributes['product_category_id'])) {
+            $cat = ProductCategory::find($attributes['product_category_id']);
+            $categoryName = $cat?->name;
+        }
+
+        $brandCode = self::alphaNumUpper($brandName ?? '');
+        $brandCode = $brandCode !== '' ? mb_substr($brandCode, 0, 3) : 'NON';
+
+        $catCode = self::alphaNumUpper($categoryName ?? '');
+        $catCode = $catCode !== '' ? mb_substr($catCode, 0, 3) : 'GEN';
+
+        $nameRaw = (string) ($attributes['name'] ?? '');
+        $nameCode = self::nameCode($nameRaw);
+
+        $sex = $attributes['sex'] ?? null;
+        $sexCode = self::sexCode(is_numeric($sex) ? (int) $sex : null);
+
+        $seq = self::nextSequenceFor(
+            $attributes['product_brand_id'] ?? null,
+            $attributes['product_category_id'] ?? null,
+            $brandCode,
+            $catCode
+        );
+
+        $sku = sprintf('%s-%s-%s-%s-%s', $brandCode, $catCode, $nameCode, $sexCode, $seq);
+
+        return mb_substr($sku, 0, 50);
+    }
+
+    private static function generateSkuForModel(self $p): string
+    {
+        $brandName = null;
+        if (! empty($p->product_brand_id)) {
+            $brand = ProductBrand::find($p->product_brand_id);
+            $brandName = $brand?->name;
+        }
+
+        $categoryName = null;
+        if (! empty($p->product_category_id)) {
+            $cat = ProductCategory::find($p->product_category_id);
+            $categoryName = $cat?->name;
+        }
+
+        $brandCode = self::alphaNumUpper($brandName ?? '');
+        $brandCode = $brandCode !== '' ? mb_substr($brandCode, 0, 3) : 'NON';
+
+        $catCode = self::alphaNumUpper($categoryName ?? '');
+        $catCode = $catCode !== '' ? mb_substr($catCode, 0, 3) : 'GEN';
+
+        $nameRaw = (string) ($p->name ?? '');
+        $nameCode = self::nameCode($nameRaw);
+
+        $sexCode = self::sexCode($p->sex);
+
+        $seq = self::nextSequenceFor(
+            $p->product_brand_id ?? null,
+            $p->product_category_id ?? null,
+            $brandCode,
+            $catCode
+        );
+
+        $sku = sprintf('%s-%s-%s-%s-%s', $brandCode, $catCode, $nameCode, $sexCode, $seq);
+
+        return mb_substr($sku, 0, 50);
+    }
+
+    private static function alphaNumUpper(string $value): string
+    {
+        $value = preg_replace('/[^A-Za-z0-9]/', '', $value);
+
+        return strtoupper($value ?? '');
+    }
+
+    private static function nameCode(string $name): string
+    {
+        // Use slug (deterministic), remove hyphens, then take first 4 chars.
+        $slug = Str::slug($name);
+        $compact = strtoupper(str_replace('-', '', $slug));
+
+        if ($compact === '') {
+            $compact = 'PROD';
+        }
+
+        $code = mb_substr($compact, 0, 4);
+
+        // Pad to 4 if shorter
+        return str_pad($code, 4, 'X');
+    }
+
+    private static function sexCode(?int $sex): string
+    {
+        return match ($sex) {
+            1 => 'M',
+            2 => 'F',
+            default => 'U',
+        };
+    }
+
+    private static function nextSequenceFor(?int $brandId, ?int $categoryId, string $brandCode, string $catCode): string
+    {
+        $prefix = $brandCode.'-'.$catCode.'-';
+
+        $query = static::query()
+            ->select('sku')
+            ->whereNotNull('sku')
+            ->where('sku', 'like', $prefix.'%');
+
+        if ($brandId) {
+            $query->where('product_brand_id', $brandId);
+        } else {
+            $query->whereNull('product_brand_id');
+        }
+
+        if ($categoryId) {
+            $query->where('product_category_id', $categoryId);
+        } else {
+            $query->whereNull('product_category_id');
+        }
+
+        $max = 0;
+        foreach ($query->pluck('sku') as $sku) {
+            if (preg_match('/-(\d{4})$/', (string) $sku, $m)) {
+                $num = (int) $m[1];
+                if ($num > $max) {
+                    $max = $num;
+                }
+            }
+        }
+
+        $next = $max + 1;
+
+        return str_pad((string) $next, 4, '0', STR_PAD_LEFT);
     }
 }

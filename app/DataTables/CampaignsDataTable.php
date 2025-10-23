@@ -30,12 +30,12 @@ class CampaignsDataTable extends DataTable
                 $label = $campaign->status->getLabel();
                 $badge = $campaign->status->getBadgeClass();
 
-                return '<span class="badge '.e($badge).'">'.e($label).'</span>';
+                return '<span class="badge ' . e($badge) . '">' . e($label) . '</span>';
             })
-            ->editColumn('scheduled_at', fn (Campaign $c) => $c->scheduled_at?->format('Y-m-d H:i:s'))
-            ->editColumn('sent_at', fn (Campaign $c) => $c->sent_at?->format('Y-m-d H:i:s'))
-            ->editColumn('created_at', fn (Campaign $c) => $c->created_at?->format('Y-m-d H:i:s'))
-            ->editColumn('updated_at', fn (Campaign $c) => $c->updated_at?->format('Y-m-d H:i:s'))
+            ->editColumn('scheduled_at', fn(Campaign $c) => $c->scheduled_at?->format('Y-m-d H:i:s'))
+            ->editColumn('sent_at', fn(Campaign $c) => $c->sent_at?->format('Y-m-d H:i:s'))
+            ->editColumn('created_at', fn(Campaign $c) => $c->created_at?->format('Y-m-d H:i:s'))
+            ->editColumn('updated_at', fn(Campaign $c) => $c->updated_at?->format('Y-m-d H:i:s'))
             ->setRowId('id')
             ->rawColumns(['status', 'action']);
     }
@@ -106,7 +106,7 @@ class CampaignsDataTable extends DataTable
             Column::make('updated_at')->title('DATE & TIME UPDATED')
                 ->visible(false),
             Column::computed('action')
-                ->title('ACTIONS')
+                ->title('ACTION')
                 ->exportable(false)
                 ->printable(false)
                 ->orderable(false)
@@ -121,7 +121,6 @@ class CampaignsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Campaigns_'.date('YmdHis');
+        return 'Campaigns_' . date('YmdHis');
     }
 }
-

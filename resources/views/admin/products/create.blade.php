@@ -123,6 +123,23 @@
                             </div>
 
                             <div class="form-group col-md-6">
+                                <label for="sku">SKU</label>
+                                <input class="form-control {{ $errors->has('sku') ? 'is-invalid' : '' }}"
+                                       id="sku"
+                                       name="sku"
+                                       type="text"
+                                       value="{{ old('sku', '') }}">
+                                @if ($errors->has('sku'))
+                                    <span class="invalid-feedback">{{ $errors->first('sku') }}</span>
+                                @endif
+                                <small class="form-text text-muted">
+                                    Format SKU: BRAND3-CAT3-NAME4-SEX1-NNNN.
+                                    Example: Brand: Dior, Kategori: Parfum, Nama: "Sauvage", Sex: Male →
+                                    DIO-PAR-SAUV-M-0001.
+                                </small>
+                            </div>
+
+                            <div class="form-group col-md-6">
                                 <label class="required">Price</label>
                                 <div class="input-group has-validation">
                                     <div class="input-group-prepend">

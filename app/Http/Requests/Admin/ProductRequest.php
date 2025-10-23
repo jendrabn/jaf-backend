@@ -63,6 +63,13 @@ class ProductRequest extends FormRequest
                     'integer',
                     'in:1,2,3',
                 ],
+                'sku' => [
+                    'nullable',
+                    'string',
+                    'max:50',
+                    'regex:/^[A-Za-z0-9\-_]+$/',
+                    'unique:products,sku',
+                ],
                 'price' => [
                     'required',
                     'integer',
@@ -119,6 +126,13 @@ class ProductRequest extends FormRequest
                     'nullable',
                     'integer',
                     'in:1,2,3',
+                ],
+                'sku' => [
+                    'nullable',
+                    'string',
+                    'max:50',
+                    'regex:/^[A-Za-z0-9\-_]+$/',
+                    'unique:products,sku,'.$this->product->id,
                 ],
                 'price' => [
                     'required',

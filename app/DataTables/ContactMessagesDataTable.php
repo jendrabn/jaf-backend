@@ -17,6 +17,18 @@ class ContactMessagesDataTable extends DataTable
     {
         $dataTable = new EloquentDataTable($query);
 
+        $dataTable->editColumn('email', function (ContactMessage $row) {
+            return $row->email . '<a class="ml-1 icon-btn text-muted small" href="mailto:' . $row->email . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+        });
+
+        $dataTable->editColumn('phone', function (ContactMessage $row) {
+            if (empty($row->phone)) {
+                return '-';
+            }
+
+            return e($row->phone) . '<a class="ml-1 icon-btn text-muted small" href="tel:' . e($row->phone) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+        });
+
         $dataTable->editColumn('created_at', function (ContactMessage $row) {
             return optional($row->created_at)->format('d-m-Y H:i');
         });
@@ -50,13 +62,9 @@ class ContactMessagesDataTable extends DataTable
             return '<span class="badge badge-' . e($color) . ' badge-pill">' . e($label) . '</span>';
         });
 
-        $dataTable->addColumn('actions', function (ContactMessage $row) {
-            $url = route('admin.messages.show', $row->id);
+        $dataTable->addColumn('action', 'admin.contact.partials.action');
 
-            return '<a href="' . e($url) . '" class="btn btn-sm btn-outline-primary">Show</a>';
-        });
-
-        $dataTable->rawColumns(['status', 'actions']);
+        $dataTable->rawColumns(['email', 'phone', 'status', 'action']);
 
         return $dataTable;
     }
@@ -113,7 +121,7 @@ class ContactMessagesDataTable extends DataTable
                     ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
-                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),    //
+                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
             );
     }
 
@@ -135,10 +143,12 @@ class ContactMessagesDataTable extends DataTable
                 ->title('EMAIL'),
 
             Column::make('phone')
-                ->title('PHONE'),
+                ->title('PHONE')
+                ->visible(false),
 
             Column::make('message')
-                ->title('MESSAGE'),
+                ->title('MESSAGE')
+                ->visible(false),
 
             Column::make('status')
                 ->title('STATUS'),
@@ -155,10 +165,11 @@ class ContactMessagesDataTable extends DataTable
                 ->title('DATE & TIME CREATED'),
 
             Column::make('updated_at')
-                ->title('DATE & TIME UPDATED'),
+                ->title('DATE & TIME UPDATED')
+                ->visible(false),
 
-            Column::computed('actions')
-                ->title('ACTIONS')
+            Column::computed('action')
+                ->title('ACTION')
                 ->exportable(false)
                 ->printable(false)
                 ->orderable(false)
