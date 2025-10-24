@@ -29,16 +29,17 @@ class DatabaseSeeder extends Seeder
             ProductBrandSeeder::class,
             BankSeeder::class,
             CourierSeeder::class,
-            DataSeeder::class,
         ]);
 
-        User::create([
+        $admin =  User::create([
             'name' => 'Admin',
             'email' => 'admin@mail.com',
             'password' => 'password',
         ])->assignRole(User::ROLE_ADMIN);
 
-        User::create([
+        $admin->givePermissionTo(\Spatie\Permission\Models\Permission::all());
+
+        $user =   User::create([
             'name' => 'User',
             'email' => 'user@mail.com',
             'password' => 'password',
