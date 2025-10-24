@@ -18,7 +18,7 @@ class ProductDetailResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
-            'images' => ! $this->images->isEmpty() ? $this->images->map(fn ($media) => $media?->getUrl())->toArray() : [asset('images/default-product.jpg')],
+            'images' => ! $this->images->isEmpty() ? $this->images->map(fn($media) => $media?->getUrl())->toArray() : [asset('images/default-product.jpg')],
             'category' => ProductCategoryResource::make($this->category),
             'description' => $this->description,
             'brand' => $this->whenNotNull(ProductBrandResource::make($this->brand)),
@@ -34,6 +34,7 @@ class ProductDetailResource extends JsonResource
             'is_discounted' => $this->is_discounted,
             'discount_in_percent' => $this->discount_in_percent,
             'price_after_discount' => $this->price_after_discount,
+            'sku' => $this->sku,
         ];
     }
 }
