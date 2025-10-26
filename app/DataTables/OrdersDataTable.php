@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Enums\OrderStatus;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
@@ -21,29 +22,25 @@ class OrdersDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.orders.partials.action')
-            ->addColumn('customer', function ($row) {
+            ->addColumn('name', function ($row) {
                 if (! $row->user) {
-                    return '';
+                    return null;
                 }
 
-                return $row->user->name . '<a class="ml-2 text-muted small icon-btn" href="' . route('admin.users.show', $row->user->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return str()->words($row->user->name, 2, '') . externalIconLink(route('admin.users.show', $row->user->id));
             })
             ->editColumn(
                 'items',
                 fn($row) => view('admin.orders.partials.item', ['items' => $row->items])
             )
             ->editColumn('status', function ($row) {
-                $status = Order::STATUSES[$row->status];
+                $status = OrderStatus::from($row->status);
 
-                return sprintf(
-                    '<span class="badge badge-%s rounded-0">%s</span>',
-                    $status['color'],
-                    $status['label']
-                );
+                return badgeLabel($status->label(), $status->color());
             })
             ->editColumn(
                 'amount',
-                fn($row) => formatRupiah($row->invoice->amount)
+                fn($row) => formatIDR($row->invoice->amount)
             )
             ->editColumn(
                 'shipping',
@@ -54,7 +51,7 @@ class OrdersDataTable extends DataTable
                 fn($row) => strtoupper($row->invoice->payment->method)
             )
             ->setRowId('id')
-            ->rawColumns(['action', 'customer', 'items', 'status']);
+            ->rawColumns(['action', 'name', 'items', 'status']);
     }
 
     /**
@@ -136,10 +133,7 @@ class OrdersDataTable extends DataTable
                     function(d) {
                         $.each($("#form-filter").serializeArray(), function(key, val) {
                             d[val.name] = val.value;
-                        })
-
-                        let status = $("#nav-pills-status .nav-link.active").data("status");
-                        d["status"] = status;
+                        });
                     }',
             ]);
     }
@@ -162,44 +156,53 @@ class OrdersDataTable extends DataTable
                 ->title('INVOICE')
                 ->visible(false),
 
-            Column::make('customer', 'user.name')
-                ->title('CUSTOMER'),
+            Column::make('name', 'user.name')
+                ->title('NAME'),
 
             Column::make('items', 'items.name')
                 ->title('PRODUCT(S)')
-                ->orderable(false),
+                ->orderable(false)
+                ->searchable(false),
 
             Column::make('amount', 'invoice.amount')
-                ->title('AMOUNT'),
+                ->title('AMOUNT')
+                ->searchable(false),
 
             Column::make('payment_method', 'invoice.payment.method')
-                ->title('PAYMENT METHOD'),
+                ->title('PAYMENT METHOD')
+                ->searchable(false),
 
             Column::make('shipping', 'shipping.tracking_number')
                 ->title('SHIPPING')
                 ->visible(false),
 
             Column::make('status')
-                ->title('STATUS'),
+                ->title('STATUS')
+                ->searchable(false),
 
             Column::make('created_at')
-                ->title('DATE & TIME CREATED'),
+                ->title('DATE & TIME CREATED')
+                ->visible(false),
 
             Column::make('updated_at')
                 ->title('DATE & TIME UPDATED')
-                ->visible(false),
+                ->visible(false)
+                ->searchable(false),
 
             Column::make('confirmed_at')
                 ->title('DATE & TIME CONFIRMED')
-                ->visible(false),
+                ->visible(false)
+                ->searchable(false),
 
             Column::make('completed_at')
                 ->title('DATE & TIME COMPLETED')
-                ->visible(false),
+                ->visible(false)
+                ->searchable(false),
 
             Column::make('cancelled_at')
                 ->title('DATE & TIME CANCELLED')
-                ->visible(false),
+                ->visible(false)
+                ->searchable(false),
 
             Column::computed('action')
                 ->title('ACTION')

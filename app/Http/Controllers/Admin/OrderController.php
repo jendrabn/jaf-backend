@@ -119,6 +119,127 @@ class OrderController extends Controller
     }
 
     /**
+     * Change status for the specified order (admin).
+     *
+     * Rules:
+     * - pending_payment  => payment=pending,  shipping=pending,  invoice=unpaid
+     * - pending          => payment=pending,  shipping=pending,  invoice=unpaid
+     * - processing       => payment=released, shipping=pending,  invoice=paid
+     * - on_delivery      => payment=released, shipping=shipped,  invoice=paid
+     * - completed        => payment=released, shipping=shipped,  invoice=paid
+     * - cancelled        => DO NOT change payment/shipping/invoice statuses
+     *
+     * When status=cancelled: require cancel_reason and store on order.
+     * When status=on_delivery: require tracking_number and store on shipping.
+     */
+    public function changeStatus(Request $request, Order $order): RedirectResponse
+    {
+        $allowed = [
+            \App\Enums\OrderStatus::PendingPayment->value,
+            \App\Enums\OrderStatus::Pending->value,
+            \App\Enums\OrderStatus::Processing->value,
+            \App\Enums\OrderStatus::OnDelivery->value,
+            \App\Enums\OrderStatus::Completed->value,
+            \App\Enums\OrderStatus::Cancelled->value,
+        ];
+
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:' . implode(',', $allowed)],
+            'cancel_reason' => ['nullable', 'string', 'min:1', 'max:255', 'required_if:status,cancelled'],
+            'tracking_number' => ['nullable', 'string', 'min:1', 'max:100', 'required_if:status,on_delivery'],
+        ]);
+
+        DB::transaction(function () use ($order, $validated) {
+            $status = $validated['status'];
+
+            // Always update the order status first
+            $updates = ['status' => $status];
+
+            if ($status === \App\Enums\OrderStatus::Cancelled->value) {
+                $updates['cancel_reason'] = $validated['cancel_reason'] ?? null;
+                $updates['cancelled_at'] = now();
+            } elseif ($status === \App\Enums\OrderStatus::Completed->value) {
+                $updates['completed_at'] = now();
+            } elseif ($status === \App\Enums\OrderStatus::Processing->value) {
+                $updates['confirmed_at'] = $order->confirmed_at ?: now();
+            } else {
+                // Reset cancel reason for non-cancel statuses
+                $updates['cancel_reason'] = null;
+            }
+
+            $order->update($updates);
+
+            // Related models mapping per requirement
+            $invoice = $order->invoice;
+            $payment = $invoice?->payment;
+            $shipping = $order->shipping;
+
+            switch ($status) {
+                case \App\Enums\OrderStatus::PendingPayment->value:
+                case \App\Enums\OrderStatus::Pending->value:
+                    if ($payment) {
+                        $payment->update(['status' => Payment::STATUS_PENDING]);
+                    }
+                    if ($shipping) {
+                        $shipping->update(['status' => Shipping::STATUS_PENDING]);
+                    }
+                    if ($invoice) {
+                        $invoice->update(['status' => Invoice::STATUS_UNPAID]);
+                    }
+                    break;
+
+                case \App\Enums\OrderStatus::Processing->value:
+                    if ($payment) {
+                        $payment->update(['status' => Payment::STATUS_RELEASED]);
+                    }
+                    if ($shipping) {
+                        $shipping->update(['status' => Shipping::STATUS_PENDING]);
+                    }
+                    if ($invoice) {
+                        $invoice->update(['status' => Invoice::STATUS_PAID]);
+                    }
+                    break;
+
+                case \App\Enums\OrderStatus::OnDelivery->value:
+                    if ($payment) {
+                        $payment->update(['status' => Payment::STATUS_RELEASED]);
+                    }
+                    if ($shipping) {
+                        $shipData = ['status' => Shipping::STATUS_SHIPPED];
+                        if (! empty($validated['tracking_number'])) {
+                            $shipData['tracking_number'] = $validated['tracking_number'];
+                        }
+                        $shipping->update($shipData);
+                    }
+                    if ($invoice) {
+                        $invoice->update(['status' => Invoice::STATUS_PAID]);
+                    }
+                    break;
+
+                case \App\Enums\OrderStatus::Completed->value:
+                    if ($payment) {
+                        $payment->update(['status' => Payment::STATUS_RELEASED]);
+                    }
+                    if ($shipping) {
+                        $shipping->update(['status' => Shipping::STATUS_SHIPPED]);
+                    }
+                    if ($invoice) {
+                        $invoice->update(['status' => Invoice::STATUS_PAID]);
+                    }
+                    break;
+
+                case \App\Enums\OrderStatus::Cancelled->value:
+                    // Do NOT change payment/shipping/invoice statuses
+                    break;
+            }
+        }, 3);
+
+        toastr('Order status updated.', 'success');
+
+        return back();
+    }
+
+    /**
      * Remove the specified order from storage.
      */
     public function destroy(Order $order): JsonResponse

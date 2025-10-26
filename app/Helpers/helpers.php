@@ -4,10 +4,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-if (! function_exists('formatRupiah')) {
-    function formatRupiah($price)
+if (! function_exists('formatIDR')) {
+    function formatIDR($price)
     {
-        return 'Rp '.number_format($price, 0, ',', '.');
+        return 'Rp ' . number_format($price, 0, ',', '.');
     }
 }
 
@@ -82,7 +82,7 @@ if (! function_exists('audit_log')) {
                 'updated_at' => now(),
             ]);
         } catch (\Throwable $e) {
-            logger()->warning('Failed to write manual audit: '.$e->getMessage(), ['exception' => $e]);
+            logger()->warning('Failed to write manual audit: ' . $e->getMessage(), ['exception' => $e]);
         }
     }
 
@@ -94,19 +94,43 @@ if (! function_exists('audit_log')) {
 
             // Jika diawali dengan 08 → ubah jadi +62
             if (preg_match('/^08/', $phone)) {
-                $phone = '+62'.substr($phone, 1);
+                $phone = '+62' . substr($phone, 1);
             }
             // Jika diawali dengan 62 tanpa plus → tambahkan +
             elseif (preg_match('/^62/', $phone)) {
-                $phone = '+'.$phone;
+                $phone = '+' . $phone;
             }
             // Jika sudah diawali +62 → biarkan
             elseif (! preg_match('/^\+62/', $phone)) {
                 // Jika prefix tidak dikenal, bisa langsung ditambahkan +
-                $phone = '+'.$phone;
+                $phone = '+' . $phone;
             }
 
             return $phone;
+        }
+    }
+
+    if (! function_exists('externalIconLink')) {
+        function externalIconLink(string $url, string $iconClass = 'bi bi-box-arrow-up-right'): string
+        {
+            return
+                '<a class="ml-1 text-muted small" href="' . e($url) . '" target="_blank" rel="noopener">
+                    <i class="' . e($iconClass) . '"></i>
+                </a>';
+        }
+    }
+
+    if (! function_exists('badgeLabel')) {
+        function badgeLabel(string $label, string $color): string
+        {
+            return '<span class="badge badge-' . e($color) . '">' . e($label) . '</span>';
+        }
+    }
+
+    if (! function_exists('formatIDR')) {
+        function formatIDR(int $number): string
+        {
+            return 'Rp ' . number_format($number, 0, ',', '.');
         }
     }
 }
