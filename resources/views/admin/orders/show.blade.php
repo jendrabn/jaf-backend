@@ -14,11 +14,45 @@
 
 @section('content')
     @php
-        $status = App\Models\Order::STATUSES[$order->status];
+        use App\Models\Order;
+        use App\Enums\OrderStatus;
+        use App\Enums\InvoiceStatus;
+        use App\Enums\ShippingStatus;
+
+        $statusEnum = OrderStatus::from($order->status);
         $payment = $order->invoice->payment;
         $shipping = $order->shipping;
+
+        $invoiceStatus = InvoiceStatus::from($order->invoice->status);
+        $shippingStatus = ShippingStatus::from($shipping->status);
+
+        $isPaid = $order->status === OrderStatus::Processing->value || $invoiceStatus === InvoiceStatus::Paid;
+
+        $isShipped = $order->status === OrderStatus::OnDelivery->value || $shippingStatus === ShippingStatus::Shipped;
+
+        $isCompleted = $order->status === OrderStatus::Completed->value;
+        $isPendingPayment = OrderStatus::PendingPayment->value === $order->status;
+        $isPending = OrderStatus::Pending->value === $order->status;
+        $isProcessing = OrderStatus::Processing->value === $order->status;
+        $isOnDelivery = OrderStatus::OnDelivery->value === $order->status;
     @endphp
 
+    <div class="d-flex align-items-center justify-content-end gap-2 mb-3">
+        <button class="btn btn-primary"
+                data-target="#modal-change-status"
+                data-toggle="modal"
+                type="button">
+            <i class="bi bi-arrow-repeat mr-1"></i> Change Status
+        </button>
+        <a class="btn btn-default"
+           href="{{ route('admin.orders.index') }}">
+            <i class="bi bi-arrow-left mr-1"></i> Back to list
+        </a>
+    </div>
+
+    @includeIf('admin.orders.partials.change-status-modal', ['order' => $order])
+
+    {{-- Stepper --}}
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="stepper-wrapper">
@@ -27,26 +61,20 @@
                     <div class="step-name">Order Placed</div>
                     <div class="step-date">{{ $order->created_at }}</div>
                 </div>
-                <div
-                     class="step-line {{ $order->status === App\Models\Order::STATUS_PROCESSING || $order->invoice->status === App\Models\Invoice::STATUS_PAID ? 'active' : '' }}">
-                </div>
-                <div
-                     class="stepper-item {{ $order->status === App\Models\Order::STATUS_PROCESSING || $order->invoice->status === App\Models\Invoice::STATUS_PAID ? 'completed' : '' }}">
+                <div class="step-line {{ $isPaid ? 'active' : '' }}"></div>
+                <div class="stepper-item {{ $isPaid ? 'completed' : '' }}">
                     <div class="step-counter"><i class="bi bi-currency-dollar"></i></div>
                     <div class="step-name">Order Paid <br>(@Rp($order->invoice->amount))</div>
                     <div class="step-date">{{ $order->confirmed_at }}</div>
                 </div>
-                <div
-                     class="step-line {{ $order->status === App\Models\Order::STATUS_ON_DELIVERY || $order->shipping->status === App\Models\Shipping::STATUS_SHIPPED ? 'active' : '' }}">
-                </div>
-                <div
-                     class="stepper-item {{ $order->status === App\Models\Order::STATUS_ON_DELIVERY || $order->shipping->status === App\Models\Shipping::STATUS_SHIPPED ? 'completed' : '' }}">
+                <div class="step-line {{ $isShipped ? 'active' : '' }}"></div>
+                <div class="stepper-item {{ $isShipped ? 'completed' : '' }}">
                     <div class="step-counter"><i class="bi bi-truck"></i></div>
                     <div class="step-name">Order Shipped Out</div>
                     <div class="step-date">{{ $order->shipping->updated_at }}</div>
                 </div>
-                <div class="step-line {{ $order->status === App\Models\Order::STATUS_COMPLETED ? 'active' : '' }}"></div>
-                <div class="stepper-item {{ $order->status === App\Models\Order::STATUS_COMPLETED ? 'completed' : '' }}">
+                <div class="step-line {{ $isCompleted ? 'active' : '' }}"></div>
+                <div class="stepper-item {{ $isCompleted ? 'completed' : '' }}">
                     <div class="step-counter"><i class="bi bi-check-all"></i></div>
                     <div class="step-name">Order Completed</div>
                     <div class="step-date">{{ $order->completed_at }}</div>
@@ -56,21 +84,21 @@
     </div>
 
     <div class="row mb-3">
-        {{-- PAYMENT --}}
+        {{-- Payment Information --}}
         <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header">
-                    <h3 class="card-title mb-0">Payment Information</h3>
+            <div class="card shadow-lg h-100">
+                <div class="card-header border-bottom-0">
+                    <h3 class="card-title">Payment Information</h3>
                     <div class="card-tools">
-                        <span class="badge badge-secondary badge-pill">
-                            {{ App\Models\Payment::STATUSES[$payment->status]['label'] }}
+                        <span class="badge badge-light"
+                              title="Payment Status">
+                            {{ strtoupper(App\Models\Payment::STATUSES[$payment->status]['label']) }}
                         </span>
                     </div>
                 </div>
 
                 <div class="card-body">
                     <div class="row">
-                        {{-- FROM --}}
                         <div class="col-12 col-md-6 mb-3 mb-md-0">
                             <p class="section-label mb-2"><i class="bi bi-person mr-1"></i> Payment From</p>
 
@@ -139,7 +167,6 @@
                             @endif
                         </div>
 
-                        {{-- TO --}}
                         <div class="col-12 col-md-6">
                             <p class="section-label mb-2"><i class="bi bi-shop mr-1"></i> Payment To</p>
 
@@ -148,11 +175,11 @@
                                     <tr>
                                         <th>Total Amount</th>
                                         <td>
-                                            <span class="h5 d-block mb-0">@Rp($order->invoice->amount)</span>
-                                            @if (\App\Models\Order::STATUS_PENDING_PAYMENT === $order->status)
-                                                <small class="text-muted d-block">
-                                                    Due date at {{ $order->invoice->due_date }}
-                                                </small>
+                                            <span
+                                                  class="h5 d-block text-danger font-weight-bold mb-0">@Rp($order->invoice->amount)</span>
+                                            @if ($isPendingPayment)
+                                                <small class="text-muted d-block">Due date at
+                                                    {{ $order->invoice->due_date }}</small>
                                             @endif
                                         </td>
                                     </tr>
@@ -213,14 +240,14 @@
                         </div>
                     </div>
 
-                    @if ($order->status === App\Models\Order::STATUS_PENDING)
-                        <div class="mt-3">
-                            <button class="btn btn-primary btn-sm mr-1"
+                    @if ($isPending)
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="btn btn-primary"
                                     id="btn-accept-payment"
                                     type="button">
                                 <i class="bi bi-check2-circle mr-1"></i> Accept
                             </button>
-                            <button class="btn btn-outline-danger btn-sm"
+                            <button class="btn btn-outline-danger"
                                     id="btn-reject-payment"
                                     type="button">
                                 <i class="bi bi-x-lg mr-1"></i> Reject
@@ -230,22 +257,21 @@
                 </div>
             </div>
         </div>
-
-        {{-- SHIPPING --}}
+        {{-- Shipping Information --}}
         <div class="col-md-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header">
-                    <h3 class="card-title mb-0">Shipping Information</h3>
+            <div class="card shadow-lg h-100">
+                <div class="card-header border-bottom-0">
+                    <h3 class="card-title">Shipping Information</h3>
                     <div class="card-tools">
-                        <span class="badge badge-secondary badge-pill">
-                            {{ App\Models\Shipping::STATUSES[$shipping->status]['label'] }}
+                        <span class="badge badge-light"
+                              title="Shipping Status">
+                            {{ strtoupper(\App\Enums\ShippingStatus::from($shipping->status)->label()) }}
                         </span>
                     </div>
                 </div>
 
                 <div class="card-body">
                     <div class="row">
-                        {{-- FACTS --}}
                         <div class="col-12 col-md-6 mb-3 mb-md-0">
                             <table class="table table-sm table-borderless kv-table">
                                 <tr>
@@ -273,19 +299,21 @@
                                 </tr>
                             </table>
 
-                            @if ($order->status === App\Models\Order::STATUS_PROCESSING)
-                                <button class="btn btn-outline-primary btn-sm"
-                                        id="btn-confirm-shipping">
-                                    <i class="bi bi-plus-lg mr-1"></i> Add Tracking Number
-                                </button>
-                            @endif
+                            <div class="d-flex gap-2">
+                                @if ($isProcessing)
+                                    <button class="btn btn-primary"
+                                            id="btn-confirm-shipping">
+                                        <i class="bi bi-plus-lg mr-1"></i> Add Tracking Number
+                                    </button>
+                                @endif
 
-                            @if (!empty($shipping->tracking_number))
-                                <button class="btn btn-primary"
-                                        onclick="showTrackingModal(this);">
-                                    Track
-                                </button>
-                            @endif
+                                @if (!empty($shipping->tracking_number) && $isOnDelivery)
+                                    <button class="btn btn-primary"
+                                            onclick="showTrackingModal(this);">
+                                        <i class="bi bi-truck mr-1"></i> Track Order
+                                    </button>
+                                @endif
+                            </div>
                         </div>
 
                         {{-- ADDRESS --}}
@@ -307,147 +335,135 @@
         </div>
     </div>
 
-    <div class="container-fluid px-0">
-        <div class="card shadow-lg order-card rounded-0">
-            <div class="order-sheet">
-                <div class="order-body">
-                    {{-- Header --}}
-                    <div class="order-header">
+    <div class="card shadow-lg order-card rounded-0">
+        <div class="order-sheet">
+            <div class="order-body">
+                <div class="order-header">
+                    <h4 class="mb-1 order-title">ORDER INFORMATION</h4>
+                    <div class="order-meta">
+                        <span class="label">Order ID</span>
+                        <div class="order-ref mb-2">#{{ $order->id ?? '-' }}</div>
+
+                        <span class="label">Order Date</span>
+                        <div class="mb-2">
+                            {{ optional($order->created_at)->format('d M Y H:i') ?? $order->created_at }}</div>
+
+                        <span class="label">Status</span>
                         <div>
-                            <h4 class="mb-1 order-title">ORDER INFORMATION</h4>
-                            <div class="text-muted small">
-                                {{ config('app.name') }}
-                            </div>
-                        </div>
-                        <div class="order-meta">
-                            <span class="label">Order ID</span>
-                            <div class="order-ref mb-2">#{{ $order->id ?? '-' }}</div>
-
-                            <span class="label">Tanggal Order</span>
-                            <div class="mb-2">
-                                {{ optional($order->created_at)->format('d M Y H:i') ?? $order->created_at }}</div>
-
-                            <span class="label">Status</span>
-                            <div>
-                                <span
-                                      class="badge badge-{{ \App\Models\Order::STATUSES[$order->status]['color'] }} badge-pill">
-                                    {{ \App\Models\Order::STATUSES[$order->status]['label'] }}
-                                </span>
-                            </div>
+                            <span class="badge badge-{{ $statusEnum->color() }}">
+                                {{ strtoupper($statusEnum->label()) }}
+                            </span>
                         </div>
                     </div>
+                </div>
 
-                    <hr class="hr-dashed">
+                <hr class="hr-dashed">
 
-                    {{-- Bill to & Reference --}}
-                    <div class="row">
-                        <div class="col-12 col-md-7 mb-3">
-                            <div class="text-uppercase text-muted small mb-1">Customer</div>
-                            @if ($order->user)
-                                <div class="font-weight-bold d-flex align-items-center">
-                                    {{ $order->user->name }} <a class="icon-btn text-muted ml-1 small"
-                                       href="{{ route('admin.users.show', $order->user->id) }}"><i
-                                           class="bi bi-box-arrow-up-right"></i></a>
-                                </div>
-                            @else
-                                <div class="text-muted">—</div>
-                            @endif
-                        </div>
-                        <div class="col-12 col-md-5 text-md-right">
-                            <div class="text-uppercase text-muted small mb-1">Reference</div>
+                {{-- Bill to & Reference --}}
+                <div class="row">
+                    <div class="col-12 col-md-7 mb-3">
+                        <div class="text-uppercase text-muted small mb-1">Customer</div>
+                        @if ($order->user)
                             <div class="font-weight-bold">
-                                {{ $order->invoice->number ? '#' . $order->invoice->number : '-' }}
+                                {!! $order->user->name . externalIconLink(route('admin.users.show', $order->user->id)) !!}
                             </div>
+                        @else
+                            <div class="text-muted">
+                                -
+                            </div>
+                        @endif
+                    </div>
+                    <div class="col-12 col-md-5 text-md-right">
+                        <div class="text-uppercase text-muted small mb-1">Reference</div>
+                        <div class="font-weight-bold">
+                            {{ $order->invoice->number ? '#' . $order->invoice->number : '-' }}
                         </div>
                     </div>
+                </div>
 
-                    {{-- Items --}}
-                    <div class="table-responsive mt-3">
-                        <table class="table table-sm table-bordered table-order">
-                            <thead>
+                {{-- Items --}}
+                <div class="table-responsive mt-3">
+                    <table class="table table-sm table-order">
+                        <thead>
+                            <tr>
+                                <th class="text-center w-40">#</th>
+                                <th>Product(s)</th>
+                                <th class="text-right w-120 d-none d-sm-table-cell">Price</th>
+                                <th class="text-center w-80">Quantity</th>
+                                <th class="text-right w-140">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($order->items as $item)
                                 <tr>
-                                    <th class="text-center w-40">#</th>
-                                    <th>Product(s)</th>
-                                    <th class="text-right w-120 d-none d-sm-table-cell">Price</th>
-                                    <th class="text-center w-80">Quantity</th>
-                                    <th class="text-right w-140">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($order->items as $item)
-                                    <tr>
-                                        <td class="text-center">{{ $loop->iteration }}</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img alt=""
-                                                     class="thumb-44 rounded border mr-2 d-none d-sm-block"
-                                                     src="{{ $item->product?->image?->preview_url }}">
+                                    <td class="text-center">{{ $loop->iteration }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img alt=""
+                                                 class="thumb-44 rounded border mr-2 d-none d-sm-block"
+                                                 src="{{ $item->product?->image?->preview_url }}">
 
-                                                <span class="text-body product-name">
-                                                    {{ $item->name }} <a class="icon-btn text-muted ml-1 small"
-                                                       href="{{ $item->product_id ? route('admin.products.show', $item->product_id) : 'javascript:;' }}"
-                                                       target="{{ $item->product_id ? '_blank' : '_self' }}">
-                                                        <i class="bi bi-box-arrow-up-right"></i></a>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td class="text-right d-none d-sm-table-cell">@Rp($item->price)</td>
-                                        <td class="text-center">{{ $item->quantity }}</td>
-                                        <td class="text-right">@Rp((int) $item->price * (int) $item->quantity)</td>
-                                    </tr>
-                                @endforeach
+                                            <span class="text-body product-name">
+                                                {!! $item->name . externalIconLink(route('admin.products.show', $item->id)) !!}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="text-right d-none d-sm-table-cell">@Rp($item->price)</td>
+                                    <td class="text-center">{{ $item->quantity }}</td>
+                                    <td class="text-right">@Rp((int) $item->price * (int) $item->quantity)</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                {{-- Totals (kanan) + Payment --}}
+                <div class="row justify-content-end">
+                    <div class="col-12 col-md-6 col-lg-5">
+                        <table class="table table-sm table-borderless table-totals mb-2">
+                            <tbody>
+                                <tr>
+                                    <td>Total Harga</td>
+                                    <td>@Rp($order->total_price)</td>
+                                </tr>
+                                <tr>
+                                    <td>Discount</td>
+                                    <td>-@Rp($order->discount)</td>
+                                </tr>
+                                <tr>
+                                    <td>Shipping Cost</td>
+                                    <td>@Rp($order->shipping_cost)</td>
+                                </tr>
+                                <tr>
+                                    <td>Tax</td>
+                                    <td>@Rp($order->tax_amount)</td>
+                                </tr>
+                                <tr>
+                                    <td>Payment Gateway Fee</td>
+                                    <td>@Rp($order->gateway_fee)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="mr-2">Total Amount</span></td>
+                                    <td class="grand-total">@Rp($order->invoice->amount)</td>
+                                </tr>
                             </tbody>
                         </table>
-                    </div>
 
-                    {{-- Totals (kanan) + Payment --}}
-                    <div class="row justify-content-end">
-                        <div class="col-12 col-md-6 col-lg-5">
-                            <table class="table table-sm table-borderless table-totals mb-2">
-                                <tbody>
-                                    <tr>
-                                        <td>Total Harga</td>
-                                        <td>@Rp($order->total_price)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Diskon</td>
-                                        <td>-@Rp($order->discount)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Ongkos Kirim</td>
-                                        <td>@Rp($order->shipping_cost)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Pajak</td>
-                                        <td>@Rp($order->tax_amount)</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Payment Gateway Fee</td>
-                                        <td>@Rp($order->gateway_fee)</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="mr-2">Total Bayar</span></td>
-                                        <td class="grand-total">@Rp($order->invoice->amount)</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <div class="text-right">
-                                <span class="text-uppercase mr-1 small text-muted">Payment Method:</span>
-                                <span class="">
-                                    {{ strtoupper($payment->method ?? '-') }}@if (!empty($payment->info['name']))
-                                        — {{ $payment->info['name'] }}
-                                    @endif
-                                </span>
-                            </div>
+                        <div class="text-right">
+                            <span class="text-uppercase mr-1 small text-muted">Payment Method:</span>
+                            <span class="">
+                                {{ strtoupper($payment->method ?? '-') }}@if (!empty($payment->info['name']))
+                                    — {{ $payment->info['name'] }}
+                                @endif
+                            </span>
                         </div>
                     </div>
+                </div>
 
-                    {{-- Note (opsional) --}}
-                    <div class="mt-4">
-                        <div class="text-uppercase small text-muted mb-1">Note</div>
-                        <div>{{ $order->note ?? '-' }}</div>
-                    </div>
+                {{-- Note (opsional) --}}
+                <div class="mt-4">
+                    <div class="text-uppercase small text-muted mb-1">Note</div>
+                    <div>{{ $order->note ?? '-' }}</div>
                 </div>
             </div>
         </div>
@@ -466,7 +482,7 @@
                type="text">
     </form>
 
-    @if ($order->status === App\Models\Order::STATUS_PROCESSING)
+    @if ($order->status === \App\Enums\OrderStatus::Processing->value)
         <form action="{{ route('admin.orders.confirm-shipping', $order->id) }}"
               hidden
               id="form-confirm-shipping"
@@ -479,38 +495,11 @@
         </form>
     @endif
 
-    <!-- Tracking Waybill Modal -->
-    <div aria-hidden="true"
-         aria-labelledby="trackingWaybillModalLabel"
-         class="modal fade"
-         id="trackingWaybillModal"
-         role="dialog"
-         tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered"
-             role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"
-                        id="trackingWaybillModalLabel">Waybill Tracking</h5>
-                    <button aria-label="Close"
-                            class="close"
-                            data-dismiss="modal"
-                            type="button">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center small text-muted py-4">Loading tracking data...</div>
-                </div>
-            </div>
-        </div>
-    </div>
+    @include('admin.orders.partials.tracking-modal')
 
 @endsection
 
 @section('styles')
-
-    {{-- ===== Order Information (invoice-like, Bootstrap 4.6, full width, single card) ===== --}}
     <style>
         /* Paper look */
         .order-sheet {
@@ -724,35 +713,6 @@
     </style>
 
     <style>
-        .section-label {
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            font-size: .75rem;
-            color: #6c757d;
-            font-weight: 600;
-        }
-
-        .kv-table th {
-            text-transform: uppercase;
-            letter-spacing: .04em;
-            font-size: .75rem;
-            /* white-space: nowrap; */
-            color: #6c757d;
-            /* width: 40%; */
-            padding-right: .75rem;
-            vertical-align: middle !important;
-        }
-
-        .kv-table td {
-            color: #212529;
-            vertical-align: middle !important;
-        }
-
-        .kv-table th,
-        .kv-table td {
-            padding: .4rem .25rem;
-        }
-
         @media (max-width: 576px) {
 
             #btn-accept-payment,
@@ -769,112 +729,164 @@
 
 @section('scripts')
     <script>
-        $(function() {
-            $("#btn-accept-payment").on("click", function(e) {
-                Swal.fire({
-                    titleText: "Payment Acceptance",
-                    text: "You won't be able to revert this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Accept Payment",
-                }).then(function(result) {
-                    if (result.isConfirmed) {
-                        const form = $("#form-payment");
-                        form.find("#_action").val("accept");
-                        form.submit();
+        $(() => {
+            const $formPayment = $('#form-payment');
+            const $formConfirmShipping = $('#form-confirm-shipping');
+
+            const setInputValue = ($form, selector, value) => {
+                if ($form && $form.length) {
+                    const $input = $form.find(selector);
+                    if ($input && $input.length) {
+                        $input.val(value);
                     }
+                }
+            };
+
+            $('#btn-accept-payment').on('click', async () => {
+                const result = await Swal.fire({
+                    titleText: 'Payment Acceptance',
+                    text: "Please check the payment details carefully before accepting.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-check2-circle mr-1"></i> Accept Payment',
                 });
+
+                if (result.isConfirmed && $formPayment.length) {
+                    setInputValue($formPayment, '#_action', 'accept');
+                    $formPayment.trigger('submit');
+                }
             });
 
-            $("#btn-reject-payment").on("click", function(e) {
-                Swal.fire({
-                    title: "Payment Rejection",
-                    text: "You won't be able to revert this!",
-                    icon: "warning",
+            $('#btn-reject-payment').on('click', async () => {
+                const result = await Swal.fire({
+                    title: 'Payment Rejection',
+                    text: "Please enter the reason for rejecting the payment.",
+                    icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: "Reject Payment",
-                    input: "text",
-                    inputLabel: "Cancel Reason",
-                    inputValue: "Invalid Payment",
-                    inputValidator: function(value) {
-                        if (!value) return "Required";
-                    },
-                }).then(function(result) {
-                    if (result.isConfirmed) {
-                        const form = $("#form-payment");
-                        form.find("#_action").val("reject");
-                        form.find("#_cancel_reason").val(result.value);
-                        form.submit();
-                    }
+                    confirmButtonText: '<i class="bi bi-x-lg mr-1"></i> Reject Payment',
+                    input: 'text',
+                    inputLabel: 'Cancel Reason',
+                    inputValue: 'Invalid Payment',
+                    inputValidator: (value) => (value ? null : 'Required'),
                 });
+
+                if (result.isConfirmed && $formPayment.length) {
+                    setInputValue($formPayment, '#_action', 'reject');
+                    setInputValue($formPayment, '#_cancel_reason', result.value);
+                    $formPayment.trigger('submit');
+                }
             });
 
-            $("#btn-confirm-shipping").on("click", function() {
-                Swal.fire({
-                    title: "Add Tracking Number",
-                    text: "You won't be able to revert this!",
+            $('#btn-confirm-shipping').on('click', async () => {
+                const result = await Swal.fire({
+                    title: 'Add Tracking Number',
+                    text: "Please enter the tracking number carefully so that the system can track your order.",
+                    icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: "Save",
-                    input: "text",
-                    inputLabel: "Tracking Number",
-                    inputValidator: function(value) {
-                        if (!value) return "Required";
-                    },
-                }).then(function(result) {
-                    if (result.isConfirmed) {
-                        const form = $("#form-confirm-shipping");
-                        form.find("#_tracking_number").val(result.value);
-                        form.submit();
-                    }
+                    confirmButtonText: '<i class="bi bi-save mr-1"></i> Save',
+                    input: 'text',
+                    inputLabel: 'Tracking Number',
+                    inputValidator: (value) => (value ? null : 'Required'),
                 });
+
+                if (result.isConfirmed && $formConfirmShipping.length) {
+                    setInputValue($formConfirmShipping, '#_tracking_number', result.value);
+                    $formConfirmShipping.trigger('submit');
+                }
             });
 
-
-            window.showTrackingModal = function(el) {
+            window.showTrackingModal = (el) => {
                 if (el && el.preventDefault) {
                     el.preventDefault();
                 }
 
-                var url = "{{ route('admin.orders.track-waybill', $order->id) }}";
+                const url = "{{ route('admin.orders.track-waybill', $order->id) }}";
+                const $modal = $('#trackingWaybillModal');
 
-                var $modal = $('#trackingWaybillModal');
                 $modal.find('.modal-title').text('Waybill Tracking');
                 $modal.find('.modal-body').html(
-                    '<div class="text-center small text-muted py-4">Loading tracking data...</div>');
-                $modal.modal('show');
+                    '<div class="text-center small text-muted py-4">Loading tracking data...</div>'
+                );
+
+                // Robust modal show: prefer Bootstrap 4 jQuery plugin, fallback to Bootstrap 5 API, then manual
+                let modalShown = false;
+                try {
+                    if (typeof $.fn.modal === 'function') {
+                        $modal.modal('show');
+                        modalShown = true;
+                    }
+                } catch (e) {}
+
+                if (!modalShown && window.bootstrap && typeof window.bootstrap.Modal === 'function') {
+                    const inst = new window.bootstrap.Modal($modal.get(0));
+                    inst.show();
+                    modalShown = true;
+                }
+
+                if (!modalShown) {
+                    $modal.addClass('show')
+                        .css('display', 'block')
+                        .attr('aria-hidden', 'false');
+                    document.body.classList.add('modal-open');
+                    $('<div class="modal-backdrop fade show"></div>').appendTo(document.body);
+                }
 
                 $.ajax({
-                    url: url,
-                    method: "GET",
-                    dataType: "json",
-                    headers: {
-                        "Accept": "application/json"
-                    }
-                }).done(function(resp) {
-                    var meta = resp && resp.meta ? resp.meta : {};
-                    if ((meta.code && meta.code !== 200) || (meta.status && ('' + meta.status)
-                            .toLowerCase() !== 'success')) {
-                        var msg = meta.message || "Unable to fetch tracking data.";
+                        url: url,
+                        method: 'GET',
+                        dataType: 'json',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                    })
+                    .done((resp) => {
+                        const meta = (resp && resp.meta) ? resp.meta : {};
+                        const isSuccess = (meta.code === 200) || (String(meta.status || '')
+                            .toLowerCase() === 'success');
+
+                        if (!isSuccess) {
+                            const msg = meta.message || 'Unable to fetch tracking data.';
+                            $modal.find('.modal-body').html(
+                                '<div class="alert alert-danger mb-0" role="alert">' + msg + '</div>'
+                            );
+                            return;
+                        }
+
+                        const html = (resp && resp.html) ? resp.html :
+                            '<div class="text-muted small">No tracking content.</div>';
+                        $modal.find('.modal-body').html(html);
+                    })
+                    .fail((xhr) => {
+                        let msg = 'Unable to fetch tracking data.';
+                        try {
+                            if (xhr && xhr.responseJSON && xhr.responseJSON.meta && xhr.responseJSON.meta
+                                .message) {
+                                msg = xhr.responseJSON.meta.message;
+                            }
+                        } catch (e) {}
                         $modal.find('.modal-body').html(
-                            '<div class="alert alert-danger mb-0" role="alert">' + msg + '</div>');
+                            '<div class="alert alert-danger mb-0" role="alert">' + msg + '</div>'
+                        );
+                    });
+            };
+
+            // Fallback close handler for cases where $.fn.modal is unavailable
+            $(document).on('click', '#trackingWaybillModal [data-dismiss="modal"]', function(ev) {
+                ev.preventDefault();
+                try {
+                    if (typeof $.fn.modal === 'function') {
+                        $('#trackingWaybillModal').modal('hide');
                         return;
                     }
+                } catch (e) {}
+                const $m = $('#trackingWaybillModal');
+                $m.removeClass('show')
+                    .css('display', '')
+                    .attr('aria-hidden', 'true');
+                document.body.classList.remove('modal-open');
+                $('.modal-backdrop').remove();
+            });
 
-                    var html = (resp && resp.html) ? resp.html :
-                        '<div class="text-muted small">No tracking content.</div>';
-                    $modal.find('.modal-body').html(html);
-                }).fail(function(xhr) {
-                    var msg = "Unable to fetch tracking data.";
-                    try {
-                        if (xhr && xhr.responseJSON && xhr.responseJSON.meta && xhr.responseJSON.meta
-                            .message) {
-                            msg = xhr.responseJSON.meta.message;
-                        }
-                    } catch (e) {}
-                    $modal.find('.modal-body').html(
-                        '<div class="alert alert-danger mb-0" role="alert">' + msg + '</div>');
-                });
-            };
         });
     </script>
 @endsection

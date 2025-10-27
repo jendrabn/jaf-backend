@@ -2,8 +2,6 @@
 
 @section('page_title', 'Order')
 
-@section('page_title', 'Order')
-
 @section('breadcrumb')
     @include('partials.breadcrumb', [
         'items' => [
@@ -14,39 +12,10 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card shadow-lg">
-                <div class="card-body">
-                    <ul class="nav nav-pills nav-fill"
-                        id="nav-pills-status">
-                        <li class="nav-item">
-                            <a class="nav-link active"
-                               data-status=""
-                               href="#">All </a>
-                        </li>
-                        @foreach (\App\Models\Order::STATUSES as $key => $status)
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   data-status="{{ $key }}"
-                                   href="#">{{ $status['label'] }}
-                                </a>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card shadow-lg">
-                <div class="card-body">
-                    <div class="table-responsive">
-                        {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable']) }}
-                    </div>
-                </div>
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <div class="table-responsive">
+                {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable mt-3']) }}
             </div>
         </div>
     </div>
@@ -54,120 +23,96 @@
     @include('admin.orders.partials.modal-filter')
 @endsection
 
-@section('styles')
-    <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"
-          rel="stylesheet"
-          type="text/css" />
-@endsection
-
 @section('scripts')
-    <script type="text/javascript"
-            src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script>
+        // Define helpers & custom buttons in global scope BEFORE DataTables initialization
+        function getSelectedIds(dt) {
+            return $.map(dt.rows({
+                selected: true
+            }).data(), function(entry) {
+                return entry.id;
+            });
+        }
+
         $.fn.dataTable.ext.buttons.filter = {
-            text: '<i class="fas fa-filter"></i> Filter',
-            action: function(e, dt, node, config) {
-                $("#modal-filter").modal("show");
+            text: '<i class="bi bi-filter"></i> Filter',
+            action: function(e, dt) {
+                $('#modal-filter').modal('show');
             },
         };
 
         $.fn.dataTable.ext.buttons.printInvoice = {
-            text: '<i class="fa-solid fa-file-invoice"></i> Invoice',
+            text: '<i class="bi bi-receipt"></i> Invoice',
             url: "{{ route('admin.orders.invoices') }}",
             action: function(e, dt, node, config) {
-                let ids = $.map(
-                    dt
-                    .rows({
-                        selected: true,
-                    })
-                    .data(),
-                    function(entry) {
-                        return entry.id;
-                    }
-                );
-
-                if (ids.length === 0) {
-                    toastr.warning("No rows selected", "Warning");
-
+                const ids = getSelectedIds(dt);
+                if (!ids.length) {
+                    toastr.warning('No rows selected', 'Warning');
                     return;
                 }
 
                 $.ajax({
                     headers: {
-                        "x-csrf-token": _token,
+                        'x-csrf-token': _token
                     },
-                    method: "POST",
+                    method: 'POST',
                     url: config.url,
                     data: {
-                        ids: ids,
+                        ids
                     },
                     beforeSend: function() {
-                        $(node).attr("disabled", true);
+                        $(node).prop('disabled', true);
                     },
-                    success: function(data) {
-                        const base64pdf = data.data;
+                    success: function(resp) {
+                        const base64pdf = resp.data;
                         const binary = atob(base64pdf);
-                        const array = Uint8Array.from(binary, (char) =>
-                            char.charCodeAt(0)
-                        );
+                        const array = Uint8Array.from(binary, c => c.charCodeAt(0));
                         const blob = new Blob([array], {
-                            type: "application/pdf",
+                            type: 'application/pdf'
                         });
 
-                        const link = document.createElement("a");
+                        const link = document.createElement('a');
                         link.href = URL.createObjectURL(blob);
-                        link.download = data.filename;
+                        link.download = resp.filename;
                         link.click();
                     },
                     complete: function() {
-                        $(node).attr("disabled", false);
+                        $(node).prop('disabled', false);
                     },
                 });
             },
         };
 
         $.fn.dataTable.ext.buttons.bulkDelete = {
-            text: "Delete selected",
+            text: 'Delete selected',
             url: "{{ route('admin.orders.massDestroy') }}",
             action: function(e, dt, node, config) {
-                let ids = $.map(
-                    dt
-                    .rows({
-                        selected: true,
-                    })
-                    .data(),
-                    function(entry) {
-                        return entry.id;
-                    }
-                );
-
-                if (ids.length === 0) {
-                    toastr.warning("No rows selected", "Warning");
-
+                const ids = getSelectedIds(dt);
+                if (!ids.length) {
+                    toastr.warning('No rows selected', 'Warning');
                     return;
                 }
 
                 Swal.fire({
-                    title: "Are you sure?",
+                    title: 'Are you sure?',
                     text: "You won't be able to revert this!",
-                    icon: "warning",
+                    icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: "Delete",
-                }).then((result) => {
+                    confirmButtonText: '<i class="bi bi-trash3"></i> Delete',
+                }).then(function(result) {
                     if (result.isConfirmed) {
                         $.ajax({
                             headers: {
-                                "x-csrf-token": _token,
+                                'x-csrf-token': _token
                             },
-                            method: "POST",
+                            method: 'POST',
                             url: config.url,
                             data: {
-                                ids: ids,
-                                _method: "DELETE",
+                                ids,
+                                _method: 'DELETE'
                             },
                             success: function(data) {
                                 toastr.success(data.message);
-
                                 dt.ajax.reload();
                             },
                         });
@@ -176,144 +121,101 @@
             },
         };
     </script>
+
     {{ $dataTable->scripts(attributes: ['type' => 'text/javascript']) }}
+
     <script>
         $(function() {
-            $('input[name="daterange"]').daterangepicker({
-                    opens: "left",
-                    maxDate: moment(new Date()),
+            // Track visible columns for header search alignment
+            let visibleColumnsIndexes = null;
+
+            // Date range picker
+            const $dr = $('input[name="daterange"]');
+            if ($dr.length) {
+                $dr.daterangepicker({
+                    opens: 'left',
+                    maxDate: moment(),
                     autoUpdateInput: false,
                     ranges: {
                         Today: [moment(), moment()],
-                        Yesterday: [
-                            moment().subtract(1, "days"),
-                            moment().subtract(1, "days"),
-                        ],
-                        "Last 7 Days": [moment().subtract(6, "days"), moment()],
-                        "Last 30 Days": [moment().subtract(29, "days"), moment()],
-                        "This Month": [
-                            moment().startOf("month"),
-                            moment().endOf("month"),
-                        ],
-                        "Last Month": [
-                            moment().subtract(1, "month").startOf("month"),
-                            moment().subtract(1, "month").endOf("month"),
+                        Yesterday: [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                        'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last Month': [
+                            moment().subtract(1, 'month').startOf('month'),
+                            moment().subtract(1, 'month').endOf('month'),
                         ],
                     },
-                },
-                function(start, end, label) {
-                    $('input[name="daterange"]').val(
-                        start.format("YYYY-MM-DD") +
-                        " - " +
-                        end.format("YYYY-MM-DD")
-                    );
-                }
-            );
+                }, function(start, end) {
+                    $dr.val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                });
+            }
 
-            $("#nav-pills-status .nav-link").on("click", function(e) {
-                e.preventDefault();
-
-                $("#nav-pills-status .nav-link").removeClass("active");
-
-                $(this).addClass("active");
-
-                table.ajax.reload();
-            });
-
-            $(".datatable thead").on("input", ".search", function() {
-                let strict = $(this).attr("strict") || false;
-                let value =
-                    strict && this.value ? "^" + this.value + "$" : this.value;
+            // Column header search
+            $('.datatable thead').on('input', '.search', function() {
+                const strict = $(this).attr('strict') || false;
+                const value = strict && this.value ? '^' + this.value + '$' : this.value;
 
                 let index = $(this).parent().index();
                 if (visibleColumnsIndexes !== null) {
                     index = visibleColumnsIndexes[index];
                 }
-
-                table.column(index).search(value, strict).draw();
+                const dt = $('#dataTable-orders').DataTable();
+                dt.column(index).search(value, strict).draw();
             });
 
-            const table = LaravelDataTables["dataTable-orders"];
-
-            table.on("click", ".btn-delete", function(e) {
+            // Delete action (delegated, single handler)
+            $('#dataTable-orders').on('click', '.btn-delete', function(e) {
                 e.preventDefault();
-
-                let url = $(this).attr("href");
+                const url = $(this).attr('href');
+                const dt = $('#dataTable-orders').DataTable();
 
                 Swal.fire({
-                    title: "Are you sure?",
+                    title: 'Are you sure?',
                     text: "You won't be able to revert this!",
-                    icon: "warning",
+                    icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: "Delete",
-                }).then((result) => {
+                    confirmButtonText: '<i class="bi bi-trash3"></i> Delete',
+                }).then(function(result) {
                     if (result.isConfirmed) {
                         $.ajax({
                             headers: {
-                                "x-csrf-token": _token,
+                                'x-csrf-token': _token
                             },
-                            method: "POST",
+                            method: 'POST',
                             url: url,
                             data: {
-                                _method: "DELETE",
+                                _method: 'DELETE'
                             },
                             success: function(data) {
                                 toastr.success(data.message);
-
-                                table.ajax.reload();
-                            },
-                        });
-                    }
-                });
-
-            });
-
-            table.on("click", ".btn-delete", function(e) {
-                e.preventDefault();
-
-                let url = $(this).attr("href");
-
-                Swal.fire({
-                    title: "Are you sure?",
-                    text: "You won't be able to revert this!",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Delete",
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            headers: {
-                                "x-csrf-token": _token,
-                            },
-                            method: "POST",
-                            url: url,
-                            data: {
-                                _method: "DELETE",
-                            },
-                            success: function(data) {
-                                toastr.success(data.message);
-
-                                table.ajax.reload();
+                                dt.ajax.reload();
                             },
                         });
                     }
                 });
             });
 
-            table.on("column-visibility.dt", function(e, settings, column, state) {
+            // Maintain visible columns map
+            $('#dataTable-orders').on('column-visibility.dt', function() {
+                const dt = $('#dataTable-orders').DataTable();
                 visibleColumnsIndexes = [];
-                table.columns(":visible").every(function(colIdx) {
+                dt.columns(':visible').every(function(colIdx) {
                     visibleColumnsIndexes.push(colIdx);
                 });
             });
 
-            $("#btn-filter").on("click", function() {
-                table.ajax.reload();
+            // Filter buttons
+            $('#btn-filter').on('click', function() {
+                const dt = $('#dataTable-orders').DataTable();
+                dt.ajax.reload();
             });
 
-            $("#btn-reset-filter").on("click", function() {
-                $("#form-filter")[0].reset();
-                table.ajax.reload();
+            $('#btn-reset-filter').on('click', function() {
+                $('#form-filter')[0].reset();
+                const dt = $('#dataTable-orders').DataTable();
+                dt.ajax.reload();
             });
         });
     </script>

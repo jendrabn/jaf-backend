@@ -13,22 +13,36 @@
 @endsection
 
 @section('content')
+
+    @php
+        use App\Enums\ContactMessageStatus;
+        use App\Enums\ContactReplyStatus;
+    @endphp
+
+    <div class="d-flex align-items-center justify-content-end gap-2 mb-3">
+        <a class="btn btn-default"
+           href="{{ route('admin.messages.index') }}">
+            <i class="bi bi-arrow-left mr-1"></i> Back to list
+        </a>
+    </div>
+
     <div class="row">
-        <div class="col-md-7">
-            <div class="card shadow-sm">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h3 class="card-title mb-0">Message Detail</h3>
-                    <span
-                          class="badge badge-pill badge-{{ ['new' => 'secondary', 'in_progress' => 'warning', 'resolved' => 'success', 'spam' => 'danger'][$message->status] ?? 'secondary' }}">
-                        {{ strtoupper(str_replace('_', ' ', $message->status)) }}
-                    </span>
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header border-bottom-0">
+                    <h3 class="card-title">Message Detail</h3>
+                    <div class="card-tools">
+                        <span class="badge badge-{{ ContactMessageStatus::from($message->status)->color() }}">
+                            {{ ContactMessageStatus::from($message->status)->label() }}
+                        </span>
+                    </div>
                 </div>
                 <div class="card-body">
                     <table class="table table-sm table-borderless kv-table">
                         <tbody>
                             <tr>
                                 <th>Received At</th>
-                                <td>{{ optional($message->created_at)->format('d-m-Y H:i') }}</td>
+                                <td>{{ $message->created_at }}</td>
                             </tr>
                             <tr>
                                 <th>Name</th>
@@ -52,7 +66,7 @@
                             </tr>
                             <tr>
                                 <th>Handled At</th>
-                                <td>{{ $message->handled_at ? $message->handled_at->format('d-m-Y H:i') : '-' }}</td>
+                                <td>{{ $message->handled_at ?? '-' }}</td>
                             </tr>
                             <tr>
                                 <th>Notes</th>
@@ -71,9 +85,9 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm mt-3">
-                <div class="card-header">
-                    <h3 class="card-title mb-0">Update Status</h3>
+            <div class="card shadow mt-3">
+                <div class="card-header border-bottom-0">
+                    <h3 class="card-title">Update Status</h3>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.messages.update', $message->id) }}"
@@ -85,14 +99,10 @@
                             <label class="section-label d-block mb-2">Status</label>
                             <select class="form-control"
                                     name="status">
-                                <option @selected($message->status === 'new')
-                                        value="new">New</option>
-                                <option @selected($message->status === 'in_progress')
-                                        value="in_progress">In Progress</option>
-                                <option @selected($message->status === 'resolved')
-                                        value="resolved">Resolved</option>
-                                <option @selected($message->status === 'spam')
-                                        value="spam">Spam</option>
+                                @foreach (ContactMessageStatus::cases() as $status)
+                                    <option @selected($message->status === $status->value)
+                                            value="{{ $status->value }}">{{ $status->label() }}</option>
+                                @endforeach
                             </select>
                             @error('status')
                                 <small class="text-danger d-block">{{ $message }}</small>
@@ -119,10 +129,10 @@
             </div>
         </div>
 
-        <div class="col-md-5">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h3 class="card-title mb-0">Reply to Sender</h3>
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header border-bottom-0">
+                    <h3 class="card-title">Reply to Sender</h3>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.messages.reply', $message->id) }}"
@@ -157,7 +167,7 @@
                             @enderror
                         </div>
 
-                        <button class="btn btn-outline-primary"
+                        <button class="btn btn-primary"
                                 type="submit">
                             <i class="bi bi-send mr-1"></i> Send Reply
                         </button>
@@ -165,10 +175,12 @@
                 </div>
             </div>
 
-            <div class="card shadow-sm mt-3">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h3 class="card-title mb-0">Previous Replies</h3>
-                    <span class="badge badge-secondary badge-pill">{{ $message->replies->count() }}</span>
+            <div class="card shadow mt-3">
+                <div class="card-header border-bottom-0">
+                    <h3 class="card-title">Previous Replies</h3>
+                    <div class="card-tools">
+                        <span class="badge badge-secondary">{{ $message->replies->count() }}</span>
+                    </div>
                 </div>
                 <div class="card-body">
                     @forelse ($message->replies as $reply)
@@ -176,8 +188,8 @@
                             <div class="d-flex align-items-center justify-content-between">
                                 <strong>{{ $reply->subject }}</strong>
                                 <span
-                                      class="badge badge-{{ ['draft' => 'secondary', 'sent' => 'success', 'failed' => 'danger'][$reply->status] ?? 'secondary' }} badge-pill">
-                                    {{ strtoupper($reply->status) }}
+                                      class="badge badge-{{ ContactReplyStatus::from($reply->status)->color() }} badge-pill">
+                                    {{ ContactReplyStatus::from($reply->status)->label() }}
                                 </span>
                             </div>
                             <div class="small text-muted mb-1">
@@ -186,7 +198,7 @@
                                 by {{ $reply->admin?->name ?? '-' }}
                             </div>
                             <div class="small"
-                                 style="white-space: pre-wrap">{{ \Illuminate\Support\Str::limit($reply->body, 400) }}
+                                 style="white-space: pre-wrap">{!! str()->limit($reply->body, 400) !!}
                             </div>
                             @if ($reply->status === 'failed' && $reply->error_message)
                                 <div class="text-danger small mt-1">Error: {{ $reply->error_message }}</div>
@@ -201,35 +213,7 @@
     </div>
 @endsection
 
-@section('styles')
-    <style>
-        .section-label {
-            text-transform: uppercase;
-            letter-spacing: .06em;
-            font-size: .75rem;
-            color: #6c757d;
-            font-weight: 600;
-        }
-
-        .kv-table th {
-            text-transform: uppercase;
-            letter-spacing: .04em;
-            font-size: .75rem;
-            color: #6c757d;
-            padding-right: .75rem;
-            vertical-align: middle !important;
-            width: 40%;
-            white-space: nowrap;
-        }
-
-        .kv-table td {
-            vertical-align: middle !important;
-        }
-    </style>
-@endsection
-
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const editorEl = document.getElementById('reply-body-editor');

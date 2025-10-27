@@ -55,7 +55,7 @@ class UserRequest extends FormRequest
                     'string',
                     'min:10',
                     'max:15',
-                    'starts_with:62',
+                    'starts_with:62,+62,08',
                 ],
                 'sex' => [
                     'nullable',
@@ -100,7 +100,7 @@ class UserRequest extends FormRequest
                     'string',
                     'min:10',
                     'max:15',
-                    'starts_with:62',
+                    'starts_with:62,+62,08',
                 ],
                 'sex' => [
                     'nullable',
@@ -120,7 +120,6 @@ class UserRequest extends FormRequest
         } else {
             return [];
         }
-
     }
 
     /**

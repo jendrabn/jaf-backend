@@ -10,9 +10,9 @@ use App\Models\ProductBrand;
 use App\Models\ProductCategory;
 use App\Traits\MediaUploadingTrait;
 use App\Traits\QuillUploadImage;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Http\JsonResponse;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -63,7 +63,7 @@ class ProductController extends Controller
         $product = Product::create($request->validated());
 
         foreach ($request->input('images', []) as $file) {
-            $product->addMedia(storage_path('tmp/uploads/' . basename($file)))->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
+            $product->addMedia(storage_path('tmp/uploads/'.basename($file)))->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
         }
 
         if ($media = $request->input('ck-media', false)) {
@@ -99,7 +99,7 @@ class ProductController extends Controller
         $media = $product->images->pluck('file_name')->toArray();
         foreach ($request->input('images', []) as $file) {
             if (count($media) === 0 || ! in_array($file, $media)) {
-                $product->addMedia(storage_path('tmp/uploads/' . basename($file)))->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
+                $product->addMedia(storage_path('tmp/uploads/'.basename($file)))->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
             }
         }
 
@@ -130,7 +130,7 @@ class ProductController extends Controller
             extra: [
                 'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' products.'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' products.'],
             ],
             subjectId: null,
             subjectType: \App\Models\Product::class

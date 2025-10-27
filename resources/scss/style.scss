@@ -114,15 +114,6 @@ div.dt-button-collection {
     font-weight: bolder;
 }
 
-// Custom
-.nav-pills .nav-link {
-    border-radius: 0 !important;
-}
-
-// .btn {
-//     border-radius: 0 !important;
-// }
-
 .promo-type-card {
     transition: all 0.3s ease;
     border: 2px solid #e9ecef;
@@ -284,4 +275,45 @@ div.dt-button-collection {
     .gap-#{$i} {
         gap: $i * 0.25rem !important;
     }
+}
+
+// rounded 1-5
+@for $i from 1 through 5 {
+    .rounded-#{$i} {
+        border-radius: $i * 0.25rem !important;
+    }
+}
+
+.section-label {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.75rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.kv-table th {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
+    color: #6c757d;
+    padding-right: 0.75rem;
+    vertical-align: middle !important;
+    width: 40%;
+    white-space: nowrap;
+}
+
+.kv-table td {
+    vertical-align: middle !important;
+}
+
+.kv-table th,
+.kv-table td {
+    padding: 0.4rem 0.25rem;
+}
+
+pre {
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }

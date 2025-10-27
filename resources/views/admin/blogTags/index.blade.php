@@ -14,7 +14,7 @@
 @section('content')
     <div class="card shadow-lg">
         <div class="card-body">
-            {!! $dataTable->table(['class' => 'table table-bordered table-striped w-100'], true) !!}
+            {!! $dataTable->table(['class' => 'table table-bordered mt-3 table-striped w-100'], true) !!}
         </div>
     </div>
 
@@ -49,30 +49,39 @@
                     return;
                 }
 
-                if (!confirm('Delete selected tags?')) {
-                    return;
-                }
-
-                $.ajax({
-                    url: "{{ route('admin.blog-tags.massDestroy') }}",
-                    method: 'POST',
-                    data: {
-                        ids: ids,
-                        _method: 'DELETE',
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        dt.ajax.reload(null, false);
-                        if (window.toastr) {
-                            toastr.success(response?.message ?? 'Deleted successfully.');
-                        }
-                    },
-                    error: function() {
-                        if (window.toastr) {
-                            toastr.error('Delete failed.');
-                        }
+                Swal.fire({
+                    title: 'Delete selected?',
+                    text: 'Selected blog tags will be deleted.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-trash3 mr-1"></i> Delete',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('admin.blog-tags.massDestroy') }}",
+                            method: 'POST',
+                            data: {
+                                ids: ids,
+                                _method: 'DELETE',
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                dt.ajax.reload(null, false);
+                                if (window.toastr) {
+                                    toastr.success(response?.message ??
+                                        'Deleted successfully.');
+                                }
+                            },
+                            error: function() {
+                                if (window.toastr) {
+                                    toastr.error('Delete failed.');
+                                }
+                            }
+                        });
                     }
-                });
+                })
+
+
             }
         };
     </script>
@@ -149,31 +158,38 @@
             });
 
             $(document).on('click', '.btn-delete-blog-tag', function() {
-                if (!confirm('Delete this tag?')) {
-                    return;
-                }
+                Swal.fire({
+                    title: 'Delete?',
+                    text: 'This blog tag will be deleted.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-trash3 mr-1"></i> Delete',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const url = $(this).data('url');
 
-                const url = $(this).data('url');
-
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: {
-                        _method: 'DELETE',
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        table.ajax.reload(null, false);
-                        if (window.toastr) {
-                            toastr.success(response?.message ?? 'Deleted successfully.');
-                        }
-                    },
-                    error: function() {
-                        if (window.toastr) {
-                            toastr.error('Delete failed.');
-                        }
+                        $.ajax({
+                            url: url,
+                            method: 'POST',
+                            data: {
+                                _method: 'DELETE',
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                table.ajax.reload(null, false);
+                                if (window.toastr) {
+                                    toastr.success(response?.message ??
+                                        'Deleted successfully.');
+                                }
+                            },
+                            error: function() {
+                                if (window.toastr) {
+                                    toastr.error('Delete failed.');
+                                }
+                            }
+                        });
                     }
-                });
+                })
             });
         });
     </script>

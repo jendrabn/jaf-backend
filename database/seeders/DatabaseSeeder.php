@@ -14,13 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
         File::cleanDirectory(storage_path('app/public'));
 
         $this->call([
@@ -31,7 +24,7 @@ class DatabaseSeeder extends Seeder
             CourierSeeder::class,
         ]);
 
-        $admin =  User::create([
+        $admin = User::create([
             'name' => 'Admin',
             'email' => 'admin@mail.com',
             'password' => 'password',
@@ -39,7 +32,7 @@ class DatabaseSeeder extends Seeder
 
         $admin->givePermissionTo(\Spatie\Permission\Models\Permission::all());
 
-        $user =   User::create([
+        $user = User::create([
             'name' => 'User',
             'email' => 'user@mail.com',
             'password' => 'password',

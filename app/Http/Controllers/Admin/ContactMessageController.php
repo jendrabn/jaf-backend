@@ -47,9 +47,9 @@ class ContactMessageController extends Controller
 
         $message->save();
 
-        return redirect()
-            ->back()
-            ->with('success', 'Pesan berhasil diperbarui.');
+        toastr('Message status updated successfully.', 'success');
+
+        return redirect()->back();
     }
 
     public function massDestroy(ContactMessageRequest $request): JsonResponse

@@ -1,5 +1,5 @@
 <div class="d-flex gap-1">
-    <button class="btn btn-default btn-sm btn-edit-blog-category"
+    <button class="btn btn-info btn-sm btn-edit-blog-category"
             data-placement="top"
             data-toggle="tooltip"
             data-url="{{ route('admin.blog-categories.edit', $id) }}"

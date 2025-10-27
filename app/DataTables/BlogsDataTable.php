@@ -35,7 +35,7 @@ class BlogsDataTable extends DataTable
                 $tags = [];
 
                 $row->tags->each(function ($tag) use (&$tags) {
-                    $tags[] = '<span class="badge badge-info rounded-0">'.$tag->name.'</span>';
+                    $tags[] = '<span class="badge badge-info rounded-0">' . $tag->name . '</span>';
                 });
 
                 return implode(' ', $tags);
@@ -55,21 +55,21 @@ class BlogsDataTable extends DataTable
 
         $model->when(
             request()->filled('blog_category_id'),
-            fn ($q) => $q->where('blog_category_id', request('blog_category_id'))
+            fn($q) => $q->where('blog_category_id', request('blog_category_id'))
         );
         $model->when(
             request()->filled('user_id'),
-            fn ($q) => $q->where('user_id', request('user_id'))
+            fn($q) => $q->where('user_id', request('user_id'))
         );
 
         $model->when(
             request()->filled('blog_tag_id'),
-            fn ($q) => $q->whereHas('tags', fn ($q) => $q->where('blog_tag_id', request('blog_tag_id')))
+            fn($q) => $q->whereHas('tags', fn($q) => $q->where('blog_tag_id', request('blog_tag_id')))
         );
 
         $model->when(
             request()->filled('is_publish'),
-            fn ($q) => $q->where('is_publish', request('is_publish'))
+            fn($q) => $q->where('is_publish', request('is_publish'))
         );
 
         return $model;
@@ -87,33 +87,41 @@ class BlogsDataTable extends DataTable
             ->orderBy(1)
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
-                    ->text('<i class="bi bi-plus-circle me-1"></i> Create Blog'),
+                    ->text('<i class="bi bi-plus-circle mr-1"></i> Create Blog'),
                 Button::make('selectAll')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                    ->text('<i class="bi bi-check2-all mr-1"></i> Select All'),
                 Button::make('selectNone')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                    ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                    ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
-                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
+                    ->text('<i class="bi bi-trash3 mr-1"></i> Delete Selected'),
                 Button::make('filter')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-funnel me-1"></i> Filter'),
+                    ->text('<i class="bi bi-funnel mr-1"></i> Filter'),
             ])
             ->ajax([
                 'data' => 'function (data) {
@@ -132,37 +140,54 @@ class BlogsDataTable extends DataTable
         return [
             Column::checkbox('&nbsp;')
                 ->searchable(false)
-                ->orderable(false)
-                ->width(35),
+                ->orderable(false),
 
             Column::make('id')
-                ->title('ID'),
+                ->title('ID')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::computed('featured_image')
-                ->title('IMAGE'),
+                ->title('IMAGE')
+                ->exportable(false)
+                ->printable(false)
+                ->orderable(false)
+                ->searchable(false),
 
             Column::make('title')
-                ->title('TITLE'),
+                ->title('TITLE')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('slug')
                 ->title('SLUG')
                 ->visible(false),
 
             Column::make('author.name')
-                ->title('AUTHOR'),
+                ->title('AUTHOR')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::computed('is_publish')
-                ->title('PUBLISHED'),
+                ->title('PUBLISHED')
+                ->orderable(false)
+                ->searchable(false)
+                ->exportable(false)
+                ->printable(false),
 
             Column::make('category.name')
-                ->title('CATEGORY'),
+                ->title('CATEGORY')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('tags')
                 ->title('TAG(S)')
                 ->visible(false),
 
             Column::make('views_count')
-                ->title('VIEWS COUNT'),
+                ->title('VIEWS COUNT')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('min_read')
                 ->title('MIN READ')
@@ -170,11 +195,15 @@ class BlogsDataTable extends DataTable
 
             Column::make('created_at')
                 ->title('DATE & TIME CREATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('updated_at')
                 ->title('DATE & TIME UPDATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::computed('action')
                 ->title('ACTION')
@@ -188,7 +217,6 @@ class BlogsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Blog_'.date('dmY');
+        return 'Blog_' . date('dmY');
     }
 }
-

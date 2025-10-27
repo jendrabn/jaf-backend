@@ -2,44 +2,36 @@
 
 namespace App\Enums;
 
-enum CampaignReceiptStatus: string
+enum ContactReplyStatus: string
 {
-    case Queued = 'queued';
+    case Draft = 'draft';
     case Sent = 'sent';
     case Failed = 'failed';
-    case Opened = 'opened';
-    case Clicked = 'clicked';
 
     public function label(): string
     {
         return match ($this) {
-            self::Queued => 'Queued',
+            self::Draft => 'Draft',
             self::Sent => 'Sent',
             self::Failed => 'Failed',
-            self::Opened => 'Opened',
-            self::Clicked => 'Clicked',
         };
     }
 
     public function color(): string
     {
         return match ($this) {
-            self::Queued => 'secondary',
+            self::Draft => 'secondary',
             self::Sent => 'success',
             self::Failed => 'danger',
-            self::Opened => 'info',
-            self::Clicked => 'primary',
         };
     }
 
     public function icon(): string
     {
         return match ($this) {
-            self::Queued => 'clock',
+            self::Draft => 'pencil-square',
             self::Sent => 'envelope-paper',
             self::Failed => 'x-circle',
-            self::Opened => 'envelope-open',
-            self::Clicked => 'cursor-click',
         };
     }
 }

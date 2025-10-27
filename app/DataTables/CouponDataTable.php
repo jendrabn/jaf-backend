@@ -27,9 +27,9 @@ class CouponDataTable extends DataTable
             })
             ->editColumn('discount_amount', function ($coupon) {
                 if ($coupon->discount_type == 'fixed') {
-                    return formatRupiah($coupon->discount_amount).'(Flat)';
+                    return formatIDR($coupon->discount_amount) . '(Flat)';
                 } elseif ($coupon->discount_type == 'percentage') {
-                    return $coupon->discount_amount.'%';
+                    return $coupon->discount_amount . '%';
                 } else {
                     return null;
                 }
@@ -60,30 +60,38 @@ class CouponDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
-                    ->text('<i class="bi bi-plus-circle me-1"></i> Create Coupon'),
+                    ->text('<i class="bi bi-plus-circle mr-1"></i> Create Coupon'),
                 Button::make('selectAll')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                    ->text('<i class="bi bi-check2-all mr-1"></i> Select All'),
                 Button::make('selectNone')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                    ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                    ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
-                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
+                    ->text('<i class="bi bi-trash3 mr-1"></i> Delete Selected'),
             ]);
     }
 
@@ -95,56 +103,81 @@ class CouponDataTable extends DataTable
         return [
             Column::checkbox('&nbsp;')
                 ->exportable(false)
-                ->printable(false)
-                ->width(30),
+                ->printable(false),
 
             Column::make('id')
                 ->title('ID')
-                ->width(30),
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('name')
-                ->title('NAME'),
+                ->title('NAME')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('code')
-                ->title('CODE'),
+                ->title('CODE')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('discount_amount')
-                ->title('DISCOUNT (%/FLAT)'),
+                ->title('DISCOUNT (%/FLAT)')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('promo_type')
-                ->title('PROMO TYPE'),
+                ->title('PROMO TYPE')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('limit')
-                ->title('LIMIT'),
+                ->title('LIMIT')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('limit_per_user')
-                ->title('LIMIT PER USER'),
+                ->title('LIMIT PER USER')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('start_date')
-                ->title('VALID FROM'),
+                ->title('VALID FROM')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('end_date')
-                ->title('VALID UNTIL'),
+                ->title('VALID UNTIL')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::computed('available_coupons')
-                ->title('AVAILABLE COUPONS'),
+                ->title('AVAILABLE COUPONS')
+                ->orderable(false)
+                ->searchable(false)
+                ->exportable(false)
+                ->printable(false),
 
             Column::make('is_active')
-                ->title('STATUS'),
+                ->title('STATUS')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('created_at')
                 ->title('DATE & TIME CREATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('updated_at')
                 ->title('DATE & TIME UPDATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::computed('action')
                 ->title('ACTION')
                 ->exportable(false)
-                ->printable(false)
-                ->width(60),
+                ->printable(false),
         ];
     }
 
@@ -153,7 +186,6 @@ class CouponDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Coupon_'.date('YmdHis');
+        return 'Coupon_' . date('YmdHis');
     }
 }
-

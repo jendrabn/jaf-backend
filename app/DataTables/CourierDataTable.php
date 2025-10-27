@@ -22,9 +22,9 @@ class CourierDataTable extends DataTable
             ->addColumn('is_active', function ($courier) {
                 return '
                     <div class="custom-control custom-switch">
-                        <input type="checkbox" data-url="'.route('admin.couriers.update', $courier->id).'" class="custom-control-input toggle-status" id="courier-'.$courier->id.'" data-id="'.$courier->id.'" '.($courier->is_active ? 'checked' : '').'>
-                        <label class="custom-control-label font-weight-normal" for="courier-'.$courier->id.'">
-                            '.($courier->is_active ? 'Active' : 'Inactive').'
+                        <input type="checkbox" data-url="' . route('admin.couriers.update', $courier->id) . '" class="custom-control-input toggle-status" id="courier-' . $courier->id . '" data-id="' . $courier->id . '" ' . ($courier->is_active ? 'checked' : '') . '>
+                        <label class="custom-control-label font-weight-normal" for="courier-' . $courier->id . '">
+                            ' . ($courier->is_active ? 'Active' : 'Inactive') . '
                         </label>
                     </div>
                ';
@@ -50,6 +50,14 @@ class CourierDataTable extends DataTable
             ->setTableId('courier-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->selectStyleSingle()
@@ -64,13 +72,18 @@ class CourierDataTable extends DataTable
         return [
             Column::make('id')
                 ->title('ID')
-                ->width(35),
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('name')
                 ->title('NAME'),
 
             Column::computed('is_active')
-                ->title('STATUS'),
+                ->title('STATUS')
+                ->orderable(false)
+                ->searchable(false)
+                ->exportable(false)
+                ->printable(false),
         ];
     }
 
@@ -79,6 +92,6 @@ class CourierDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Courier_'.date('YmdHis');
+        return 'Courier_' . date('YmdHis');
     }
 }

@@ -34,6 +34,8 @@
           rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
           rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"
+          rel="stylesheet" />
     @vite('resources/scss/style.scss')
     @yield('styles')
     @stack('styles')
@@ -111,6 +113,8 @@
     <script
             src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js">
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
 
@@ -121,6 +125,8 @@
                     confirmButton: "btn btn-primary",
                     cancelButton: "btn btn-secondary",
                 },
+                cancelButtonText: '<i class="bi bi-x-circle mr-1"></i> Cancel',
+                theme: 'bootstrap-4'
             });
 
             toastr.options = {

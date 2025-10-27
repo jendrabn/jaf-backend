@@ -13,99 +13,93 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-md-12">
-            <form action="{{ route('admin.campaigns.store') }}"
-                  method="POST">
-                @csrf
+    <div class="card shadow-lg">
+        <form action="{{ route('admin.campaigns.store') }}"
+              method="POST">
+            @csrf
+            <div class="card-header border-bottom-0">
+                <div class="card-tools">
+                    <a class="btn btn-default"
+                       href="{{ route('admin.campaigns.index') }}">
+                        <i class="bi bi-arrow-left mr-1"></i> Back to list
+                    </a>
+                </div>
+            </div>
 
-                <div class="card shadow-lg">
-                    <div class="card-header">
-                        <div class="card-tools">
-                            <a class="btn btn-default"
-                               href="{{ route('admin.campaigns.index') }}">
-                                <i class="bi bi-arrow-left mr-1"></i>Back to list
-                            </a>
-                        </div>
+            <div class="card-body">
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label class="required">Name</label>
+                        <input autofocus
+                               class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                               name="name"
+                               required
+                               type="text"
+                               value="{{ old('name') }}">
+                        @if ($errors->has('name'))
+                            <div class="invalid-feedback">{{ $errors->first('name') }}</div>
+                        @endif
                     </div>
 
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label class="required">Name</label>
-                                <input autofocus
-                                       class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
-                                       name="name"
-                                       required
-                                       type="text"
-                                       value="{{ old('name') }}">
-                                @if ($errors->has('name'))
-                                    <div class="invalid-feedback">{{ $errors->first('name') }}</div>
-                                @endif
-                            </div>
-
-                            <div class="form-group col-md-6">
-                                <label class="required">Subject</label>
-                                <input class="form-control {{ $errors->has('subject') ? 'is-invalid' : '' }}"
-                                       name="subject"
-                                       required
-                                       type="text"
-                                       value="{{ old('subject') }}">
-                                @if ($errors->has('subject'))
-                                    <div class="invalid-feedback">{{ $errors->first('subject') }}</div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Scheduled At</label>
-                            <input class="form-control {{ $errors->has('scheduled_at') ? 'is-invalid' : '' }}"
-                                   name="scheduled_at"
-                                   type="datetime-local"
-                                   value="{{ old('scheduled_at') }}">
-                            @if ($errors->has('scheduled_at'))
-                                <div class="invalid-feedback">{{ $errors->first('scheduled_at') }}</div>
-                            @endif
-                        </div>
-
-                        <div class="form-group">
-                            <label class="required d-block">Content</label>
-                            <div id="campaign-editor"
-                                 style="min-height: 200px; border: 1px solid #ced4da; border-radius: .25rem;"></div>
-                            <input accept="image/*"
-                                   class="d-none"
-                                   id="quill-image-input"
-                                   type="file">
-                            <textarea class="d-none"
-                                      id="campaign-content"
-                                      name="content">{!! old('content') !!}</textarea>
-                            @if ($errors->has('content'))
-                                <div class="invalid-feedback d-block">{{ $errors->first('content') }}</div>
-                            @endif
-                            <small class="text-muted d-block mt-1">
-                                Email content uses Quill editor. HTML will be saved and sent to subscribers.
-                            </small>
-                        </div>
-                    </div>
-
-                    <div class="card-footer d-flex justify-content-end">
-                        <a class="btn btn-light mr-2"
-                           href="{{ route('admin.campaigns.index') }}">
-                            <i class="bi bi-x-circle mr-1"></i>Cancel
-                        </a>
-                        <button class="btn btn-primary"
-                                type="submit">
-                            <i class="bi bi-check2-circle mr-1"></i>Save
-                        </button>
+                    <div class="form-group col-md-6">
+                        <label class="required">Subject</label>
+                        <input class="form-control {{ $errors->has('subject') ? 'is-invalid' : '' }}"
+                               name="subject"
+                               required
+                               type="text"
+                               value="{{ old('subject') }}">
+                        @if ($errors->has('subject'))
+                            <div class="invalid-feedback">{{ $errors->first('subject') }}</div>
+                        @endif
                     </div>
                 </div>
-            </form>
-        </div>
+
+                <div class="form-group col-md-6">
+                    <label>Scheduled At</label>
+                    <input class="form-control {{ $errors->has('scheduled_at') ? 'is-invalid' : '' }}"
+                           name="scheduled_at"
+                           type="datetime-local"
+                           value="{{ old('scheduled_at') }}">
+                    @if ($errors->has('scheduled_at'))
+                        <div class="invalid-feedback">{{ $errors->first('scheduled_at') }}</div>
+                    @endif
+                </div>
+
+                <div class="form-group">
+                    <label class="required d-block">Content</label>
+                    <div id="campaign-editor"
+                         style="min-height: 200px; border: 1px solid #ced4da; border-radius: .25rem;"></div>
+                    <input accept="image/*"
+                           class="d-none"
+                           id="quill-image-input"
+                           type="file">
+                    <textarea class="d-none"
+                              id="campaign-content"
+                              name="content">{!! old('content') !!}</textarea>
+                    @if ($errors->has('content'))
+                        <div class="invalid-feedback d-block">{{ $errors->first('content') }}</div>
+                    @endif
+                    <small class="text-muted d-block mt-1">
+                        Email content uses Quill editor. HTML will be saved and sent to subscribers.
+                    </small>
+                </div>
+            </div>
+
+            <div class="card-footer border-top-0 gap-2 d-flex justify-content-end">
+                <a class="btn btn-light"
+                   href="{{ route('admin.campaigns.index') }}">
+                    <i class="bi bi-x-circle mr-1"></i> Cancel
+                </a>
+                <button class="btn btn-primary"
+                        type="submit">
+                    <i class="bi bi-save mr-1"></i> Save
+                </button>
+            </div>
+        </form>
     </div>
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const editorEl = document.getElementById('campaign-editor');

@@ -18,7 +18,7 @@
             <div class="card shadow-lg">
                 <div class="card-body">
                     <div class="table-responsive">
-                        {{ $dataTable->table(['class' => 'table table-striped table-bordered datatable ajaxTable']) }}
+                        {{ $dataTable->table(['class' => 'table table-striped table-bordered datatable ajaxTable mt-3']) }}
                     </div>
                 </div>
             </div>

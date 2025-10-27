@@ -20,7 +20,6 @@ class AuditLogDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            // === Kolom tampilan (computed / edit) ===
             ->addColumn('event_badge', function (AuditLog $row) {
                 $map = [
                     'created' => 'success',
@@ -77,10 +76,6 @@ class AuditLogDataTable extends DataTable
                 return "<span class='badge bg-light'>{$count}</span>";
             })
 
-            ->editColumn('created_at', function (AuditLog $row) {
-                return optional($row->created_at)->format('d-m-Y H:i:s');
-            })
-
             // Action tombol (lihat/hapus dkk)
             ->addColumn('action', 'admin.auditlogs.partials.action')
 
@@ -132,7 +127,7 @@ class AuditLogDataTable extends DataTable
             ->setTableId('auditlog-datatable')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(1, 'desc') // default: created_at desc (lihat indeks kolom di getColumns)
+            ->orderBy(1, 'desc')
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
             ->parameters([
@@ -148,32 +143,31 @@ class AuditLogDataTable extends DataTable
             ->buttons([
                 Button::make('selectAll')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                    ->text('<i class="bi bi-check2-all mr-1"></i> Select All'),
                 Button::make('selectNone')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                    ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
                 Button::make('colvis')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                    ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
                 Button::make('copy')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-clipboard-check me-1"></i> Copy'),
+                    ->text('<i class="bi bi-clipboard-check mr-1"></i> Copy'),
                 Button::make('csv')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-filetype-csv me-1"></i> CSV'),
+                    ->text('<i class="bi bi-filetype-csv mr-1"></i> CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
-                // removed built-in print button per project conventions
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
-                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
+                    ->text('<i class="bi bi-trash3 mr-1"></i> Delete Selected'),
             ]);
     }
 
@@ -185,10 +179,12 @@ class AuditLogDataTable extends DataTable
         return [
             Column::checkbox('&nbsp;')
                 ->exportable(false)
-                ->printable(false)
-                ->width(10),
+                ->printable(false),
 
-            Column::make('id')->title('ID')->width(60),
+            Column::make('id')
+                ->title('ID')
+                ->searchable(true)
+                ->orderable(true),
 
             Column::computed('event_badge')
                 ->title('EVENT')
@@ -220,7 +216,15 @@ class AuditLogDataTable extends DataTable
                 ->addClass('text-nowrap'),
 
             Column::make('created_at')
-                ->title('DATE & TIME CREATED'),
+                ->title('DATE & TIME CREATED')
+                ->searchable(false)
+                ->orderable(true),
+
+            Column::make('updated_at')
+                ->title('DATE & TIME UPDATED')
+                ->visible(false)
+                ->searchable(false)
+                ->orderable(true),
 
             Column::computed('action')
                 ->title('ACTION')
@@ -234,7 +238,6 @@ class AuditLogDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'AuditLog_'.date('YmdHis');
+        return 'AuditLog_' . date('YmdHis');
     }
 }
-

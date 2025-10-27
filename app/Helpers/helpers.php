@@ -123,7 +123,7 @@ if (! function_exists('audit_log')) {
     if (! function_exists('badgeLabel')) {
         function badgeLabel(string $label, string $color): string
         {
-            return '<span class="badge badge-' . e($color) . '">' . e($label) . '</span>';
+            return '<span class="badge m-1 badge-' . e($color) . '">' . e($label) . '</span>';
         }
     }
 
@@ -131,6 +131,14 @@ if (! function_exists('audit_log')) {
         function formatIDR(int $number): string
         {
             return 'Rp ' . number_format($number, 0, ',', '.');
+        }
+    }
+
+    // Date time format d-m-Y H:i
+    if (! function_exists('formatDateTime')) {
+        function formatDateTime(?\DateTimeInterface $dt): string
+        {
+            return $dt ? $dt->format('d-m-Y H:i') : '';
         }
     }
 }

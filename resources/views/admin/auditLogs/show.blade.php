@@ -86,127 +86,114 @@
 @endphp
 
 @section('content')
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card shadow-lg">
-                <div class="card-header">
-                    <div class="card-tools">
-                        <a class="btn btn-default"
-                           href="{{ route('admin.audit-logs.index') }}">
-                            <i class="bi bi-arrow-left me-1"></i> Back to list
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        <tbody>
-                            <tr>
-                                <th style="width:260px">ID</th>
-                                <td>{{ $auditLog->id }}</td>
-                            </tr>
-                            <tr>
-                                <th>Event</th>
-                                <td>{{ strtoupper($event ?? 'UNKNOWN') }}</td>
-                            </tr>
-                            <tr>
-                                <th>Description</th>
-                                <td>{{ $auditLog->description ?? '—' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Subject</th>
-                                <td><code>{{ $subjectType ?? '—' }}#{{ $auditLog->subject_id ?? '—' }}</code></td>
-                            </tr>
-                            <tr>
-                                <th>Subject Type</th>
-                                <td>{{ $auditLog->subject_type ?? '—' }}</td>
-                            </tr>
-                            <tr>
-                                <th>User</th>
-                                <td>
-                                    @if ($auditLog->user)
-                                        {{ $auditLog->user->name ?? 'User' }}
-                                        (ID: {{ $auditLog->user_id }}, {{ $auditLog->user->email ?? '—' }})
-                                    @else
-                                        System
-                                    @endif
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Request ID</th>
-                                <td>{{ $auditLog->request_id ?? '—' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Method · IP/Host</th>
-                                <td>{{ strtoupper($auditLog->method ?? '—') }} ·
-                                    {{ $auditLog->ip ?? ($auditLog->host ?? '—') }}</td>
-                            </tr>
-                            <tr>
-                                <th>URL</th>
-                                <td class="text-break">{{ $auditLog->url ?? '—' }}</td>
-                            </tr>
-                            <tr>
-                                <th>User Agent</th>
-                                <td class="text-break">{{ $auditLog->user_agent ?? '—' }}</td>
-                            </tr>
-                            <tr>
-                                <th>Route</th>
-                                <td>{{ data_get($auditLog->meta, 'route', '—') }}</td>
-                            </tr>
-                            <tr>
-                                <th>Action</th>
-                                <td>{{ data_get($auditLog->meta, 'action', '—') }}</td>
-                            </tr>
-                            <tr>
-                                <th>Created At</th>
-                                <td>{{ optional($auditLog->created_at)->format('d-m-Y H:i:s') }}</td>
-                            </tr>
-                            <tr>
-                                <th>Changed Fields</th>
-                                <td>
-                                    @if ($changedCount > 0)
-                                        {{ $changedText }} ({{ $changedCount }})
-                                    @else
-                                        —
-                                    @endif
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Before</th>
-                                <td>
-                                    <pre class="mb-0 small">{{ $pretty($auditLog->before) }}</pre>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>After</th>
-                                <td>
-                                    <pre class="mb-0 small">{{ $pretty($auditLog->after) }}</pre>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Meta</th>
-                                <td>
-                                    <pre class="mb-0 small">{{ $pretty($auditLog->meta) }}</pre>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>Properties (Legacy)</th>
-                                <td>
-                                    <pre class="mb-0 small">{{ $pretty($auditLog->properties) }}</pre>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div> {{-- /card-body --}}
+    <div class="card shadow-lg">
+        <div class="card-header border-bottom-0">
+            <div class="card-tools">
+                <a class="btn btn-default"
+                   href="{{ route('admin.audit-logs.index') }}">
+                    <i class="bi bi-arrow-left mr-1"></i> Back to list
+                </a>
             </div>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>ID</th>
+                        <td>{{ $auditLog->id }}</td>
+                    </tr>
+                    <tr>
+                        <th>Event</th>
+                        <td>{{ strtoupper($event ?? 'UNKNOWN') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{{ $auditLog->description ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Subject</th>
+                        <td><code>{{ $subjectType ?? '—' }}#{{ $auditLog->subject_id ?? '—' }}</code></td>
+                    </tr>
+                    <tr>
+                        <th>Subject Type</th>
+                        <td>{{ $auditLog->subject_type ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>User</th>
+                        <td>
+                            @if ($auditLog->user)
+                                {{ $auditLog->user->name ?? 'User' }}
+                                (ID: {{ $auditLog->user_id }}, {{ $auditLog->user->email ?? '—' }})
+                            @else
+                                System
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Request ID</th>
+                        <td>{{ $auditLog->request_id ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Method · IP/Host</th>
+                        <td>{{ strtoupper($auditLog->method ?? '—') }} ·
+                            {{ $auditLog->ip ?? ($auditLog->host ?? '—') }}</td>
+                    </tr>
+                    <tr>
+                        <th>URL</th>
+                        <td class="text-break">{{ $auditLog->url ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>User Agent</th>
+                        <td class="text-break">{{ $auditLog->user_agent ?? '—' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Route</th>
+                        <td>{{ data_get($auditLog->meta, 'route', '—') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Action</th>
+                        <td>{{ data_get($auditLog->meta, 'action', '—') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Created At</th>
+                        <td>{{ optional($auditLog->created_at)->format('d-m-Y H:i:s') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Changed Fields</th>
+                        <td>
+                            @if ($changedCount > 0)
+                                {{ $changedText }} ({{ $changedCount }})
+                            @else
+                                —
+                            @endif
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Before</th>
+                        <td>
+                            <pre class="mb-0 small">{{ $pretty($auditLog->before) }}</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>After</th>
+                        <td>
+                            <pre class="mb-0 small">{{ $pretty($auditLog->after) }}</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Meta</th>
+                        <td>
+                            <pre class="mb-0 small">{{ $pretty($auditLog->meta) }}</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Properties (Legacy)</th>
+                        <td>
+                            <pre class="mb-0 small">{{ $pretty($auditLog->properties) }}</pre>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 @endsection
-
-@push('styles')
-    <style>
-        pre {
-            max-height: 420px;
-            overflow: auto;
-        }
-    </style>
-@endpush

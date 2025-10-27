@@ -12,13 +12,13 @@ use App\Jobs\SendCampaignEmailJob;
 use App\Models\Campaign;
 use App\Models\CampaignReceipt;
 use App\Models\Subscriber;
+use App\Traits\QuillUploadImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
-use App\Traits\QuillUploadImage;
 
 /**
  * Admin Campaign Newsletter controller.
@@ -32,6 +32,7 @@ use App\Traits\QuillUploadImage;
 class CampaignController extends Controller
 {
     use QuillUploadImage;
+
     /**
      * Display a listing of the campaigns using Yajra DataTable.
      */
@@ -57,7 +58,7 @@ class CampaignController extends Controller
 
         toastr('Campaign created successfully', 'success');
 
-        return redirect()->route('admin.campaigns.edit', $campaign);
+        return redirect()->route('admin.campaigns.show', $campaign);
     }
 
     /**
@@ -103,6 +104,21 @@ class CampaignController extends Controller
         $campaign->delete();
 
         return response()->json(['message' => 'Campaign deleted successfully.'], Response::HTTP_OK);
+    }
+
+    /**
+     * Delete multiple campaigns at once.
+     */
+    public function massDestroy(Request $request): JsonResponse
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:campaigns,id',
+        ]);
+
+        Campaign::whereIn('id', $request->ids)->delete();
+
+        return response()->json(['message' => 'Campaigns deleted successfully.'], Response::HTTP_OK);
     }
 
     /**

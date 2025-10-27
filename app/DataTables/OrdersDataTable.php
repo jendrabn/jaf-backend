@@ -36,7 +36,7 @@ class OrdersDataTable extends DataTable
             ->editColumn('status', function ($row) {
                 $status = OrderStatus::from($row->status);
 
-                return badgeLabel($status->label(), $status->color());
+                return badgeLabel(strtoupper($status->label()), $status->color());
             })
             ->editColumn(
                 'amount',
@@ -44,7 +44,7 @@ class OrdersDataTable extends DataTable
             )
             ->editColumn(
                 'shipping',
-                fn($row) => $row->shipping ? strtoupper($row->shipping->courier) .  ($row->shipping->tracking_number ? ' - ' . $row->shipping->tracking_number : '') : ''
+                fn($row) => $row->shipping ? strtoupper($row->shipping->courier) . ($row->shipping->tracking_number ? ' - ' . $row->shipping->tracking_number : '') : ''
             )
             ->addColumn(
                 'payment_method',
@@ -100,33 +100,41 @@ class OrdersDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('selectAll')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                    ->text('<i class="bi bi-check2-all mr-1"></i> Select All'),
                 Button::make('selectNone')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                    ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                    ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
-                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
+                    ->text('<i class="bi bi-trash3 mr-1"></i> Delete Selected'),
                 Button::make('filter')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-funnel me-1"></i> Filter'),
+                    ->text('<i class="bi bi-funnel mr-1"></i> Filter'),
                 Button::make('printInvoice')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-printer me-1"></i> Print Invoice'),
+                    ->text('<i class="bi bi-printer mr-1"></i> Print Invoice'),
             ])
             ->ajax([
                 'data' => '
@@ -146,18 +154,23 @@ class OrdersDataTable extends DataTable
         return [
             Column::checkbox('&nbsp;')
                 ->exportable(false)
-                ->printable(false)
-                ->width(35),
+                ->printable(false),
 
             Column::make('id')
-                ->title('ID'),
+                ->title('ID')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('invoice.number', 'invoice.number')
                 ->title('INVOICE')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(false)
+                ->searchable(true),
 
             Column::make('name', 'user.name')
-                ->title('NAME'),
+                ->title('NAME')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('items', 'items.name')
                 ->title('PRODUCT(S)')
@@ -166,42 +179,53 @@ class OrdersDataTable extends DataTable
 
             Column::make('amount', 'invoice.amount')
                 ->title('AMOUNT')
+                ->orderable(true)
                 ->searchable(false),
 
             Column::make('payment_method', 'invoice.payment.method')
                 ->title('PAYMENT METHOD')
-                ->searchable(false),
+                ->orderable(false)
+                ->searchable(true),
 
             Column::make('shipping', 'shipping.tracking_number')
                 ->title('SHIPPING')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(false)
+                ->searchable(true),
 
             Column::make('status')
                 ->title('STATUS')
+                ->orderable(false)
                 ->searchable(false),
 
             Column::make('created_at')
                 ->title('DATE & TIME CREATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('updated_at')
                 ->title('DATE & TIME UPDATED')
                 ->visible(false)
+                ->orderable(true)
                 ->searchable(false),
 
             Column::make('confirmed_at')
                 ->title('DATE & TIME CONFIRMED')
                 ->visible(false)
+                ->orderable(true)
                 ->searchable(false),
 
             Column::make('completed_at')
                 ->title('DATE & TIME COMPLETED')
                 ->visible(false)
+                ->orderable(true)
                 ->searchable(false),
 
             Column::make('cancelled_at')
                 ->title('DATE & TIME CANCELLED')
                 ->visible(false)
+                ->orderable(true)
                 ->searchable(false),
 
             Column::computed('action')

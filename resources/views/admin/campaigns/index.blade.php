@@ -15,7 +15,7 @@
     <div class="card shadow-lg">
         <div class="card-body">
             <div class="table-responsive">
-                {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable']) }}
+                {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable mt-3']) }}
             </div>
         </div>
     </div>
@@ -26,7 +26,7 @@
         // Register DataTables custom button: bulkDelete before table initialization
         if ($.fn.dataTable && $.fn.dataTable.ext && $.fn.dataTable.ext.buttons) {
             $.fn.dataTable.ext.buttons.bulkDelete = {
-                text: '<i class="bi bi-trash3 me-1"></i> Delete Selected',
+                text: '<i class="bi bi-trash3 mr-1"></i> Delete Selected',
                 className: 'btn btn-danger',
                 action: function(e, dt, node, config) {
                     const rows = dt.rows({

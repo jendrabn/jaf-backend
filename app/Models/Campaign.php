@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\CampaignStatus;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -34,6 +35,11 @@ class Campaign extends Model
             'scheduled_at' => 'datetime',
             'sent_at' => 'datetime',
         ];
+    }
+
+    protected function serializeDate(DateTimeInterface $date): string
+    {
+        return $date->format('d-m-Y H:i:s');
     }
 
     /**

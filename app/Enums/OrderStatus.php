@@ -34,4 +34,16 @@ enum OrderStatus: string
             self::Cancelled => 'danger',
         };
     }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::PendingPayment => 'hourglass-split',
+            self::Pending => 'clock',
+            self::Processing => 'gear',
+            self::OnDelivery => 'truck',
+            self::Completed => 'check-circle',
+            self::Cancelled => 'x-circle',
+        };
+    }
 }

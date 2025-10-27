@@ -14,7 +14,7 @@
 @section('content')
     <div class="card">
         <div class="card-body">
-            {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable']) }}
+            {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable mt-3']) }}
         </div>
     </div>
 @endsection
@@ -49,7 +49,7 @@
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Delete",
+                    confirmButtonText: "<i class='bi bi-trash3'></i> Delete",
                     cancelButtonText: "Cancel",
                 }).then(function(result) {
 
@@ -92,7 +92,7 @@
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Delete",
+                    confirmButtonText: "<i class='bi bi-trash3'></i> Delete",
                     cancelButtonText: "Cancel",
                 }).then(function(result) {
 

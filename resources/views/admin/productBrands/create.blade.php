@@ -13,60 +13,56 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-md-12">
-            <form action="{{ route('admin.product-brands.store') }}"
-                  enctype="multipart/form-data"
-                  method="POST">
-                @csrf
+    <div class="card shadow-lg">
+        <form action="{{ route('admin.product-brands.store') }}"
+              enctype="multipart/form-data"
+              method="POST">
+            @csrf
 
-                <div class="card shadow-lg">
-                    <div class="card-header">
-                        <div class="card-tools">
-                            <a class="btn btn-default"
-                               href="{{ route('admin.product-brands.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to
-                                list</a>
-                        </div>
-                    </div>
-                    <div class="card-body">
-
-                        <div class="form-group">
-                            <label class="required">Name</label>
-                            <input autofocus
-                                   class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
-                                   name="name"
-                                   required
-                                   type="text"
-                                   value="{{ old('name') }}">
-                            @if ($errors->has('name'))
-                                <span class="invalid-feedback">{{ $errors->first('name') }}</span>
-                            @endif
-                        </div>
-
-                        <div class="form-group">
-                            <label>Logo</label>
-                            <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
-                                 id="logo-dropzone">
-                            </div>
-                            @if ($errors->has('logo'))
-                                <span class="text-danger">{{ $errors->first('logo') }}</span>
-                            @endif
-                        </div>
-
-                    </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <a class="btn btn-light mr-2"
-                           href="{{ route('admin.product-brands.index') }}">
-                            <i class="bi bi-x-circle mr-1"></i>Cancel
-                        </a>
-                        <button class="btn btn-primary"
-                                type="submit">
-                            <i class="bi bi-check2-circle mr-1"></i>Save
-                        </button>
-                    </div>
+            <div class="card-header border-bottom-0">
+                <div class="card-tools">
+                    <a class="btn btn-default"
+                       href="{{ route('admin.product-brands.index') }}"><i class="bi bi-arrow-left mr-1"></i> Back to
+                        list</a>
                 </div>
-            </form>
-        </div>
+            </div>
+
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="required">Name</label>
+                    <input autofocus
+                           class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                           name="name"
+                           required
+                           type="text"
+                           value="{{ old('name') }}">
+                    @if ($errors->has('name'))
+                        <span class="invalid-feedback">{{ $errors->first('name') }}</span>
+                    @endif
+                </div>
+
+                <div class="form-group">
+                    <label>Logo</label>
+                    <div class="needsclick dropzone {{ $errors->has('logo') ? 'is-invalid' : '' }}"
+                         id="logo-dropzone">
+                    </div>
+                    @if ($errors->has('logo'))
+                        <span class="text-danger">{{ $errors->first('logo') }}</span>
+                    @endif
+                </div>
+
+            </div>
+            <div class="card-footer border-top-0 d-flex gap-2 justify-content-end">
+                <a class="btn btn-light"
+                   href="{{ route('admin.product-brands.index') }}">
+                    <i class="bi bi-x-circle mr-1"></i> Cancel
+                </a>
+                <button class="btn btn-primary"
+                        type="submit">
+                    <i class="bi bi-save mr-1"></i> Save
+                </button>
+            </div>
+        </form>
     </div>
 @endsection
 

@@ -73,6 +73,7 @@ class OrderController extends Controller
                 ]);
                 $order->invoice->update(['status' => Invoice::STATUS_PAID]);
                 $order->invoice->payment->update(['status' => Payment::STATUS_RELEASED]);
+                $order->shipping->update(['status' => Shipping::STATUS_PROCESSING]);
             }
 
             if ($validatedData['action'] === 'reject') {
@@ -82,7 +83,7 @@ class OrderController extends Controller
                 ]);
                 $order->invoice->update(['status' => Invoice::STATUS_UNPAID]);
                 $order->invoice->payment->update(['status' => Payment::STATUS_CANCELLED]);
-                $order->items->each(fn($item) => $item->product->increment('stock', $item->quantity));
+                $order->items->each(fn ($item) => $item->product->increment('stock', $item->quantity));
             }
         }, 3);
 
@@ -108,7 +109,7 @@ class OrderController extends Controller
         DB::transaction(function () use ($order, $validatedData) {
             $order->update(['status' => Order::STATUS_ON_DELIVERY]);
             $order->shipping->update([
-                'status' => Shipping::STATUS_PROCESSING,
+                'status' => Shipping::STATUS_SHIPPED,
                 'tracking_number' => $validatedData['tracking_number'],
             ]);
         }, 3);
@@ -144,7 +145,7 @@ class OrderController extends Controller
         ];
 
         $validated = $request->validate([
-            'status' => ['required', 'string', 'in:' . implode(',', $allowed)],
+            'status' => ['required', 'string', 'in:'.implode(',', $allowed)],
             'cancel_reason' => ['nullable', 'string', 'min:1', 'max:255', 'required_if:status,cancelled'],
             'tracking_number' => ['nullable', 'string', 'min:1', 'max:100', 'required_if:status,on_delivery'],
         ]);
@@ -269,7 +270,7 @@ class OrderController extends Controller
             extra: [
                 'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' orders.'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' orders.'],
             ],
             subjectId: null,
             subjectType: \App\Models\Order::class
@@ -308,8 +309,8 @@ class OrderController extends Controller
         $base64Pdf = base64_encode($pdf->output());
 
         $filename = $orders->count() > 1
-            ? $orders->map(fn($order) => $order->invoice->number)->join('_') . '.pdf'
-            : $orders->first()->invoice->number . '.pdf';
+            ? $orders->map(fn ($order) => $order->invoice->number)->join('_').'.pdf'
+            : $orders->first()->invoice->number.'.pdf';
 
         return response()->json(['data' => $base64Pdf, 'filename' => $filename], Response::HTTP_OK);
     }
@@ -362,7 +363,7 @@ class OrderController extends Controller
         } catch (\Throwable $e) {
             return response()->json([
                 'meta' => [
-                    'message' => 'Gagal mengambil data tracking: ' . $e->getMessage(),
+                    'message' => 'Gagal mengambil data tracking: '.$e->getMessage(),
                     'code' => 500,
                     'status' => 'error',
                 ],

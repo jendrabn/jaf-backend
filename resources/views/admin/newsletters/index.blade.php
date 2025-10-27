@@ -64,7 +64,7 @@
     <div class="card shadow-lg">
         <div class="card-body">
             <div class="table-responsive">
-                {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable']) }}
+                {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable mt-3']) }}
             </div>
         </div>
     </div>
@@ -145,7 +145,7 @@
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Delete",
+                    confirmButtonText: "<i class='bi bi-trash3'></i> Delete",
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -186,7 +186,7 @@
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Delete",
+                    confirmButtonText: "<i class='bi bi-trash3'></i> Delete",
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -262,7 +262,7 @@
 
             // Override the create button to open modal
             table.button().add(0, {
-                text: '<i class="bi bi-plus-circle me-1"></i> Add Subscriber',
+                text: '<i class="bi bi-plus-circle mr-1"></i> Add Subscriber',
                 className: 'btn btn-success',
                 action: function(e, dt, node, config) {
                     $('#createSubscriberModal').modal('show');

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\DataTables\RoleDataTable;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\RoleRequest;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -21,18 +21,15 @@ class RoleController extends Controller
         return view('admin.roles.create', compact('permissions'));
     }
 
-    public function store(Request $request)
+    public function store(RoleRequest $request)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:roles'],
-            'permissions' => ['required', 'array'],
-        ]);
+        $data = $request->validated();
 
         $role = Role::create([
-            'name' => str()->snake($request->name, '_'),
+            'name' => $data['name'],
         ]);
 
-        $role->syncPermissions($request->permissions);
+        $role->syncPermissions($data['permissions']);
 
         toastr('Role created successfully.', 'success');
 
@@ -48,18 +45,15 @@ class RoleController extends Controller
         return view('admin.roles.edit', compact('role', 'permissions'));
     }
 
-    public function update(Request $request, Role $role)
+    public function update(RoleRequest $request, Role $role)
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:roles,name,' . $role->id],
-            'permissions' => ['required', 'array'],
-        ]);
+        $data = $request->validated();
 
         $role->update([
-            'name' => str()->snake($request->name, '_'),
+            'name' => $data['name'],
         ]);
 
-        $role->syncPermissions($request->permissions);
+        $role->syncPermissions($data['permissions']);
 
         toastr('Role updated successfully.', 'success');
 

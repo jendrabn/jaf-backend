@@ -2,8 +2,8 @@
 
 namespace App\Traits;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -18,9 +18,6 @@ trait QuillUploadImage
      * Validates the image (required, image, max 5MB).
      * Resizes the image to fit within 250KB target size by lowering quality and/or width while preserving aspect ratio.
      * Saves the image to public/quill directory with a unique filename, and returns the URL, bytes, quality, and width of the saved image.
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function quillUploadImage(Request $request): JsonResponse
     {
@@ -31,7 +28,7 @@ trait QuillUploadImage
         $file = $request->file('image');
 
         // Prepare Intervention Image manager
-        $manager = new ImageManager(new Driver());
+        $manager = new ImageManager(new Driver);
         $image = $manager->read($file);
 
         // Resize down to max width 1200px, height auto while preserving aspect ratio
@@ -59,8 +56,8 @@ trait QuillUploadImage
         Storage::disk('public')->makeDirectory('quill');
 
         // Unique filename
-        $filename = Str::uuid()->toString() . '.webp';
-        $destPath = storage_path('app/public/quill/' . $filename);
+        $filename = Str::uuid()->toString().'.webp';
+        $destPath = storage_path('app/public/quill/'.$filename);
 
         // Target <= 250KB by lowering quality; if still large, reduce width progressively (down to 600px)
         $maxBytes = 250 * 1024;
@@ -70,6 +67,7 @@ trait QuillUploadImage
         $saveAndSize = function () use ($image, &$quality, $destPath): int {
             $image->toWebp($quality)->save($destPath);
             clearstatcache(true, $destPath);
+
             return (int) (is_file($destPath) ? filesize($destPath) : PHP_INT_MAX);
         };
 
@@ -106,7 +104,7 @@ trait QuillUploadImage
             }
         }
 
-        $url = asset('storage/quill/' . $filename);
+        $url = asset('storage/quill/'.$filename);
 
         return response()->json([
             'url' => $url,

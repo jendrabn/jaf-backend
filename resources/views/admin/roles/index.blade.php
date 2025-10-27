@@ -17,7 +17,7 @@
             <div class="card shadow-lg">
                 <div class="card-body">
                     <div class="table-responsive">
-                        {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable']) }}
+                        {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable mt-3']) }}
                     </div>
                 </div>
             </div>
@@ -42,8 +42,7 @@
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Delete",
-                    cancelButtonText: "Cancel",
+                    confirmButtonText: "<i class='bi bi-trash3'></i> Delete",
                 }).then(function(result) {
                     if (result.isConfirmed) {
                         $.ajax({

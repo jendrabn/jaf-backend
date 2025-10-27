@@ -21,9 +21,7 @@ class RoleDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.roles.partials.action')
-            ->editColumn('name', function ($role) {
-                return str()->headline($role->name);
-            })
+            ->editColumn('name', fn($role) => str()->headline($role->name))
             ->editColumn('permissions', function ($role) {
                 $rolesHtml = [];
 
@@ -33,11 +31,13 @@ class RoleDataTable extends DataTable
                     $action = str()->headline($action);
                     $module = str()->headline($module);
 
-                    $rolesHtml[] = '<span class="badge badge-primary m-1 rounded-0 text-white" style="font-size: 0.9rem; font-weight: 500;">'.$action.' '.$module.'</span>';
+                    $rolesHtml[] = badgeLabel("{$action} {$module}", 'primary');
                 }
 
                 return implode(' ', $rolesHtml);
             })
+            ->editColumn('created_at', fn($role) => optional($role->created_at)->format('d-m-Y H:i:s'))
+            ->editColumn('updated_at', fn($role) => optional($role->updated_at)->format('d-m-Y H:i:s'))
             ->rawColumns(['action', 'permissions'])
             ->setRowId('id');
     }
@@ -62,21 +62,29 @@ class RoleDataTable extends DataTable
             ->setTableId('role-datatable')
             ->columns($this->getColumns())
             ->minifiedAjax()
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
-                    ->text('<i class="bi bi-plus-circle me-1"></i> Create Role'),
+                    ->text('<i class="bi bi-plus-circle mr-1"></i> Create Role'),
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                    ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
             ]);
     }
 
@@ -87,23 +95,40 @@ class RoleDataTable extends DataTable
     {
         return [
             Column::make('id')
-                ->title('ID'),
+                ->title('ID')
+                ->orderable(true)
+                ->searchable(false),
+
             Column::make('name')
-                ->title('ROLE'),
+                ->title('ROLE')
+                ->orderable(true)
+                ->searchable(true),
+
             Column::make('permissions')
-                ->title('PERMISSIONS'),
+                ->title('PERMISSIONS')
+                ->sortable(false)
+                ->searchable(false),
+
             Column::make('users_count')
-                ->title('USERS COUNT'),
+                ->title('USERS COUNT')
+                ->orderable(true)
+                ->searchable(false),
+
             Column::make('created_at')
                 ->title('DATE & TIME CREATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
+
             Column::make('updated_at')
                 ->title('DATE & TIME UPDATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
+
             Column::computed('action')
                 ->exportable(false)
-                ->printable(false)
-                ->width(60),
+                ->printable(false),
         ];
     }
 
@@ -112,7 +137,6 @@ class RoleDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Role_'.date('YmdHis');
+        return 'Role_' . date('YmdHis');
     }
 }
-

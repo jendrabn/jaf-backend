@@ -44,9 +44,9 @@ class BlogController extends Controller
      */
     public function create(): View
     {
-        $categories = BlogCategory::pluck('name', 'id')->prepend('---', null);
-        $tags = BlogTag::pluck('name', 'id');
-        $authors = User::role(User::ROLE_ADMIN)->pluck('name', 'id')->prepend('---', null);
+        $categories = BlogCategory::pluck('name', 'id')->prepend('Select Category', null);
+        $tags = BlogTag::pluck('name', 'id')->prepend('Select Tag', null);
+        $authors = User::pluck('name', 'id')->prepend('Select Author', null);
 
         return view('admin.blogs.create', compact(
             'categories',
@@ -65,7 +65,7 @@ class BlogController extends Controller
         $blog->tags()->attach($request->validated('tag_ids'));
 
         if ($request->input('featured_image', false)) {
-            $path = storage_path('tmp/uploads/' . basename($request->input('featured_image')));
+            $path = storage_path('tmp/uploads/'.basename($request->input('featured_image')));
             $blog->addMedia($path)->toMediaCollection(Blog::MEDIA_COLLECTION_NAME);
         }
 
@@ -91,9 +91,9 @@ class BlogController extends Controller
      */
     public function edit(Blog $blog): View
     {
-        $categories = BlogCategory::pluck('name', 'id')->prepend('---', null);
-        $tags = BlogTag::pluck('name', 'id');
-        $authors = User::role(User::ROLE_ADMIN)->pluck('name', 'id')->prepend('---', null);
+        $categories = BlogCategory::pluck('name', 'id')->prepend('Select Category', null);
+        $tags = BlogTag::pluck('name', 'id')->prepend('Select Tag', null);
+        $authors = User::pluck('name', 'id')->prepend('Select Author', null);
 
         return view('admin.blogs.edit', compact(
             'blog',
@@ -117,7 +117,7 @@ class BlogController extends Controller
                     $blog->featured_image->delete();
                 }
 
-                $path = storage_path('tmp/uploads/' . basename($request->input('featured_image')));
+                $path = storage_path('tmp/uploads/'.basename($request->input('featured_image')));
                 $blog->addMedia($path)->toMediaCollection(Blog::MEDIA_COLLECTION_NAME);
             }
         } elseif ($blog->featured_image) {
@@ -157,7 +157,7 @@ class BlogController extends Controller
             extra: [
                 'changed' => ['ids' => $ids, 'count' => $count],
                 'properties' => ['count' => $count],
-                'meta' => ['note' => 'Bulk deleted ' . $count . ' blogs'],
+                'meta' => ['note' => 'Bulk deleted '.$count.' blogs'],
             ],
             subjectId: null,
             subjectType: \App\Models\Blog::class
@@ -168,8 +168,6 @@ class BlogController extends Controller
 
     /**
      * Store a newly uploaded media in storage using CKEditor.
-     *
-     * @return JsonResponse
      */
     public function uploadImage(Request $request): JsonResponse
     {

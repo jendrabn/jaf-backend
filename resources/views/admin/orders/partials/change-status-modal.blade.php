@@ -1,4 +1,3 @@
-{{-- resources/views/admin/orders/partials/change-status-modal.blade.php --}}
 <div aria-hidden="true"
      class="modal fade"
      id="modal-change-status"
@@ -16,7 +15,7 @@
                         data-dismiss="modal"
                         type="button">
                     <span aria-hidden="true">
-                        &times;
+                        <i class="bi bi-x-lg"></i>
                     </span>
                 </button>
             </div>
@@ -71,7 +70,7 @@
                                   class="form-control"
                                   id="cancel_reason"
                                   name="cancel_reason"
-                                  rows="2">{{ old('cancel_reason') }}</textarea>
+                                  rows="2">{{ old('cancel_reason', $order->cancel_reason) }}</textarea>
                         <small class="text-muted">This field is required when status is Cancelled.</small>
                     </div>
 
@@ -84,7 +83,7 @@
                                id="tracking_number"
                                name="tracking_number"
                                type="text"
-                               value="{{ old('tracking_number') }}">
+                               value="{{ old('tracking_number', $order->tracking_number) }}">
                         <small class="text-muted">This field is required when status is On Delivery.</small>
                     </div>
                 </form>
@@ -94,120 +93,103 @@
                 <button class="btn btn-secondary"
                         data-dismiss="modal"
                         type="button">
-                    <i class="bi bi-x-circle mr-1"></i>Close
+                    <i class="bi bi-x-circle mr-1"></i> Close
                 </button>
                 <button class="btn btn-primary"
                         id="btn-submit-change-status"
                         type="button">
-                    <i class="bi bi-check2-circle mr-1"></i> Save
+                    <i class="bi bi-save mr-1"></i> Save Changes
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    (function() {
-        // Utilities
-        function toggleFields() {
-            var val = document.getElementById('status') ? document.getElementById('status').value : '';
-            var isCancelled = (val === 'cancelled');
-            var isOnDelivery = (val === 'on_delivery');
+@push('scripts')
+    <script>
+        $(function() {
+            const toggleFields = () => {
+                const val = String($('#status').val() || '');
+                const isCancelled = (val === 'cancelled');
+                const isOnDelivery = (val === 'on_delivery');
 
-            var cancelGroup = document.getElementById('group-cancel-reason');
-            var trackGroup = document.getElementById('group-tracking-number');
-            var cancelInput = document.getElementById('cancel_reason');
-            var trackInput = document.getElementById('tracking_number');
+                $('#group-cancel-reason').toggleClass('d-none', !isCancelled);
+                $('#group-tracking-number').toggleClass('d-none', !isOnDelivery);
+                $('#cancel_reason').prop('required', isCancelled);
+                $('#tracking_number').prop('required', isOnDelivery);
+            };
 
-            if (cancelGroup) {
-                cancelGroup.classList.toggle('d-none', !isCancelled);
-            }
-            if (trackGroup) {
-                trackGroup.classList.toggle('d-none', !isOnDelivery);
-            }
-            if (cancelInput) {
-                cancelInput.required = isCancelled;
-            }
-            if (trackInput) {
-                trackInput.required = isOnDelivery;
-            }
-        }
+            // Bind changes using jQuery
+            $(document).on('change', '#status', toggleFields);
 
-        document.addEventListener('change', function(e) {
-            if (e.target && e.target.id === 'status') {
-                toggleFields();
-            }
-        });
-
-        // Ensure initial state reflects current value
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', toggleFields);
-        } else {
+            // Ensure initial state reflects current value
             toggleFields();
-        }
+            // Also ensure state when modal becomes visible
+            $(document).on('shown.bs.modal', '#modal-change-status', toggleFields);
 
-        // Submit handler
-        document.getElementById('btn-submit-change-status').addEventListener('click', function() {
-            var form = document.getElementById('form-change-status');
-            if (!form) return;
+            // Submit handler
+            $('#btn-submit-change-status').on('click', () => {
+                const $form = $('#form-change-status');
+                if (!$form.length) {
+                    return;
+                }
 
-            // If form action still contains '/0/', try to replace with provided order_id
-            var action = form.getAttribute('action') || '';
-            if (action.indexOf('/0/') !== -1 || action.endsWith('/0')) {
-                var orderIdInput = document.getElementById('order_id');
-                var tmpl = form.getAttribute('data-action-template') || '';
-                var idVal = orderIdInput ? String(orderIdInput.value || '') : '';
+                // If form action still contains '/0', replace with provided order_id
+                let action = $form.attr('action') || '';
+                if (/\/0(\/?$)/.test(action)) {
+                    const tmpl = $form.data('action-template') || $form.attr('data-action-template') || '';
+                    const idVal = String(($('#order_id').val() || '')).trim();
 
-                if (!idVal) {
+                    if (!idVal) {
+                        if (window.toastr) {
+                            toastr.error('Order ID is required');
+                        } else {
+                            alert('Order ID is required');
+                        }
+                        return;
+                    }
+
+                    const newAction = tmpl.replace(/\/0(\/|$)/, `/${idVal}$1`);
+                    $form.attr('action', newAction);
+                }
+
+                // Client-side validation based on selected status
+                const statusVal = String(($('#status').val() || '')).trim();
+                if (!statusVal) {
                     if (window.toastr) {
-                        toastr.error('Order ID is required');
+                        toastr.error('Please select a status');
                     } else {
-                        alert('Order ID is required');
+                        alert('Please select a status');
                     }
                     return;
                 }
 
-                var newAction = tmpl.replace(/\/0(\/|$)/, '/' + idVal + '$1');
-                form.setAttribute('action', newAction);
-            }
-
-            // Client-side validation based on selected status
-            var statusEl = document.getElementById('status');
-            var statusVal = statusEl ? String(statusEl.value || '') : '';
-            if (!statusVal) {
-                if (window.toastr) {
-                    toastr.error('Please select a status');
-                } else {
-                    alert('Please select a status');
-                }
-                return;
-            }
-
-            if (statusVal === 'cancelled') {
-                var cr = document.getElementById('cancel_reason');
-                if (!cr || !String(cr.value || '').trim()) {
-                    if (window.toastr) {
-                        toastr.error('Cancel reason is required');
-                    } else {
-                        alert('Cancel reason is required');
+                if (statusVal === 'cancelled') {
+                    const cr = String(($('#cancel_reason').val() || '')).trim();
+                    if (!cr) {
+                        if (window.toastr) {
+                            toastr.error('Cancel reason is required');
+                        } else {
+                            alert('Cancel reason is required');
+                        }
+                        return;
                     }
-                    return;
                 }
-            }
 
-            if (statusVal === 'on_delivery') {
-                var tn = document.getElementById('tracking_number');
-                if (!tn || !String(tn.value || '').trim()) {
-                    if (window.toastr) {
-                        toastr.error('Tracking number is required');
-                    } else {
-                        alert('Tracking number is required');
+                if (statusVal === 'on_delivery') {
+                    const tn = String(($('#tracking_number').val() || '')).trim();
+                    if (!tn) {
+                        if (window.toastr) {
+                            toastr.error('Tracking number is required');
+                        } else {
+                            alert('Tracking number is required');
+                        }
+                        return;
                     }
-                    return;
                 }
-            }
 
-            form.submit();
-        });
-    })();
-</script>
+                $form.trigger('submit');
+            });
+        })
+    </script>
+@endpush

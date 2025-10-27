@@ -21,7 +21,7 @@
                 </div>
                 <div class="stat-body">
                     <div class="text-uppercase text-muted fs-085 ls-04">Total Revenues</div>
-                    <div class="font-weight-bold fs-125">{{ formatRupiah($total_revenues) }}</div>
+                    <div class="font-weight-bold fs-125">{{ formatIDR($total_revenues) }}</div>
                 </div>
             </div>
         </div>

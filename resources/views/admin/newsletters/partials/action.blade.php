@@ -19,7 +19,7 @@
         @can('newsletters.delete')
             <a class="btn btn-sm btn-danger btn-delete"
                href="{{ route('admin.newsletters.destroy', $id) }}"
-               title="Delete">
+               title="<i class='bi bi-trash3'></i> Delete">
                 <i class="bi bi-trash"></i>
             </a>
         @endcan

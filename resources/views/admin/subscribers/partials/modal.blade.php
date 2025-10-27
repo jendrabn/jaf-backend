@@ -4,12 +4,12 @@
     $action = $mode === 'edit' ? route('admin.subscribers.update', $subscriber) : route('admin.subscribers.store');
 @endphp
 
-<div class="modal-header">
+<div class="modal-header border-bottom-0">
     <h5 class="modal-title">{{ $title }}</h5>
     <button aria-label="Close"
             class="close"
             data-dismiss="modal"
-            type="button"><span aria-hidden="true">&times;</span></button>
+            type="button"><span aria-hidden="true"><i class="bi bi-x-lg"></i></span></button>
 </div>
 
 <form action="{{ $action }}"
@@ -45,7 +45,8 @@
             <label class="required">Status</label>
             <select class="form-control"
                     name="status"
-                    required>
+                    required
+                    style="width: 100%">
                 <option value="">Select Status</option>
                 <option {{ old('status', $subscriber->status->value ?? '') === 'pending' ? 'selected' : '' }}
                         value="pending">Pending</option>
@@ -90,13 +91,13 @@
         @endif
     </div>
 
-    <div class="modal-footer">
+    <div class="modal-footer border-top-0">
         <button class="btn btn-light"
                 data-dismiss="modal"
-                type="button"><i class="bi bi-x-circle mr-1"></i>Cancel</button>
+                type="button"><i class="bi bi-x-circle mr-1"></i> Cancel</button>
         <button class="btn btn-primary"
                 type="submit">
-            <i class="bi bi-check2-circle mr-1"></i>{{ $mode === 'edit' ? 'Save Changes' : 'Save' }}
+            <i class="bi bi-save mr-1"></i> {{ $mode === 'edit' ? 'Save Changes' : 'Save' }}
         </button>
     </div>
 </form>

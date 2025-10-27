@@ -28,4 +28,14 @@ enum ContactMessageStatus: string
             self::Spam => 'danger',
         };
     }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::New => 'mail',
+            self::InProgress => 'hourglass-split',
+            self::Resolved => 'check-circle',
+            self::Spam => 'exclamation-triangle',
+        };
+    }
 }

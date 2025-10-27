@@ -13,66 +13,64 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-md-12">
-            <form action="{{ route('admin.banners.store') }}"
-                  enctype="multipart/form-data"
-                  method="POST">
-                @csrf
+    <div class="card shadow-lg">
+        <form action="{{ route('admin.banners.store') }}"
+              enctype="multipart/form-data"
+              method="POST">
+            @csrf
 
-                <div class="card shadow-lg">
-                    <div class="card-header">
-                        <div class="card-tools">
-                            <a class="btn btn-default"
-                               href="{{ route('admin.banners.index') }}"><i class="bi bi-arrow-left mr-1"></i>Back to list</a>
-                        </div>
+            <div class="card-header border-bottom-0">
+                <div class="card-tools">
+                    <a class="btn btn-default"
+                       href="{{ route('admin.banners.index') }}"><i class="bi bi-arrow-left mr-1"></i> Back to list</a>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="required">Image</label>
+                    <div class="needsclick dropzone {{ $errors->has('image') ? 'is-invalid' : '' }}"
+                         id="image-dropzone">
                     </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label class="required">Image</label>
-                            <div class="needsclick dropzone {{ $errors->has('image') ? 'is-invalid' : '' }}"
-                                 id="image-dropzone">
-                            </div>
-                            @if ($errors->has('image'))
-                                <span class="invalid-feedback">{{ $errors->first('image') }}</span>
-                            @endif
-                        </div>
+                    @if ($errors->has('image'))
+                        <span class="invalid-feedback">{{ $errors->first('image') }}</span>
+                    @endif
+                </div>
 
-                        <div class="form-row">
-                            <div class="form-group col-md-6">
-                                <label class="required">Image Description</label>
-                                <input autofocus
-                                       class="form-control {{ $errors->has('image_description') ? 'is-invalid' : '' }}"
-                                       name="image_description"
-                                       required
-                                       type="text"
-                                       value="{{ old('image_description', '') }}">
-                                @if ($errors->has('image_description'))
-                                    <span class="invalid-feedback">{{ $errors->first('image_description') }}</span>
-                                @endif
-                            </div>
-
-                            <div class="form-group col-md-6">
-                                <label>Url</label>
-                                <input class="form-control {{ $errors->has('url') ? 'is-invalid' : '' }}"
-                                       name="url"
-                                       type="text"
-                                       value="{{ old('url', '') }}">
-                                @if ($errors->has('url'))
-                                    <span class="invalid-feedback">{{ $errors->first('url') }}</span>
-                                @endif
-                            </div>
-                        </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label class="required">Image Description</label>
+                        <input autofocus
+                               class="form-control {{ $errors->has('image_description') ? 'is-invalid' : '' }}"
+                               name="image_description"
+                               required
+                               type="text"
+                               value="{{ old('image_description', '') }}">
+                        @if ($errors->has('image_description'))
+                            <span class="invalid-feedback">{{ $errors->first('image_description') }}</span>
+                        @endif
                     </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <a class="btn btn-light mr-2"
-                           href="{{ route('admin.banners.index') }}"><i class="bi bi-x-circle mr-1"></i>Cancel</a>
-                        <button class="btn btn-primary"
-                                type="submit"><i class="bi bi-check2-circle mr-1"></i>Save</button>
+
+                    <div class="form-group col-md-6">
+                        <label>URL</label>
+                        <input class="form-control {{ $errors->has('url') ? 'is-invalid' : '' }}"
+                               name="url"
+                               type="text"
+                               value="{{ old('url', '') }}">
+                        @if ($errors->has('url'))
+                            <span class="invalid-feedback">{{ $errors->first('url') }}</span>
+                        @endif
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+
+            <div class="card-footer border-top-0 d-flex gap-2 justify-content-end">
+                <a class="btn btn-light"
+                   href="{{ route('admin.banners.index') }}"><i class="bi bi-x-circle mr-1"></i> Cancel</a>
+                <button class="btn btn-primary"
+                        type="submit"><i class="bi bi-save mr-1"></i> Save</button>
+            </div>
+        </form>
     </div>
 @endsection
 

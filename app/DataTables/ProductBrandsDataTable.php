@@ -53,30 +53,38 @@ class ProductBrandsDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
-                    ->text('<i class="bi bi-plus-circle me-1"></i> Create Brand'),
+                    ->text('<i class="bi bi-plus-circle mr-1"></i> Create Brand'),
                 Button::make('selectAll')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                    ->text('<i class="bi bi-check2-all mr-1"></i> Select All'),
                 Button::make('selectNone')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                    ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                    ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
-                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
+                    ->text('<i class="bi bi-trash3 mr-1"></i> Delete Selected'),
             ]);
     }
 
@@ -88,32 +96,45 @@ class ProductBrandsDataTable extends DataTable
         return [
             Column::checkbox('&nbsp;')
                 ->exportable(false)
-                ->printable(false)
-                ->width(35),
+                ->printable(false),
 
             Column::make('id')
-                ->title('ID'),
+                ->title('ID')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::computed('logo')
-                ->title('LOGO'),
+                ->title('LOGO')
+                ->orderable(false)
+                ->searchable(false)
+                ->exportable(false)
+                ->printable(false),
 
             Column::make('name')
-                ->title('NAME'),
+                ->title('NAME')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('slug')
                 ->title('SLUG')
                 ->visible(false),
 
             Column::make('products_count')
-                ->title('PRODUCTS COUNT'),
+                ->title('PRODUCTS COUNT')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('created_at')
                 ->title('DATE & TIME CREATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('updated_at')
                 ->title('DATE & TIME UPDATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::computed('action')
                 ->title('ACTION')
@@ -127,7 +148,6 @@ class ProductBrandsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'ProductBrands_'.date('dmY');
+        return 'ProductBrands_' . date('dmY');
     }
 }
-

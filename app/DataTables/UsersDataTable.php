@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Order;
+use App\Enums\OrderStatus;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
@@ -26,20 +26,20 @@ class UsersDataTable extends DataTable
                 $roles = [];
 
                 $row->roles->each(function ($role) use (&$roles) {
-                    $roles[] = strtoupper($role->name);
+                    $roles[] = badgeLabel(strtoupper($role->name), 'light');
                 });
 
                 return implode(' ', $roles);
             })
             ->editColumn('email', function ($row) {
-                return $row->email . '<a class="ml-1 icon-btn text-muted small" href="mailto:' . $row->email . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return $row->email . externalIconLink('mailto:' . $row->email);
             })
             ->editColumn('phone', function ($row) {
-                if (empty($row->phone)) {
+                if (! $row->phone) {
                     return '-';
                 }
 
-                return e($row->phone) . '<a class="ml-1 icon-btn text-muted small" href="tel:' . e($row->phone) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return e($row->phone) . externalIconLink('tel:' . e($row->phone));
             })
             ->setRowId('id')
             ->rawColumns(['action', 'roles', 'email', 'phone']);
@@ -54,7 +54,7 @@ class UsersDataTable extends DataTable
             ->with(['roles'])
             ->select('users.*')
             ->withCount([
-                'orders' => fn($q) => $q->where('status', Order::STATUS_COMPLETED),
+                'orders' => fn($q) => $q->where('status', OrderStatus::Completed->value),
             ]);
     }
 
@@ -69,30 +69,38 @@ class UsersDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
-                    ->text('<i class="bi bi-plus-circle me-1"></i> Create User'),
+                    ->text('<i class="bi bi-plus-circle mr-1"></i> Create User'),
                 Button::make('selectAll')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                    ->text('<i class="bi bi-check2-all mr-1"></i> Select All'),
                 Button::make('selectNone')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                    ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                    ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
-                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
+                    ->text('<i class="bi bi-trash3 mr-1"></i> Delete Selected'),
             ]);
     }
 
@@ -104,48 +112,67 @@ class UsersDataTable extends DataTable
         return [
             Column::checkbox('&nbsp;')
                 ->exportable(false)
-                ->printable(false)
-                ->width(35),
+                ->printable(false),
 
             Column::make('id')
-                ->title('ID'),
+                ->title('ID')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('name')
-                ->title('NAME'),
+                ->title('NAME')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('email')
-                ->title('EMAIL'),
+                ->title('EMAIL')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('email_verified_at')
                 ->title('DATE & TIME VERIFIED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('roles', 'roles.name')
                 ->title('ROLES')
-                ->orderable(false),
+                ->orderable(false)
+                ->searchable(false),
 
             Column::make('phone')
-                ->title('PHONE NUMBER'),
+                ->title('PHONE NUMBER')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('sex_label', 'sex')
                 ->title('SEX')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(false)
+                ->searchable(false),
 
             Column::make('birth_date')
                 ->title('BIRTH DATE')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('orders_count')
                 ->title('ORDERS COUNT')
+                ->orderable(true)
                 ->searchable(false),
 
             Column::make('created_at')
                 ->title('DATE & TIME CREATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('updated_at')
                 ->title('DATE & TIME UPDATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::computed('action')
                 ->title('ACTION')
@@ -162,4 +189,3 @@ class UsersDataTable extends DataTable
         return 'Users_' . date('dmY');
     }
 }
-

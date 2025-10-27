@@ -13,125 +13,118 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-md-12">
 
-            <div class="card shadow-lg">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <div class="card-tools">
-                        <a class="btn btn-default"
-                           href="{{ route('admin.campaigns.index') }}">
-                            <i class="bi bi-arrow-left mr-1"></i>Back to list
-                        </a>
-                        <a class="btn btn-primary"
-                           href="{{ route('admin.campaigns.edit', $campaign) }}">
-                            <i class="bi bi-pencil-square mr-1"></i>Edit
-                        </a>
-                        <button class="btn btn-success"
-                                data-url="{{ route('admin.campaigns.send_all', $campaign) }}"
-                                id="btn-send-all"
-                                type="button">
-                            <i class="bi bi-send-check mr-1"></i>Send to all
-                        </button>
-                        <button class="btn btn-info"
-                                data-url="{{ route('admin.campaigns.test_send', $campaign) }}"
-                                id="btn-test-send"
-                                type="button">
-                            <i class="bi bi-envelope-paper mr-1"></i>Test send
-                        </button>
-                        <button class="btn btn-danger"
-                                data-url="{{ route('admin.campaigns.destroy', $campaign) }}"
-                                id="btn-delete"
-                                type="button">
-                            <i class="bi bi-trash mr-1"></i>Delete
-                        </button>
-                    </div>
-                </div>
+    <div class="card shadow-lg">
+        <div class="card-header border-bottom-0">
+            <div class="card-tools">
+                <a class="btn btn-primary"
+                   href="{{ route('admin.campaigns.edit', $campaign) }}">
+                    <i class="bi bi-pencil mr-1"></i> Edit
+                </a>
+                <button class="btn btn-success"
+                        data-url="{{ route('admin.campaigns.send_all', $campaign) }}"
+                        id="btn-send-all"
+                        type="button">
+                    <i class="bi bi-send-check mr-1"></i> Send to all
+                </button>
+                <button class="btn btn-info"
+                        data-url="{{ route('admin.campaigns.test_send', $campaign) }}"
+                        id="btn-test-send"
+                        type="button">
+                    <i class="bi bi-envelope-paper mr-1"></i> Test send
+                </button>
+                <button class="btn btn-danger"
+                        data-url="{{ route('admin.campaigns.destroy', $campaign) }}"
+                        id="btn-delete"
+                        type="button">
+                    <i class="bi bi-trash mr-1"></i> Delete
+                </button>
+                <a class="btn btn-default"
+                   href="{{ route('admin.campaigns.index') }}">
+                    <i class="bi bi-arrow-left mr-1"></i> Back to list
+                </a>
+            </div>
+        </div>
 
-                <div class="card-body">
-                    <div class="table-responsive mb-3">
-                        <table class="table table-bordered">
-                            <tbody>
-                                <tr>
-                                    <th>NAME</th>
-                                    <td>{{ $campaign->name }}</td>
-                                </tr>
+        <div class="card-body">
+            <div class="table-responsive mb-3">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <th>NAME</th>
+                            <td>{{ $campaign->name }}</td>
+                        </tr>
 
-                                <tr>
-                                    <th>SUBJECT</th>
-                                    <td>{{ $campaign->subject }}</td>
-                                </tr>
+                        <tr>
+                            <th>SUBJECT</th>
+                            <td>{{ $campaign->subject }}</td>
+                        </tr>
 
-                                <tr>
-                                    <th>STATUS</th>
-                                    <td>
-                                        <span class="badge {{ $campaign->status->getBadgeClass() }}">
-                                            {{ $campaign->status->getLabel() }}
-                                        </span>
-                                    </td>
-                                </tr>
+                        <tr>
+                            <th>STATUS</th>
+                            <td>
+                                {!! badgeLabel(strtoupper($campaign->status->label()), $campaign->status->color()) !!}
+                            </td>
+                        </tr>
 
-                                <tr>
-                                    <th>SCHEDULED AT</th>
-                                    <td>{{ optional($campaign->scheduled_at)->format('Y-m-d H:i') }}</td>
-                                </tr>
+                        <tr>
+                            <th>SCHEDULED AT</th>
+                            <td>{{ formatDateTime($campaign->scheduled_at) }}</td>
+                        </tr>
 
-                                <tr>
-                                    <th>SENT AT</th>
-                                    <td>{{ optional($campaign->sent_at)->format('Y-m-d H:i') }}</td>
-                                </tr>
+                        <tr>
+                            <th>SENT AT</th>
+                            <td>{{ formatDateTime($campaign->sent_at) }}</td>
+                        </tr>
 
-                                <tr>
-                                    <th>RECIPIENTS STATS</th>
-                                    <td>
-                                        @php
-                                            $queued = $stats['queued'] ?? 0;
-                                            $sent = $stats['sent'] ?? 0;
-                                            $failed = $stats['failed'] ?? 0;
-                                            $opened = $stats['opened'] ?? 0;
-                                            $clicked = $stats['clicked'] ?? 0;
-                                            $total = $queued + $sent + $failed + $opened + $clicked;
-                                        @endphp
-                                        <div class="d-flex flex-wrap align-items-center"
-                                             style="gap: .5rem;">
-                                            <span class="badge badge-secondary">Total: {{ $total }}</span>
-                                            <span class="badge badge-info">Queued: {{ $queued }}</span>
-                                            <span class="badge badge-success">Sent: {{ $sent }}</span>
-                                            <span class="badge badge-danger">Failed: {{ $failed }}</span>
-                                            <span class="badge badge-warning">Opened: {{ $opened }}</span>
-                                            <span class="badge badge-primary">Clicked: {{ $clicked }}</span>
-                                        </div>
-                                    </td>
-                                </tr>
+                        <tr>
+                            <th>RECIPIENTS STATS</th>
+                            <td>
+                                @php
+                                    $queued = $stats['queued'] ?? 0;
+                                    $sent = $stats['sent'] ?? 0;
+                                    $failed = $stats['failed'] ?? 0;
+                                    $opened = $stats['opened'] ?? 0;
+                                    $clicked = $stats['clicked'] ?? 0;
+                                    $total = $queued + $sent + $failed + $opened + $clicked;
+                                @endphp
+                                <div class="d-flex flex-wrap align-items-center"
+                                     style="gap: .5rem;">
+                                    <span class="badge badge-secondary">Total: {{ $total }}</span>
+                                    <span class="badge badge-info">Queued: {{ $queued }}</span>
+                                    <span class="badge badge-success">Sent: {{ $sent }}</span>
+                                    <span class="badge badge-danger">Failed: {{ $failed }}</span>
+                                    <span class="badge badge-warning">Opened: {{ $opened }}</span>
+                                    <span class="badge badge-primary">Clicked: {{ $clicked }}</span>
+                                </div>
+                            </td>
+                        </tr>
 
-                                <tr>
-                                    <th>CONTENT</th>
-                                    <td>
-                                        <div class="border rounded p-3">
-                                            {!! $campaign->content !!}
-                                        </div>
-                                    </td>
-                                </tr>
+                        <tr>
+                            <th>CONTENT</th>
+                            <td>
+                                <div class="border rounded p-3">
+                                    {!! $campaign->content !!}
+                                </div>
+                            </td>
+                        </tr>
 
-                                <tr>
-                                    <th>DATE & TIME CREATED</th>
-                                    <td>{{ $campaign->created_at }}</td>
-                                </tr>
+                        <tr>
+                            <th>DATE & TIME CREATED</th>
+                            <td>{{ formatDateTime($campaign->created_at) }}</td>
+                        </tr>
 
-                                <tr>
-                                    <th>DATE & TIME UPDATED</th>
-                                    <td>{{ $campaign->updated_at }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <p class="text-muted mb-0">
-                        The content above is rendered as HTML and will be used for the email body.
-                    </p>
-                </div>
+                        <tr>
+                            <th>DATE & TIME UPDATED</th>
+                            <td>{{ formatDateTime($campaign->updated_at) }}</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
+            <p class="text-muted mb-0">
+                The content above is rendered as HTML and will be used for the email body.
+            </p>
         </div>
     </div>
 @endsection

@@ -261,7 +261,7 @@
                                     <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.subscribers.*') ? 'active' : '' }}"
                                        href="{{ route('admin.subscribers.index') }}">
                                         <i class="nav-icon bi bi-circle mr-2"></i>
-                                        <p class="mb-0">Subscribers</p>
+                                        <p class="mb-0">Subscriber</p>
                                     </a>
                                 </li>
                             @endcan
@@ -270,7 +270,7 @@
                                     <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.campaigns.*') ? 'active' : '' }}"
                                        href="{{ route('admin.campaigns.index') }}">
                                         <i class="nav-icon bi bi-circle mr-2"></i>
-                                        <p class="mb-0">Campaigns</p>
+                                        <p class="mb-0">Campaign</p>
                                     </a>
                                 </li>
                             @endcan
@@ -284,7 +284,7 @@
                         <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.messages.*') ? 'active' : '' }}"
                            href="{{ route('admin.messages.index') }}">
                             <i class="nav-icon bi bi-envelope mr-2"></i>
-                            <p class="mb-0">Contact Messages</p>
+                            <p class="mb-0">Contact Message</p>
                         </a>
                     </li>
                 @endcan

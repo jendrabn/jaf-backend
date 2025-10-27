@@ -39,13 +39,13 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"
-                        id="modalFilterLabel"><i class="bi bi-filter me-1"></i> Filter Contact Messages</h5>
+                        id="modalFilterLabel"><i class="bi bi-filter mr-1"></i> Filter Contact Messages</h5>
                     <button aria-label="Close"
                             class="close"
                             data-dismiss="modal"
                             title="Close"
                             type="button">
-                        <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true"><i class="bi bi-x-lg"></i></span>
                     </button>
                 </div>
                 <div class="modal-body">
@@ -133,7 +133,7 @@
                     text: "You won't be able to revert this!",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Delete",
+                    confirmButtonText: "<i class='bi bi-trash3'></i> Delete",
                 }).then((result) => {
                     if (result.isConfirmed) {
                         $.ajax({
@@ -158,7 +158,7 @@
 
         // Define Filter button extension to open modal
         $.fn.dataTable.ext.buttons.filter = {
-            text: "<i class='bi bi-filter me-1'></i> Filter",
+            text: "<i class='bi bi-filter mr-1'></i> Filter",
             action: function(e, dt, node, config) {
                 $('#modal-filter').modal('show');
             },

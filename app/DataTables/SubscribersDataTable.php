@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Enums\SubscriberStatus;
 use App\Models\Subscriber;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
@@ -22,21 +23,25 @@ class SubscribersDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.subscribers.partials.action')
             ->editColumn('status', function ($row) {
-                $badgeClass = match ($row->status->value) {
-                    'pending' => 'badge-warning',
-                    'subscribed' => 'badge-success',
-                    'unsubscribed' => 'badge-danger',
-                    default => 'badge-secondary'
+                $status = $row->status instanceof SubscriberStatus
+                    ? $row->status
+                    : SubscriberStatus::from((string) $row->status);
+
+                $badgeClass = match ($status) {
+                    SubscriberStatus::Pending => 'badge-warning',
+                    SubscriberStatus::Subscribed => 'badge-success',
+                    SubscriberStatus::Unsubscribed => 'badge-danger',
+                    default => 'badge-secondary',
                 };
 
-                $statusText = match ($row->status->value) {
-                    'pending' => 'Pending',
-                    'subscribed' => 'Subscribed',
-                    'unsubscribed' => 'Unsubscribed',
-                    default => ucfirst($row->status->value)
+                $statusText = match ($status) {
+                    SubscriberStatus::Pending => 'Pending',
+                    SubscriberStatus::Subscribed => 'Subscribed',
+                    SubscriberStatus::Unsubscribed => 'Unsubscribed',
+                    default => ucfirst($status->value),
                 };
 
-                return '<span class="badge '.$badgeClass.'">'.$statusText.'</span>';
+                return '<span class="badge ' . $badgeClass . '">' . $statusText . '</span>';
             })
             ->editColumn('subscribed_at', function ($row) {
                 return $row->subscribed_at ? $row->subscribed_at->format('d M Y H:i') : '-';
@@ -68,6 +73,14 @@ class SubscribersDataTable extends DataTable
             ->orderBy(1, 'desc')
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->buttons([
                 Button::make('create')
@@ -85,7 +98,7 @@ class SubscribersDataTable extends DataTable
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
@@ -104,41 +117,59 @@ class SubscribersDataTable extends DataTable
             Column::checkbox('&nbsp;')
                 ->exportable(false)
                 ->printable(false)
-                ->width(35),
+                ->orderable(false)
+                ->searchable(false),
 
             Column::make('id')
-                ->title('ID'),
+                ->title('ID')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('name')
-                ->title('Name'),
+                ->title('Name')
+                ->searchable(true)
+                ->orderable(true),
 
             Column::make('email')
-                ->title('Email'),
+                ->title('Email')
+                ->searchable(true)
+                ->orderable(true),
 
             Column::make('status')
-                ->title('Status'),
+                ->title('Status')
+                ->searchable(true)
+                ->orderable(true),
 
             Column::make('subscribed_at')
                 ->title('Subscribed At')
-                ->visible(false),
+                ->visible(false)
+                ->searchable(false)
+                ->orderable(true),
 
             Column::make('unsubscribed_at')
                 ->title('Unsubscribed At')
-                ->visible(false),
+                ->visible(false)
+                ->searchable(false)
+                ->orderable(true),
 
             Column::make('created_at')
                 ->title('Date & Time Created')
-                ->visible(false),
+                ->visible(false)
+                ->searchable(false)
+                ->orderable(true),
 
             Column::make('updated_at')
                 ->title('Date & Time Updated')
-                ->visible(false),
+                ->visible(false)
+                ->searchable(false)
+                ->orderable(true),
 
             Column::computed('action')
                 ->title('Action')
                 ->exportable(false)
                 ->printable(false)
-                ->width(120),
+                ->orderable(false)
+                ->searchable(false),
         ];
     }
 
@@ -147,7 +178,6 @@ class SubscribersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Subscribers_'.date('dmY');
+        return 'Subscribers_' . date('dmY');
     }
 }
-

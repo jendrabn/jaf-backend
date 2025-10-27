@@ -71,7 +71,7 @@ class ContactMessageController extends Controller
         return response()->json([
             'id' => $message->id,
             'status' => 'received',
-            'message' => 'Terima kasih, pesan Anda sudah kami terima.',
+            'message' => 'Terima kasih, Kami akan segera menghubungi Anda melalui email.',
         ], 201);
     }
 

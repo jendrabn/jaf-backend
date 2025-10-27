@@ -8,7 +8,7 @@ enum CampaignStatus: string
     case SENDING = 'sending';
     case SENT = 'sent';
 
-    public function getLabel(): string
+    public function label(): string
     {
         return match ($this) {
             self::DRAFT => 'Draft',
@@ -17,12 +17,21 @@ enum CampaignStatus: string
         };
     }
 
-    public function getBadgeClass(): string
+    public function color(): string
     {
         return match ($this) {
-            self::DRAFT => 'badge-secondary',
-            self::SENDING => 'badge-warning',
-            self::SENT => 'badge-success',
+            self::DRAFT => 'secondary',
+            self::SENDING => 'warning',
+            self::SENT => 'success',
+        };
+    }
+
+    public function icon(): string
+    {
+        return match ($this) {
+            self::DRAFT => 'pencil-square',
+            self::SENDING => 'send',
+            self::SENT => 'check-circle',
         };
     }
 }

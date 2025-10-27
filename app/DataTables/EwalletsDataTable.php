@@ -54,30 +54,38 @@ class EwalletsDataTable extends DataTable
             ->orderBy(1)
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
-                    ->text('<i class="bi bi-plus-circle me-1"></i> Create Ewallet'),
+                    ->text('<i class="bi bi-plus-circle mr-1"></i> Create Ewallet'),
                 Button::make('selectAll')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-check2-all me-1"></i> Select All'),
+                    ->text('<i class="bi bi-check2-all mr-1"></i> Select All'),
                 Button::make('selectNone')
                     ->className('btn btn-primary')
-                    ->text('<i class="bi bi-slash-circle me-1"></i> Deselect All'),
+                    ->text('<i class="bi bi-slash-circle mr-1"></i> Deselect All'),
                 Button::make('csv')
                     ->className('btn btn-default')
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-columns-gap me-1"></i> Columns'),
+                    ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
                 Button::make('bulkDelete')
                     ->className('btn btn-danger')
-                    ->text('<i class="bi bi-trash3 me-1"></i> Delete Selected'),
+                    ->text('<i class="bi bi-trash3 mr-1"></i> Delete Selected'),
             ]);
     }
 
@@ -88,10 +96,13 @@ class EwalletsDataTable extends DataTable
     {
         return [
             Column::checkbox('&nbsp;')
-                ->width(35),
+                ->exportable(false)
+                ->printable(false),
 
             Column::make('id')
-                ->title('ID'),
+                ->title('ID')
+                ->orderable(true)
+                ->searchable(false),
 
             Column::computed('logo')
                 ->title('LOGO')
@@ -99,24 +110,36 @@ class EwalletsDataTable extends DataTable
                 ->printable(false),
 
             Column::make('name')
-                ->title('NAME'),
+                ->title('NAME')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('account_name')
-                ->title('ACCOUNT NAME'),
+                ->title('ACCOUNT NAME')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('account_username')
-                ->title('ACCOUNT USERNAME'),
+                ->title('ACCOUNT USERNAME')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('phone')
-                ->title('PHONE NUMBER'),
+                ->title('PHONE NUMBER')
+                ->orderable(true)
+                ->searchable(true),
 
             Column::make('created_at')
                 ->title('DATE & TIME CREATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::make('updated_at')
                 ->title('DATE & TIME UPDATED')
-                ->visible(false),
+                ->visible(false)
+                ->orderable(true)
+                ->searchable(false),
 
             Column::computed('action')
                 ->title('ACTION')
@@ -130,7 +153,6 @@ class EwalletsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Ewallets_'.date('dmY');
+        return 'Ewallets_' . date('dmY');
     }
 }
-

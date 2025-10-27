@@ -1,26 +1,38 @@
-<div class="modal-header">
-  <h5 class="modal-title">{{ $title }}</h5>
-  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+<div class="modal-header border-bottom-0">
+    <h5 class="modal-title">{{ $title }}</h5>
+    <button aria-label="Close"
+            class="close"
+            data-dismiss="modal"
+            type="button"><span aria-hidden="true"><i class="bi bi-x-lg"></i></span></button>
 </div>
 
-<form action="{{ $action }}" method="POST" id="blogCategoryForm">
-  @csrf
-  @if($mode === 'edit')
-    @method('PUT')
-  @endif
+<form action="{{ $action }}"
+      id="blogCategoryForm"
+      method="POST">
+    @csrf
+    @if ($mode === 'edit')
+        @method('PUT')
+    @endif
 
-  <div class="modal-body">
-    <div class="form-group">
-      <label class="required">Name</label>
-      <input type="text" name="name" class="form-control" value="{{ old('name', $category->name ?? '') }}" required>
-      <div class="invalid-feedback d-none"></div>
+    <div class="modal-body">
+        <div class="form-group">
+            <label class="required">Name</label>
+            <input class="form-control"
+                   name="name"
+                   required
+                   type="text"
+                   value="{{ old('name', $category->name ?? '') }}">
+            <div class="invalid-feedback d-none"></div>
+        </div>
     </div>
-  </div>
 
-  <div class="modal-footer">
-    <button type="button" class="btn btn-light" data-dismiss="modal"><i class="bi bi-x-circle mr-1"></i>Cancel</button>
-    <button type="submit" class="btn btn-primary">
-      <i class="bi bi-check2-circle mr-1"></i>{{ $mode === 'edit' ? 'Save Changes' : 'Save' }}
-    </button>
-  </div>
+    <div class="modal-footer border-top-0">
+        <button class="btn btn-light"
+                data-dismiss="modal"
+                type="button"><i class="bi bi-x-circle mr-1"></i>Cancel</button>
+        <button class="btn btn-primary"
+                type="submit">
+            <i class="bi bi-save mr-1"></i>{{ $mode === 'edit' ? 'Save Changes' : 'Save' }}
+        </button>
+    </div>
 </form>

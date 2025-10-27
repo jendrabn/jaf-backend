@@ -29,6 +29,11 @@ class ContactMessage extends Model
         'handled_at' => 'datetime',
     ];
 
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d H:i:s');
+    }
+
     public function replies(): HasMany
     {
         return $this->hasMany(ContactReply::class, 'contact_message_id');

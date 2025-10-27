@@ -44,6 +44,14 @@ class BlogCategoriesDataTable extends DataTable
             ->orderBy(1)
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
+            ->parameters([
+                'responsive' => true,
+                'autoWidth' => false,
+                'stateSave' => true,
+                'pageLength' => 25,
+                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
+                'language' => [],
+            ])
             ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
@@ -62,7 +70,7 @@ class BlogCategoriesDataTable extends DataTable
                     ->text('CSV'),
                 Button::make('reload')
                     ->className('btn btn-default')
-                    ->text('<i class="bi bi-arrow-clockwise me-1"></i> Reload'),
+                    ->text('<i class="bi bi-arrow-clockwise mr-1"></i> Reload'),
                 Button::make('colvis')
                     ->className('btn btn-default')
                     ->text('<i class="bi bi-columns-gap mr-1"></i> Columns'),
@@ -80,29 +88,40 @@ class BlogCategoriesDataTable extends DataTable
         return [
             Column::checkbox('&nbsp;')
                 ->exportable(false)
-                ->printable(false)
-                ->width(35),
+                ->printable(false),
 
             Column::make('id')
-                ->title('ID'),
+                ->title('ID')
+                ->sortable(true)
+                ->searchable(false),
 
             Column::make('name')
-                ->title('NAME'),
+                ->title('NAME')
+                ->sortable(true)
+                ->searchable(true),
 
             Column::make('slug')
                 ->title('SLUG')
-                ->visible(false),
+                ->visible(false)
+                ->sortable(true)
+                ->searchable(true),
 
             Column::make('blogs_count')
-                ->title('BLOGS COUNT'),
+                ->title('BLOGS COUNT')
+                ->sortable(true)
+                ->searchable(false),
 
             Column::make('created_at')
                 ->title('DATE & TIME CREATED')
-                ->visible(false),
+                ->visible(false)
+                ->sortable(true)
+                ->searchable(false),
 
             Column::make('updated_at')
                 ->title('DATE & TIME UPDATED')
-                ->visible(false),
+                ->visible(false)
+                ->sortable(true)
+                ->searchable(false),
 
             Column::computed('action')
                 ->title('ACTION')
@@ -116,7 +135,6 @@ class BlogCategoriesDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'BlogCategory_'.date('dmY');
+        return 'BlogCategory_' . date('dmY');
     }
 }
-

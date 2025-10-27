@@ -145,6 +145,11 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->name('orders.confirm-payment')
             ->middleware('permission:orders.confirm_payment');
 
+        // Change Status (admin)
+        Route::put('orders/{order}/change_status', [OrderController::class, 'changeStatus'])
+            ->whereNumber('order')
+            ->name('orders.change-status');
+
         Route::post('orders/invoices', [OrderController::class, 'generateInvoicePdf'])
             ->name('orders.invoices')
             ->middleware('permission:orders.generate_invoice');
@@ -670,6 +675,10 @@ Route::middleware(['auth', 'permission:backoffice.access'])
                 ->middleware('permission:contact_messages.reply');
         });
         // -------- Campaigns (newsletter, queued emails, stats) --------
+        Route::delete('campaigns/destroy', [CampaignController::class, 'massDestroy'])
+            ->name('campaigns.massDestroy')
+            ->middleware('permission:campaigns.mass_delete');
+
         Route::get('campaigns', [CampaignController::class, 'index'])
             ->name('campaigns.index')
             ->middleware('permission:campaigns.view');
