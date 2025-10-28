@@ -112,7 +112,8 @@ class UsersDataTable extends DataTable
         return [
             Column::checkbox('&nbsp;')
                 ->exportable(false)
-                ->printable(false),
+                ->printable(false)
+                ->width(50),
 
             Column::make('id')
                 ->title('ID')

@@ -30,10 +30,15 @@ class Subscriber extends Model
     protected function casts(): array
     {
         return [
-            'status' => SubscriberStatus::class,
+            // 'status' => SubscriberStatus::class,
             'subscribed_at' => 'datetime',
             'unsubscribed_at' => 'datetime',
         ];
+    }
+
+    public function serializeDate(\DateTimeInterface $date)
+    {
+        return $date->format('d-m-Y H:i:s');
     }
 
     /**

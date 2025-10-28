@@ -4,13 +4,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-if (! function_exists('formatIDR')) {
-    function formatIDR($price)
-    {
-        return 'Rp ' . number_format($price, 0, ',', '.');
-    }
-}
-
 if (! function_exists('audit_log')) {
     /**
      * Simpan log audit manual tanpa memicu event model.
@@ -131,14 +124,6 @@ if (! function_exists('audit_log')) {
         function formatIDR(int $number): string
         {
             return 'Rp ' . number_format($number, 0, ',', '.');
-        }
-    }
-
-    // Date time format d-m-Y H:i
-    if (! function_exists('formatDateTime')) {
-        function formatDateTime(?\DateTimeInterface $dt): string
-        {
-            return $dt ? $dt->format('d-m-Y H:i') : '';
         }
     }
 }

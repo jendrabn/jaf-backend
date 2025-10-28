@@ -36,7 +36,7 @@ class OrdersDataTable extends DataTable
             ->editColumn('status', function ($row) {
                 $status = OrderStatus::from($row->status);
 
-                return badgeLabel(strtoupper($status->label()), $status->color());
+                return badgeLabel($status->label(), $status->color());
             })
             ->editColumn(
                 'amount',

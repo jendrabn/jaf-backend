@@ -18,6 +18,7 @@
         use App\Enums\OrderStatus;
         use App\Enums\InvoiceStatus;
         use App\Enums\ShippingStatus;
+        use App\Enums\PaymentStatus;
 
         $statusEnum = OrderStatus::from($order->status);
         $payment = $order->invoice->payment;
@@ -90,9 +91,9 @@
                 <div class="card-header border-bottom-0">
                     <h3 class="card-title">Payment Information</h3>
                     <div class="card-tools">
-                        <span class="badge badge-light"
+                        <span class="badge badge-{{ PaymentStatus::from($payment->status)->color() }}"
                               title="Payment Status">
-                            {{ strtoupper(App\Models\Payment::STATUSES[$payment->status]['label']) }}
+                            {{ PaymentStatus::from($payment->status)->label() }}
                         </span>
                     </div>
                 </div>
@@ -158,7 +159,7 @@
                                         @if (!empty($payment->info['redirect_url']))
                                             <tr>
                                                 <th>Redirect URL</th>
-                                                <td><a href="{{ $payment->info['redirect_url'] }}"
+                                                <td class="text-break"><a href="{{ $payment->info['redirect_url'] }}"
                                                        target="_blank">{{ $payment->info['redirect_url'] }}</a></td>
                                             </tr>
                                         @endif
@@ -230,7 +231,7 @@
                                         @if (!empty($payment->info['redirect_url']))
                                             <tr>
                                                 <th>Redirect URL</th>
-                                                <td><a href="{{ $payment->info['redirect_url'] }}"
+                                                <td class="text-break"><a href="{{ $payment->info['redirect_url'] }}"
                                                        target="_blank">{{ $payment->info['redirect_url'] }}</a></td>
                                             </tr>
                                         @endif
@@ -263,9 +264,9 @@
                 <div class="card-header border-bottom-0">
                     <h3 class="card-title">Shipping Information</h3>
                     <div class="card-tools">
-                        <span class="badge badge-light"
+                        <span class="badge badge-{{ ShippingStatus::from($shipping->status)->color() }}"
                               title="Shipping Status">
-                            {{ strtoupper(\App\Enums\ShippingStatus::from($shipping->status)->label()) }}
+                            {{ ShippingStatus::from($shipping->status)->label() }}
                         </span>
                     </div>
                 </div>
@@ -351,7 +352,7 @@
                         <span class="label">Status</span>
                         <div>
                             <span class="badge badge-{{ $statusEnum->color() }}">
-                                {{ strtoupper($statusEnum->label()) }}
+                                {{ $statusEnum->label() }}
                             </span>
                         </div>
                     </div>
@@ -423,7 +424,7 @@
                         <table class="table table-sm table-borderless table-totals mb-2">
                             <tbody>
                                 <tr>
-                                    <td>Total Harga</td>
+                                    <td>Total Price</td>
                                     <td>@Rp($order->total_price)</td>
                                 </tr>
                                 <tr>

@@ -36,6 +36,10 @@ class Coupon extends Model
         'available_coupons',
     ];
 
+    public function serializeDate(\DateTimeInterface $date)
+    {
+        return $date->format('d-m-Y H:i:s');
+    }
     public function usages(): HasMany
     {
         return $this->hasMany(CouponUsage::class);
@@ -49,7 +53,7 @@ class Coupon extends Model
     public function availableCoupons(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->limit ? $this->limit - $this->usages_count : null,
+            get: fn() => $this->limit ? $this->limit - $this->usages_count : null,
         );
     }
 
@@ -61,7 +65,7 @@ class Coupon extends Model
     public function code(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => str_replace(' ', '', $value),
+            set: fn($value) => str_replace(' ', '', $value),
         );
     }
 }

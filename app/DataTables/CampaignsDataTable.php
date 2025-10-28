@@ -21,11 +21,7 @@ class CampaignsDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.campaigns.partials.actions')
-            ->editColumn('status', fn(Campaign $c) => badgeLabel(strtoupper($c->status->label()), $c->status->color()))
-            ->editColumn('scheduled_at', fn(Campaign $c) => formatDateTime($c->scheduled_at))
-            ->editColumn('sent_at', fn(Campaign $c) => formatDateTime($c->sent_at))
-            ->editColumn('created_at', fn(Campaign $c) => formatDateTime($c->created_at))
-            ->editColumn('updated_at', fn(Campaign $c) => formatDateTime($c->updated_at))
+            ->editColumn('status', fn(Campaign $c) => badgeLabel($c->status->label(), $c->status->color()))
             ->setRowId('id')
             ->rawColumns(['status', 'action']);
     }

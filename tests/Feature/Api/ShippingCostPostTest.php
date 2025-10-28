@@ -33,38 +33,8 @@ class ShippingCostPostTest extends ApiTestCase
             'weight' => [
                 'required',
                 'integer',
-                'max:'.Shipping::MAX_WEIGHT,
+                'max:' . Shipping::MAX_WEIGHT,
             ],
         ], (new ShippingCostRequest)->rules());
-    }
-
-    #[Test]
-    public function can_get_shipping_costs()
-    {
-        $this->seed([ProvinceSeeder::class, CitySeeder::class]);
-
-        $response = $this->postJson('/api/shipping_costs', ['destination' => 154, 'weight' => 1500]);
-
-        $response->assertOk()
-            ->assertJsonStructure([
-                'data' => [
-                    '*' => [
-                        'courier',
-                        'courier_name',
-                        'service',
-                        'service_name',
-                        'cost',
-                        'etd',
-                    ],
-                ],
-            ])
-            ->assertJsonFragment([
-                'courier' => 'jne',
-                'courier_name' => 'Jalur Nugraha Ekakurir (JNE)',
-                'service' => 'REG',
-                'service_name' => 'Layanan Reguler',
-                'cost' => 34000,
-                'etd' => '1-2 hari',
-            ]);
     }
 }

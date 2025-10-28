@@ -23,31 +23,9 @@ class SubscribersDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.subscribers.partials.action')
             ->editColumn('status', function ($row) {
-                $status = $row->status instanceof SubscriberStatus
-                    ? $row->status
-                    : SubscriberStatus::from((string) $row->status);
+                $status = SubscriberStatus::from($row->status);
 
-                $badgeClass = match ($status) {
-                    SubscriberStatus::Pending => 'badge-warning',
-                    SubscriberStatus::Subscribed => 'badge-success',
-                    SubscriberStatus::Unsubscribed => 'badge-danger',
-                    default => 'badge-secondary',
-                };
-
-                $statusText = match ($status) {
-                    SubscriberStatus::Pending => 'Pending',
-                    SubscriberStatus::Subscribed => 'Subscribed',
-                    SubscriberStatus::Unsubscribed => 'Unsubscribed',
-                    default => ucfirst($status->value),
-                };
-
-                return '<span class="badge ' . $badgeClass . '">' . $statusText . '</span>';
-            })
-            ->editColumn('subscribed_at', function ($row) {
-                return $row->subscribed_at ? $row->subscribed_at->format('d M Y H:i') : '-';
-            })
-            ->editColumn('unsubscribed_at', function ($row) {
-                return $row->unsubscribed_at ? $row->unsubscribed_at->format('d M Y H:i') : '-';
+                return badgeLabel($status->label(), $status->color());
             })
             ->rawColumns(['action', 'status'])
             ->setRowId('id');
@@ -126,46 +104,46 @@ class SubscribersDataTable extends DataTable
                 ->searchable(false),
 
             Column::make('name')
-                ->title('Name')
+                ->title('NAME')
                 ->searchable(true)
                 ->orderable(true),
 
             Column::make('email')
-                ->title('Email')
+                ->title('EMAIL')
                 ->searchable(true)
                 ->orderable(true),
 
             Column::make('status')
-                ->title('Status')
+                ->title('STATUS')
                 ->searchable(true)
                 ->orderable(true),
 
             Column::make('subscribed_at')
-                ->title('Subscribed At')
+                ->title('SUBSCRIBED AT')
                 ->visible(false)
                 ->searchable(false)
                 ->orderable(true),
 
             Column::make('unsubscribed_at')
-                ->title('Unsubscribed At')
+                ->title('UNSUBSCRIBED AT')
                 ->visible(false)
                 ->searchable(false)
                 ->orderable(true),
 
             Column::make('created_at')
-                ->title('Date & Time Created')
+                ->title('DATE & TIME CREATED')
                 ->visible(false)
                 ->searchable(false)
                 ->orderable(true),
 
             Column::make('updated_at')
-                ->title('Date & Time Updated')
+                ->title('DATE & TIME UPDATED')
                 ->visible(false)
                 ->searchable(false)
                 ->orderable(true),
 
             Column::computed('action')
-                ->title('Action')
+                ->title('ACTION')
                 ->exportable(false)
                 ->printable(false)
                 ->orderable(false)

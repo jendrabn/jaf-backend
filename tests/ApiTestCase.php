@@ -4,13 +4,11 @@ namespace Tests;
 
 use App\Models\Bank;
 use App\Models\Cart;
-use App\Models\City;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductBrand;
 use App\Models\ProductCategory;
-use App\Models\Province;
 use App\Models\Shipping;
 use App\Models\User;
 use App\Models\UserAddress;
@@ -95,32 +93,11 @@ class ApiTestCase extends BaseTestCase
         ];
     }
 
-    protected function formatCityData(City|Collection $data): array
-    {
-        return $data instanceof Collection
-            ? $data->map(fn ($data) => $this->formatCityData($data))->values()->toArray()
-            : [
-                'id' => $data['id'],
-                'type' => $data['type'],
-                'name' => $data['name'],
-            ];
-    }
-
-    protected function formatProvinceData(Province|Collection $data): array
-    {
-        return $data instanceof Collection
-            ? $data->map(fn ($data) => $this->formatProvinceData($data))->values()->toArray()
-            :
-            [
-                'id' => $data['id'],
-                'name' => $data['name'],
-            ];
-    }
 
     protected function formatCategoryData(ProductCategory|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn ($data) => $this->formatCategoryData($data))->values()->toArray()
+            ? $data->map(fn($data) => $this->formatCategoryData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -132,7 +109,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatBrandData(ProductBrand|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn ($data) => $this->formatBrandData($data))->values()->toArray()
+            ? $data->map(fn($data) => $this->formatBrandData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -144,7 +121,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatCartData(Cart|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn ($data) => $this->formatCartData($data))->values()->toArray()
+            ? $data->map(fn($data) => $this->formatCartData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'product' => $this->formatProductData($data['product']),
@@ -155,7 +132,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatBankData(Bank|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn ($data) => $this->formatBankData($data))->values()->toArray()
+            ? $data->map(fn($data) => $this->formatBankData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -183,7 +160,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatProductData(Product|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn ($data) => $this->formatProductData($data))->values()->toArray()
+            ? $data->map(fn($data) => $this->formatProductData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -202,7 +179,7 @@ class ApiTestCase extends BaseTestCase
 
     public function fakeHttpRajaOngkir(): void
     {
-        $url = config('shop.rajaongkir.base_url').'/cost';
+        $url = config('shop.rajaongkir.base_url') . '/cost';
 
         Http::fake([
             $url => function (Request $request) {
@@ -212,7 +189,7 @@ class ApiTestCase extends BaseTestCase
 
                         if ($request->data()['courier'] === $courier) {
                             $file = file_get_contents(
-                                base_path('tests/fixtures/rajaongkir/'.$courier.'.json')
+                                base_path('tests/fixtures/rajaongkir/' . $courier . '.json')
                             );
 
                             return Http::response($file);

@@ -69,12 +69,12 @@
 
                         <tr>
                             <th>SCHEDULED AT</th>
-                            <td>{{ formatDateTime($campaign->scheduled_at) }}</td>
+                            <td>{{ $campaign->scheduled_at }}</td>
                         </tr>
 
                         <tr>
                             <th>SENT AT</th>
-                            <td>{{ formatDateTime($campaign->sent_at) }}</td>
+                            <td>{{ $campaign->sent_at }}</td>
                         </tr>
 
                         <tr>
@@ -111,12 +111,12 @@
 
                         <tr>
                             <th>DATE & TIME CREATED</th>
-                            <td>{{ formatDateTime($campaign->created_at) }}</td>
+                            <td>{{ $campaign->created_at }}</td>
                         </tr>
 
                         <tr>
                             <th>DATE & TIME UPDATED</th>
-                            <td>{{ formatDateTime($campaign->updated_at) }}</td>
+                            <td>{{ $campaign->updated_at }}</td>
                         </tr>
                     </tbody>
                 </table>
