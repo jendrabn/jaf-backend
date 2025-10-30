@@ -130,15 +130,6 @@ class AuditLogDataTable extends DataTable
             ->orderBy(1, 'desc')
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('selectAll')
@@ -238,6 +229,6 @@ class AuditLogDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'AuditLog_' . date('YmdHis');
+        return 'AuditLog_'.date('YmdHis');
     }
 }

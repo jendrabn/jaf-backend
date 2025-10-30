@@ -21,6 +21,9 @@ class BannersDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.banners.partials.action')
+            ->addColumn('drag_handle', function ($row) {
+                return '<i class="bi bi-grip-vertical drag-handle" style="cursor: move;"></i>';
+            })
             ->editColumn('image', function ($row) {
                 return sprintf(
                     '<a href="%s" target="_blank">
@@ -31,7 +34,7 @@ class BannersDataTable extends DataTable
                 );
             })
             ->setRowId('id')
-            ->rawColumns(['action', 'image']);
+            ->rawColumns(['action', 'image', 'drag_handle']);
     }
 
     /**
@@ -39,7 +42,7 @@ class BannersDataTable extends DataTable
      */
     public function query(Banner $model): QueryBuilder
     {
-        return $model->newQuery()->with(['media'])->select('banners.*');
+        return $model->newQuery()->with(['media'])->select('banners.*')->orderBy('order', 'asc');
     }
 
     /**
@@ -53,15 +56,6 @@ class BannersDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
@@ -117,6 +111,21 @@ class BannersDataTable extends DataTable
                 ->title('URL')
                 ->orderable(false)
                 ->searchable(true),
+
+            Column::make('order')
+                ->title('ORDER')
+                ->orderable(true)
+                ->searchable(false)
+                ->visible(false),
+
+            Column::computed('drag_handle')
+                ->title('<i class="bi bi-grip-vertical" title="Drag to reorder"></i>')
+                ->exportable(false)
+                ->printable(false)
+                ->orderable(false)
+                ->searchable(false)
+                ->width(40)
+                ->addClass('text-center'),
 
             Column::make('created_at')
                 ->title('DATE & TIME CREATED')

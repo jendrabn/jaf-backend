@@ -21,10 +21,10 @@ class CouponUsageDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addColumn('action', 'couponusage.action')
             ->addColumn('order_id', function ($row) {
-                return $row->order->id . '<a href="' . route('admin.orders.show', $row->order->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return $row->order->id.'<a href="'.route('admin.orders.show', $row->order->id).'"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->addColumn('customer', function ($row) {
-                return $row->order->user->name . '<a href="' . route('admin.users.show', $row->order->user->id) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+                return $row->order->user->name.'<a href="'.route('admin.users.show', $row->order->user->id).'"><i class="bi bi-box-arrow-up-right"></i></a>';
             })
             ->setRowId('id')
             ->rawColumns(['action', 'order_id', 'customer']);
@@ -49,15 +49,6 @@ class CouponUsageDataTable extends DataTable
             ->setTableId('datatable-couponusage')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->selectStyleSingle()
             ->buttons([]);
@@ -103,6 +94,6 @@ class CouponUsageDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'CouponUsage_' . date('YmdHis');
+        return 'CouponUsage_'.date('YmdHis');
     }
 }

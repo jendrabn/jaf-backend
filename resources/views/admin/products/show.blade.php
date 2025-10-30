@@ -110,4 +110,124 @@
             </div>
         </div>
     </div>
+
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card shadow-lg">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title mb-0">Product Ratings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        {{ $dataTable->table(['class' => 'table table-bordered datatable ajaxTable mt-3', 'style' => 'width: 100%']) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('scripts')
+    <script>
+        $.fn.dataTable.ext.buttons.bulkDelete = {
+            text: "<i class='bi bi-trash3 mr-1'></i> Delete Selected",
+            action: function(e, dt) {
+                const ids = $.map(
+                    dt.rows({ selected: true }).data(),
+                    function(entry) {
+                        return entry.id;
+                    }
+                );
+
+                if (ids.length === 0) {
+                    toastr.warning("No rows selected", "Warning");
+
+                    return;
+                }
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "<i class='bi bi-trash3'></i> Delete",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            headers: {
+                                "x-csrf-token": _token,
+                            },
+                            method: "POST",
+                            url: "{{ route('admin.products.ratings.massDestroy', $product->id) }}",
+                            data: {
+                                ids: ids,
+                                _method: "DELETE",
+                            },
+                            success: function(data) {
+                                toastr.success(data.message);
+                                dt.ajax.reload();
+                            },
+                        });
+                    }
+                });
+            },
+        };
+    </script>
+
+    {{ $dataTable->scripts(attributes: ['type' => 'text/javascript']) }}
+
+    <script>
+        $(document).ready(function() {
+            const table = window.LaravelDataTables["dataTable-product-ratings"];
+
+            table.on("click", ".btn-delete-rating", function(e) {
+                e.preventDefault();
+
+                const url = $(this).data("url");
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "<i class='bi bi-trash3'></i> Delete",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            headers: {
+                                "x-csrf-token": _token,
+                            },
+                            method: "POST",
+                            url: url,
+                            data: {
+                                _method: "DELETE",
+                            },
+                            success: function(data) {
+                                toastr.success(data.message);
+                                table.ajax.reload();
+                            },
+                        });
+                    }
+                });
+            });
+
+            table.on("change", ".check-rating-published", function() {
+                const url = $(this).data("url");
+
+                $.ajax({
+                    headers: {
+                        "x-csrf-token": _token,
+                    },
+                    method: "POST",
+                    url: url,
+                    data: {
+                        _method: "PUT",
+                    },
+                    success: function(data) {
+                        toastr.success(data.message);
+                    },
+                });
+            });
+        });
+    </script>
 @endsection

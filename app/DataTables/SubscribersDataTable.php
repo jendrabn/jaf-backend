@@ -51,15 +51,6 @@ class SubscribersDataTable extends DataTable
             ->orderBy(1, 'desc')
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->buttons([
                 Button::make('create')
                     ->className('btn btn-success')
@@ -156,6 +147,6 @@ class SubscribersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Subscribers_' . date('dmY');
+        return 'Subscribers_'.date('dmY');
     }
 }

@@ -55,15 +55,6 @@ class ProductCategoriesDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
@@ -150,6 +141,6 @@ class ProductCategoriesDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'ProductCategories_' . date('dmY');
+        return 'ProductCategories_'.date('dmY');
     }
 }

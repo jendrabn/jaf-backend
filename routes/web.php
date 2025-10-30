@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductBrandController;
 use App\Http\Controllers\Admin\ProductCategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductRatingController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\TaxController;
@@ -357,6 +358,10 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->name('banners.destroy')
             ->middleware('permission:banners.delete');
 
+        Route::post('banners/reorder', [BannerController::class, 'reorder'])
+            ->name('banners.reorder')
+            ->middleware('permission:banners.edit');
+
         // -------- Products (resource + uploads + massDestroy) --------
         Route::delete('products/destroy', [ProductController::class, 'massDestroy'])
             ->name('products.massDestroy')
@@ -405,6 +410,22 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->whereNumber('product')
             ->name('products.destroy')
             ->middleware('permission:products.delete');
+
+        // -------- Product Ratings --------
+        Route::delete('products/{product}/ratings/destroy', [ProductRatingController::class, 'massDestroy'])
+            ->whereNumber('product')
+            ->name('products.ratings.massDestroy')
+            ->middleware('permission:products.delete');
+
+        Route::delete('products/{product}/ratings/{productRating}', [ProductRatingController::class, 'destroy'])
+            ->whereNumber(['product', 'productRating'])
+            ->name('products.ratings.destroy')
+            ->middleware('permission:products.delete');
+
+        Route::put('products/{product}/ratings/{productRating}/publish', [ProductRatingController::class, 'publish'])
+            ->whereNumber(['product', 'productRating'])
+            ->name('products.ratings.publish')
+            ->middleware('permission:products.edit');
 
         // -------- Blog Tags (except show, edit view) + massDestroy --------
         Route::delete('blog-tags/destroy', [BlogTagController::class, 'massDestroy'])

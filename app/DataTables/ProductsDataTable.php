@@ -32,7 +32,7 @@ class ProductsDataTable extends DataTable
             })
             ->editColumn(
                 'price',
-                fn($row) => formatIDR($row->price)
+                fn ($row) => formatIDR($row->price)
             )
             ->editColumn('is_publish', function ($row) {
                 return sprintf(
@@ -44,7 +44,10 @@ class ProductsDataTable extends DataTable
                 return view('admin.products.partials.product-column', compact('product'));
             })
             ->setRowId('id')
-            ->rawColumns(['action', 'image', 'is_publish', 'product_info']);
+            ->rawColumns(['action', 'image', 'is_publish', 'product_info'])
+            ->orderColumn('sold_count', function ($query, $order) {
+                $query->orderBy('sold_count', $order);
+            });
     }
 
     /**
@@ -59,7 +62,7 @@ class ProductsDataTable extends DataTable
         $filter_keys = ['product_category_id', 'product_brand_id', 'sex', 'is_publish'];
 
         foreach ($filter_keys as $key) {
-            $model->when(request()->filled($key), fn($q) => $q->where($key, request($key)));
+            $model->when(request()->filled($key), fn ($q) => $q->where($key, request($key)));
         }
 
         return $model;
@@ -76,15 +79,7 @@ class ProductsDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
+
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
@@ -217,6 +212,6 @@ class ProductsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Products_' . date('dmY');
+        return 'Products_'.date('dmY');
     }
 }

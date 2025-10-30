@@ -11,8 +11,10 @@
           name="csrf-token" />
 
     <title>@yield('page_title') | {{ config('app.name') }}</title>
+    <link href="{{ asset('build/manifest.webmanifest') }}"
+          rel="manifest">
 
-    <link href="{{ asset('favicon.ico') }}"
+    <link href="{{ asset('images/favicon.ico') }}"
           rel="icon"
           type="image/x-icon" />
 
@@ -36,15 +38,9 @@
           rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"
           rel="stylesheet" />
-    @vite('resources/scss/style.scss')
+    @vite(['resources/scss/style.scss', 'resources/js/app.js'])
     @yield('styles')
     @stack('styles')
-
-    <style>
-        .table>tbody>tr>td {
-            vertical-align: middle;
-        }
-    </style>
 </head>
 
 <body class="hold-transition sidebar-mini fixed-layout">
@@ -119,76 +115,75 @@
     <script src="{{ asset('js/main.js') }}"></script>
 
     <script>
-        $(function() {
-            Swal = Swal.mixin({
-                customClass: {
-                    confirmButton: "btn btn-primary",
-                    cancelButton: "btn btn-secondary",
-                },
-                cancelButtonText: '<i class="bi bi-x-circle mr-1"></i> Cancel',
-                theme: 'bootstrap-4'
-            });
-
-            toastr.options = {
-                progressBar: true,
-                positionClass: "toast-top-right",
-                timeOut: 5000,
-            };
-
-            $.ajaxSetup({
-                error: function(jqXHR, textStatus, errorThrown) {
-                    toastr.error(jqXHR.responseJSON.message || errorThrown);
-                },
-            });
-
-            $.extend(true, $.fn.dataTable.Buttons.defaults.dom.button, {
-                className: "btn btn-secondary",
-            });
-
-            $.extend(true, $.fn.dataTable.defaults, {
-                language: {
-                    url: "https://cdn.datatables.net/plug-ins/1.10.19/i18n/English.json",
-                },
-                order: [1, "desc"],
-                scrollX: true,
-                pageLength: 10,
-                lengthMenu: [
-                    10,
-                    25,
-                    50,
-                    100,
-                    {
-                        label: "All",
-                        value: -1,
-                    },
-                ],
-                dom: 'lBfrtip<"actions">',
-                initComplete: function() {
-                    this.api().columns.adjust().draw();
-                },
-            });
-
-            $.fn.dataTable.ext.classes.sPageButton = "";
-
-            $('a[data-widget^="pushmenu"]').click(function() {
-                let isCollapsed =
-                    document.body.classList.contains("sidebar-collapse");
-
-                localStorage.setItem("pushmenu", !isCollapsed);
-
-                setTimeout(function() {
-                    $($.fn.dataTable.tables(true))
-                        .DataTable()
-                        .columns.adjust();
-                }, 350);
-            });
-
-            if (localStorage.getItem("pushmenu") === "true") {
-                document.body.classList.add("sidebar-collapse");
-            }
-
-            $('[data-toggle="tooltip"]').tooltip()
+        Swal = Swal.mixin({
+            customClass: {
+                confirmButton: "btn btn-primary",
+                cancelButton: "btn btn-secondary",
+            },
+            cancelButtonText: '<i class="bi bi-x-circle mr-1"></i> Cancel',
+            theme: 'bootstrap-4'
         });
+
+        toastr.options = {
+            progressBar: true,
+            positionClass: "toast-top-right",
+            timeOut: 1000,
+        };
+
+        $.ajaxSetup({
+            error: function(jqXHR, textStatus, errorThrown) {
+                toastr.error(jqXHR.responseJSON.message || errorThrown);
+            },
+        });
+
+        $.extend(true, $.fn.dataTable.defaults, {
+            responsive: true,
+            autoWidth: false,
+            stateSave: true,
+            pageLength: 25,
+            lengthMenu: [10, 25, 50, 100, {
+                value: -1,
+                label: 'All'
+            }],
+            language: {
+                search: '',
+                searchPlaceholder: 'Search...',
+                lengthMenu: '_MENU_',
+            },
+            dom: 'lBfrtip<"actions">',
+            initComplete: function() {
+                this.api().columns.adjust().draw();
+            },
+        });
+
+        $.extend(true, $.fn.dataTable.ext.classes, {
+            length: {
+                select: 'form-control'
+            },
+            search: {
+                input: 'form-control'
+            }
+        });
+
+
+        $('a[data-widget^="pushmenu"]').click(function() {
+            let isCollapsed =
+                document.body.classList.contains("sidebar-collapse");
+
+            localStorage.setItem("pushmenu", !isCollapsed);
+
+            setTimeout(function() {
+                $($.fn.dataTable.tables(true))
+                    .DataTable()
+                    .columns.adjust();
+            }, 350);
+        });
+
+        if (localStorage.getItem("pushmenu") === "true") {
+            document.body.classList.add("sidebar-collapse");
+        }
+
+        $('[data-toggle="tooltip"]').tooltip();
     </script>
 
     @yield('scripts')

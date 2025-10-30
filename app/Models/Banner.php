@@ -20,6 +20,7 @@ class Banner extends Model implements HasMedia
     protected $fillable = [
         'image_description',
         'url',
+        'order',
     ];
 
     protected $appends = [

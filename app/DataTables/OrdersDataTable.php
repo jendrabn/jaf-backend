@@ -27,11 +27,11 @@ class OrdersDataTable extends DataTable
                     return null;
                 }
 
-                return str()->words($row->user->name, 2, '') . externalIconLink(route('admin.users.show', $row->user->id));
+                return str()->words($row->user->name, 2, '').externalIconLink(route('admin.users.show', $row->user->id));
             })
             ->editColumn(
                 'items',
-                fn($row) => view('admin.orders.partials.item', ['items' => $row->items])
+                fn ($row) => view('admin.orders.partials.item', ['items' => $row->items])
             )
             ->editColumn('status', function ($row) {
                 $status = OrderStatus::from($row->status);
@@ -40,15 +40,15 @@ class OrdersDataTable extends DataTable
             })
             ->editColumn(
                 'amount',
-                fn($row) => formatIDR($row->invoice->amount)
+                fn ($row) => formatIDR($row->invoice->amount)
             )
             ->editColumn(
                 'shipping',
-                fn($row) => $row->shipping ? strtoupper($row->shipping->courier) . ($row->shipping->tracking_number ? ' - ' . $row->shipping->tracking_number : '') : ''
+                fn ($row) => $row->shipping ? strtoupper($row->shipping->courier).($row->shipping->tracking_number ? ' - '.$row->shipping->tracking_number : '') : ''
             )
             ->addColumn(
                 'payment_method',
-                fn($row) => strtoupper($row->invoice->payment->method)
+                fn ($row) => strtoupper($row->invoice->payment->method)
             )
             ->setRowId('id')
             ->rawColumns(['action', 'name', 'items', 'status']);
@@ -73,17 +73,17 @@ class OrdersDataTable extends DataTable
 
         $model->when(
             request()->filled('status'),
-            fn($q) => $q->where('status', request('status'))
+            fn ($q) => $q->where('status', request('status'))
         );
 
         $model->when(
             request()->filled('daterange'),
-            fn($q) => $q->whereBetween('created_at', explode(' - ', request('daterange')))
+            fn ($q) => $q->whereBetween('created_at', explode(' - ', request('daterange')))
         );
 
         $model->when(
             request()->filled('payment_method'),
-            fn($q) => $q->whereHas('invoice', fn($q) => $q->whereHas('payment', fn($q) => $q->where('method', request('payment_method'))))
+            fn ($q) => $q->whereHas('invoice', fn ($q) => $q->whereHas('payment', fn ($q) => $q->where('method', request('payment_method'))))
         );
 
         return $model;
@@ -100,15 +100,6 @@ class OrdersDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('selectAll')
@@ -240,6 +231,6 @@ class OrdersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Orders_' . date('dmY');
+        return 'Orders_'.date('dmY');
     }
 }

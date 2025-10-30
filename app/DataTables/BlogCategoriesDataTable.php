@@ -44,15 +44,6 @@ class BlogCategoriesDataTable extends DataTable
             ->orderBy(1)
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
@@ -135,6 +126,6 @@ class BlogCategoriesDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'BlogCategory_' . date('dmY');
+        return 'BlogCategory_'.date('dmY');
     }
 }

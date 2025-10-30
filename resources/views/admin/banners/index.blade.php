@@ -74,9 +74,58 @@
     </script>
 
     {{ $dataTable->scripts(attributes: ['type' => 'text/javascript']) }}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
         $(function() {
             const table = window.LaravelDataTables["dataTable-banners"];
+
+            // Initialize drag and drop
+            table.on('draw.dt', function() {
+                initializeSortable();
+            });
+
+            function initializeSortable() {
+                const tbody = document.querySelector('#dataTable-banners tbody');
+                if (tbody) {
+                    new Sortable(tbody, {
+                        handle: '.drag-handle',
+                        animation: 150,
+                        onEnd: function(evt) {
+                            const bannerIds = [];
+                            const rows = tbody.querySelectorAll('tr');
+
+                            rows.forEach(function(row) {
+                                const bannerId = row.getAttribute('id');
+                                if (bannerId) {
+                                    bannerIds.push(bannerId.replace('row_', ''));
+                                }
+                            });
+
+                            $.ajax({
+                                headers: {
+                                    "x-csrf-token": _token,
+                                },
+                                method: "POST",
+                                url: "{{ route('admin.banners.reorder') }}",
+                                data: {
+                                    banners: bannerIds,
+                                },
+                                success: function(data) {
+                                    toastr.success(data.message);
+                                    table.ajax.reload();
+                                },
+                                error: function(xhr) {
+                                    toastr.error('Error reordering banners');
+                                    table.ajax.reload();
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+
+            // Initialize on first load
+            initializeSortable();
 
             table.on("click", ".btn-delete", function(e) {
                 e.preventDefault();

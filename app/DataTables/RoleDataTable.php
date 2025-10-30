@@ -21,7 +21,7 @@ class RoleDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.roles.partials.action')
-            ->editColumn('name', fn($role) => str()->headline($role->name))
+            ->editColumn('name', fn ($role) => str()->headline($role->name))
             ->editColumn('permissions', function ($role) {
                 $rolesHtml = [];
 
@@ -36,8 +36,8 @@ class RoleDataTable extends DataTable
 
                 return implode(' ', $rolesHtml);
             })
-            ->editColumn('created_at', fn($role) => optional($role->created_at)->format('d-m-Y H:i:s'))
-            ->editColumn('updated_at', fn($role) => optional($role->updated_at)->format('d-m-Y H:i:s'))
+            ->editColumn('created_at', fn ($role) => optional($role->created_at)->format('d-m-Y H:i:s'))
+            ->editColumn('updated_at', fn ($role) => optional($role->updated_at)->format('d-m-Y H:i:s'))
             ->rawColumns(['action', 'permissions'])
             ->setRowId('id');
     }
@@ -62,15 +62,6 @@ class RoleDataTable extends DataTable
             ->setTableId('role-datatable')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
@@ -137,6 +128,6 @@ class RoleDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Role_' . date('YmdHis');
+        return 'Role_'.date('YmdHis');
     }
 }

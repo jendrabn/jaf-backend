@@ -18,7 +18,7 @@ class ContactMessagesDataTable extends DataTable
         $dataTable = new EloquentDataTable($query);
 
         $dataTable->editColumn('email', function (ContactMessage $row) {
-            return $row->email . '<a class="ml-1 icon-btn text-muted small" href="mailto:' . $row->email . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+            return $row->email.'<a class="ml-1 icon-btn text-muted small" href="mailto:'.$row->email.'"><i class="bi bi-box-arrow-up-right"></i></a>';
         });
 
         $dataTable->editColumn('phone', function (ContactMessage $row) {
@@ -26,7 +26,7 @@ class ContactMessagesDataTable extends DataTable
                 return '-';
             }
 
-            return e($row->phone) . '<a class="ml-1 icon-btn text-muted small" href="tel:' . e($row->phone) . '"><i class="bi bi-box-arrow-up-right"></i></a>';
+            return e($row->phone).'<a class="ml-1 icon-btn text-muted small" href="tel:'.e($row->phone).'"><i class="bi bi-box-arrow-up-right"></i></a>';
         });
 
         $dataTable->editColumn('created_at', function (ContactMessage $row) {
@@ -59,7 +59,7 @@ class ContactMessagesDataTable extends DataTable
                 $color = 'secondary';
             }
 
-            return '<span class="badge badge-' . e($color) . ' badge-pill">' . e($label) . '</span>';
+            return '<span class="badge badge-'.e($color).' badge-pill">'.e($label).'</span>';
         });
 
         $dataTable->addColumn('action', 'admin.contact.partials.action');
@@ -98,15 +98,6 @@ class ContactMessagesDataTable extends DataTable
             ->minifiedAjax(route('admin.messages.index'))
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons(
                 Button::make('selectAll')
@@ -202,6 +193,6 @@ class ContactMessagesDataTable extends DataTable
 
     protected function filename(): string
     {
-        return 'contact_messages_' . date('YmdHis');
+        return 'contact_messages_'.date('YmdHis');
     }
 }

@@ -134,4 +134,18 @@ class BannerController extends Controller
 
         return response()->json(['id' => $media->id, 'url' => $media->getUrl()], Response::HTTP_CREATED);
     }
+
+    /**
+     * Reorder banners.
+     */
+    public function reorder(Request $request): JsonResponse
+    {
+        $banners = $request->input('banners', []);
+
+        foreach ($banners as $index => $bannerId) {
+            Banner::where('id', $bannerId)->update(['order' => $index + 1]);
+        }
+
+        return response()->json(['message' => 'Banners reordered successfully.'], Response::HTTP_OK);
+    }
 }

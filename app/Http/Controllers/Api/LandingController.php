@@ -18,6 +18,7 @@ class LandingController extends Controller
     {
         $banners = Banner::with(['media'])
             ->take(10)
+            ->orderBy('order', 'asc')
             ->get();
 
         $products = Product::with(['media', 'category', 'brand'])

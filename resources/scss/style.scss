@@ -317,3 +317,11 @@ pre {
     word-break: break-word;
     overflow-wrap: anywhere;
 }
+
+.rounded-circle {
+    border-radius: 50% !important;
+}
+
+.table > tbody > tr > td {
+    vertical-align: middle;
+}

@@ -11,7 +11,13 @@
 @endsection
 
 @section('content')
-    <div class="row">
+    @php
+        $recent_orders = $recent_orders ?? collect();
+        $recent_contact_messages = $recent_contact_messages ?? collect();
+        $recent_audit_logs = $recent_audit_logs ?? collect();
+    @endphp
+
+    <div class="row mb-4">
         {{-- Total Revenues --}}
         <div class="col-12 col-sm-6 col-lg-3 mb-3">
             <div class="stat-card shadow-sm d-flex align-items-center card-surface p-16-18">
@@ -217,68 +223,243 @@
         </div>
     </div>
 
-    {{-- CHARTS --}}
-    <div class="row mt-12">
-        <div class="col-lg-12 mb-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-header d-flex align-items-center justify-content-between border-b-soft">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-graph-up-arrow mr-2"></i>
-                        <h3 class="card-title mb-0">Revenue</h3>
-                    </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex align-items-center justify-content-between border-b-soft">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-graph-up-arrow mr-2"></i>
+                <h3 class="card-title mb-0">Revenue</h3>
+            </div>
 
-                    {{-- Granularitas saja --}}
-                    <div class="btn-group btn-group-toggle"
-                         data-toggle="buttons"
-                         id="grainToggle">
-                        <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'day' ? 'active' : '' }}">
-                            <input {{ $default_grain === 'day' ? 'checked' : '' }}
-                                   data-grain="day"
-                                   name="grain"
-                                   type="radio"> Daily
-                        </label>
-                        <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'week' ? 'active' : '' }}">
-                            <input {{ $default_grain === 'week' ? 'checked' : '' }}
-                                   data-grain="week"
-                                   name="grain"
-                                   type="radio"> Weeekly
-                        </label>
-                        <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'month' ? 'active' : '' }}">
-                            <input {{ $default_grain === 'month' ? 'checked' : '' }}
-                                   data-grain="month"
-                                   name="grain"
-                                   type="radio"> Monthly
-                        </label>
-                        <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'year' ? 'active' : '' }}">
-                            <input {{ $default_grain === 'year' ? 'checked' : '' }}
-                                   data-grain="year"
-                                   name="grain"
-                                   type="radio"> Yearly
-                        </label>
-                    </div>
-                </div>
+            {{-- Granularitas saja --}}
+            <div class="btn-group btn-group-toggle"
+                 data-toggle="buttons"
+                 id="grainToggle">
+                <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'day' ? 'active' : '' }}">
+                    <input {{ $default_grain === 'day' ? 'checked' : '' }}
+                           data-grain="day"
+                           name="grain"
+                           type="radio"> Daily
+                </label>
+                <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'week' ? 'active' : '' }}">
+                    <input {{ $default_grain === 'week' ? 'checked' : '' }}
+                           data-grain="week"
+                           name="grain"
+                           type="radio"> Weeekly
+                </label>
+                <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'month' ? 'active' : '' }}">
+                    <input {{ $default_grain === 'month' ? 'checked' : '' }}
+                           data-grain="month"
+                           name="grain"
+                           type="radio"> Monthly
+                </label>
+                <label class="btn btn-sm btn-outline-secondary {{ $default_grain === 'year' ? 'active' : '' }}">
+                    <input {{ $default_grain === 'year' ? 'checked' : '' }}
+                           data-grain="year"
+                           name="grain"
+                           type="radio"> Yearly
+                </label>
+            </div>
+        </div>
 
-                <div class="card-body">
-                    <div class="chart-wrapper">
-                        <canvas id="chart-revenue"></canvas>
-                    </div>
-                </div>
+        <div class="card-body">
+            <div class="chart-wrapper">
+                <canvas id="chart-revenue"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="row mt-12">
-        <div class="col-md-12 mb-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-header d-flex align-items-center border-b-soft">
-                    <i class="bi bi-bar-chart-line mr-2"></i>
-                    <h3 class="card-title mb-0">Orders</h3>
-                </div>
-                <div class="card-body">
-                    <div class="chart-wrapper">
-                        <canvas id="chart-orders-count"></canvas>
-                    </div>
-                </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex align-items-center border-b-soft">
+            <i class="bi bi-bar-chart-line mr-2"></i>
+            <h3 class="card-title mb-0">Orders</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-wrapper">
+                <canvas id="chart-orders-count"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header border-bottom-0">
+            <h3 class="card-title">Recent Orders</h3>
+            <div class="card-tools">
+                <a class="btn btn-link"
+                   href="{{ route('admin.orders.index') }}">
+                    View all
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-uppercase">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Amount</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($recent_orders as $order)
+                            <tr>
+                                <td>{{ $order->id }}</td>
+                                <td>{{ $order->user?->name ?? 'Guest' }}</td>
+                                <td>{{ formatIDR($order->invoice->amount) }}</td>
+                                <td>{{ strtoupper($order->invoice->payment->method) }}</td>
+                                <td>
+                                    @php
+                                        $status = App\Enums\OrderStatus::from($order->status);
+                                        $statusLabel = $status->label();
+                                        $statusColor = $status->color();
+                                    @endphp
+                                    <span class="badge badge-{{ $statusColor }}">{{ $statusLabel }}</span>
+                                </td>
+                                <td>{{ $order->created_at }}</td>
+                                <td>
+                                    <a class="btn btn-primary btn-sm btn-icon btn-view"
+                                       href="{{ route('admin.orders.show', $order->id) }}"
+                                       title="View Order">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td class="text-center text-muted"
+                                    colspan="6">No recent orders.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header border-bottom-0">
+            <h3 class="card-title mb-0">Recent Contact Messages</h3>
+            <div class="card-tools">
+                <a class="btn btn-link"
+                   href="{{ route('admin.messages.index') }}">
+                    View all
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead class="text-uppercase">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Received</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($recent_contact_messages as $message)
+                            <tr>
+                                <td>{{ $message->id }}</td>
+                                <td>{{ $message->name }}</td>
+                                <td>{{ $message->email }}</td>
+                                <td>
+                                    @php
+                                        $status = App\Enums\ContactMessageStatus::from($message->status);
+                                        $statusLabel = $status->label();
+                                        $statusColor = $status->color();
+                                    @endphp
+                                    <span class="badge badge-{{ $statusColor }}">{{ $statusLabel }}</span>
+                                </td>
+                                <td>
+                                    <div>{{ $message->created_at }}</div>
+                                    @if ($message->handler)
+                                        <div class="text-muted small">Handled by {{ $message->handler->name }}
+                                        </div>
+                                    @endif
+                                </td>
+                                <td>
+                                    {{ $message->created_at }}
+                                </td>
+                                <td>
+                                    <a class="btn btn-primary btn-sm btn-icon btn-view"
+                                       href="{{ route('admin.messages.show', $message->id) }}"
+                                       title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td class="text-center text-muted"
+                                    colspan="5">No recent messages.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header border-bottom-0">
+            <h3 class="card-title mb-0">Recent Audit Logs</h3>
+            <div class="card-tools">
+                <a class="btn btn-link"
+                   href="{{ route('admin.audit-logs.index') }}">
+                    View all
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead class="text-uppercase">
+                        <tr>
+                            <th>ID</th>
+                            <th>Event</th>
+                            <th>Description</th>
+                            <th>User</th>
+                            <th>Date</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($recent_audit_logs as $log)
+                            <tr>
+                                <td>{{ $log->id }}</td>
+                                <td>{{ $log->event }}</td>
+                                <td>
+                                    @if ($log->description)
+                                        {{ $log->description }}
+                                    @else
+                                        —
+                                    @endif
+                                </td>
+                                <td>{{ $log->user?->name ?? 'System' }}</td>
+                                <td>{{ $log->created_at }}</td>
+                                <td>
+                                    <a class="btn btn-primary btn-sm btn-icon btn-view"
+                                       href="{{ route('admin.audit-logs.show', $log->id) }}"
+                                       title="View">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td class="text-center text-muted"
+                                    colspan="5">No recent audit logs.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

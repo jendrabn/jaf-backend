@@ -27,9 +27,9 @@ class CouponDataTable extends DataTable
             })
             ->editColumn('discount_amount', function ($coupon) {
                 if ($coupon->discount_type == 'fixed') {
-                    return formatIDR($coupon->discount_amount) . '(Flat)';
+                    return formatIDR($coupon->discount_amount).'(Flat)';
                 } elseif ($coupon->discount_type == 'percentage') {
-                    return $coupon->discount_amount . '%';
+                    return $coupon->discount_amount.'%';
                 } else {
                     return null;
                 }
@@ -60,15 +60,6 @@ class CouponDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
@@ -186,6 +177,6 @@ class CouponDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Coupon_' . date('YmdHis');
+        return 'Coupon_'.date('YmdHis');
     }
 }

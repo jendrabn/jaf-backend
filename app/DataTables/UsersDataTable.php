@@ -32,14 +32,14 @@ class UsersDataTable extends DataTable
                 return implode(' ', $roles);
             })
             ->editColumn('email', function ($row) {
-                return $row->email . externalIconLink('mailto:' . $row->email);
+                return $row->email.externalIconLink('mailto:'.$row->email);
             })
             ->editColumn('phone', function ($row) {
                 if (! $row->phone) {
                     return '-';
                 }
 
-                return e($row->phone) . externalIconLink('tel:' . e($row->phone));
+                return e($row->phone).externalIconLink('tel:'.e($row->phone));
             })
             ->setRowId('id')
             ->rawColumns(['action', 'roles', 'email', 'phone']);
@@ -54,7 +54,7 @@ class UsersDataTable extends DataTable
             ->with(['roles'])
             ->select('users.*')
             ->withCount([
-                'orders' => fn($q) => $q->where('status', OrderStatus::Completed->value),
+                'orders' => fn ($q) => $q->where('status', OrderStatus::Completed->value),
             ]);
     }
 
@@ -69,15 +69,6 @@ class UsersDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
@@ -187,6 +178,6 @@ class UsersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Users_' . date('dmY');
+        return 'Users_'.date('dmY');
     }
 }

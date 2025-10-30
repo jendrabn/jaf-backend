@@ -21,7 +21,7 @@ class CampaignsDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addColumn('action', 'admin.campaigns.partials.actions')
-            ->editColumn('status', fn(Campaign $c) => badgeLabel($c->status->label(), $c->status->color()))
+            ->editColumn('status', fn (Campaign $c) => badgeLabel($c->status->label(), $c->status->color()))
             ->setRowId('id')
             ->rawColumns(['status', 'action']);
     }
@@ -47,15 +47,6 @@ class CampaignsDataTable extends DataTable
             ->minifiedAjax()
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
@@ -137,8 +128,9 @@ class CampaignsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Campaigns_' . date('YmdHis');
+        return 'Campaigns_'.date('YmdHis');
     }
+
     /**
      * Add JavaScript for bulk delete functionality.
      */
@@ -158,7 +150,7 @@ class CampaignsDataTable extends DataTable
 
                     if (confirm("Are you sure you want to delete the selected campaigns?")) {
                         $.ajax({
-                            url: "' . route('admin.campaigns.massDestroy') . '",
+                            url: "'.route('admin.campaigns.massDestroy').'",
                             type: "DELETE",
                             data: {ids: ids},
                             success: function() {
@@ -167,7 +159,7 @@ class CampaignsDataTable extends DataTable
                         });
                     }
                 });
-            }'
+            }',
         ];
     }
 }

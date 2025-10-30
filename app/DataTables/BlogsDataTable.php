@@ -35,7 +35,7 @@ class BlogsDataTable extends DataTable
                 $tags = [];
 
                 $row->tags->each(function ($tag) use (&$tags) {
-                    $tags[] = '<span class="badge badge-info rounded-0">' . $tag->name . '</span>';
+                    $tags[] = '<span class="badge badge-info rounded-0">'.$tag->name.'</span>';
                 });
 
                 return implode(' ', $tags);
@@ -55,21 +55,21 @@ class BlogsDataTable extends DataTable
 
         $model->when(
             request()->filled('blog_category_id'),
-            fn($q) => $q->where('blog_category_id', request('blog_category_id'))
+            fn ($q) => $q->where('blog_category_id', request('blog_category_id'))
         );
         $model->when(
             request()->filled('user_id'),
-            fn($q) => $q->where('user_id', request('user_id'))
+            fn ($q) => $q->where('user_id', request('user_id'))
         );
 
         $model->when(
             request()->filled('blog_tag_id'),
-            fn($q) => $q->whereHas('tags', fn($q) => $q->where('blog_tag_id', request('blog_tag_id')))
+            fn ($q) => $q->whereHas('tags', fn ($q) => $q->where('blog_tag_id', request('blog_tag_id')))
         );
 
         $model->when(
             request()->filled('is_publish'),
-            fn($q) => $q->where('is_publish', request('is_publish'))
+            fn ($q) => $q->where('is_publish', request('is_publish'))
         );
 
         return $model;
@@ -87,15 +87,6 @@ class BlogsDataTable extends DataTable
             ->orderBy(1)
             ->selectStyleMultiShift()
             ->selectSelector('td:first-child')
-            ->parameters([
-                'responsive' => true,
-                'autoWidth' => false,
-                'stateSave' => true,
-                'pageLength' => 25,
-                'lengthMenu' => [[10, 25, 50, 100, -1], [10, 25, 50, 100, 'All']],
-                'language' => [],
-            ])
-            ->dom('lBfrtip<"actions">')
             ->orderBy(1, 'desc')
             ->buttons([
                 Button::make('create')
@@ -217,6 +208,6 @@ class BlogsDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Blog_' . date('dmY');
+        return 'Blog_'.date('dmY');
     }
 }

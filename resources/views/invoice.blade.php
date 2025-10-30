@@ -217,7 +217,9 @@
                 <td class="title"
                     colspan="3">Metode Pembayaran</td>
                 <td class="text-right"
-                    colspan="2">{{ $order->invoice->payment->info['name'] }}</td>
+                    colspan="2">
+                    {{ $order->invoice->payment->info['name'] ?? ($order->invoice->payment->info['provider'] ?? 'N/A') }}
+                </td>
             </tr>
         </tbody>
     </table>

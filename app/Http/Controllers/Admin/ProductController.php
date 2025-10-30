@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\ProductRatingsDataTable;
 use App\DataTables\ProductsDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
@@ -37,9 +38,11 @@ class ProductController extends Controller
      *
      * @param  Product  $product  The product to display.
      */
-    public function show(Product $product): View
+    public function show(ProductRatingsDataTable $productRatingsDataTable, Product $product): mixed
     {
-        return view('admin.products.show', compact('product'));
+        return $productRatingsDataTable
+            ->with('product', $product)
+            ->render('admin.products.show', compact('product'));
     }
 
     /**
