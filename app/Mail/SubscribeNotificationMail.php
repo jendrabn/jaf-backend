@@ -38,7 +38,7 @@ class SubscribeNotificationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.newsletter.subscribe',
+            view: 'emails.newsletter.subscribe',
             with: [
                 'subscriber' => $this->subscriber,
             ],

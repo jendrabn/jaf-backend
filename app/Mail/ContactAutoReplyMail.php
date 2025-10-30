@@ -26,9 +26,9 @@ class ContactAutoReplyMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.contact.auto_reply',
+            view: 'emails.contact.auto_reply',
             with: [
-                'message' => $this->message,
+                'contactMessage' => $this->message,
             ]
         );
     }

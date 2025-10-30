@@ -64,7 +64,7 @@ class CampaignMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            view: 'emails.campaign',
+            view: 'emails.newsletter.campaign',
             with: [
                 'subject' => $this->subjectLine,
                 'html' => $this->htmlBody,

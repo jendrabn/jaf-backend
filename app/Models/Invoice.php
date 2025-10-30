@@ -16,11 +16,6 @@ class Invoice extends Model
 
     public const STATUS_UNPAID = 'unpaid';
 
-    public const STATUSES = [
-        self::STATUS_PAID => ['label' => 'Paid'],
-        self::STATUS_UNPAID => ['label' => 'Unpaid'],
-    ];
-
     protected $fillable = [
         'order_id',
         'number',

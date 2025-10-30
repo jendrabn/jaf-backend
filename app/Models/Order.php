@@ -26,33 +26,6 @@ class Order extends Model
 
     public const STATUS_CANCELLED = 'cancelled';
 
-    public const STATUSES = [
-        self::STATUS_PENDING_PAYMENT => [
-            'label' => 'Pending Payment',
-            'color' => 'secondary',
-        ],
-        self::STATUS_PENDING => [
-            'label' => 'Pending',
-            'color' => 'warning',
-        ],
-        self::STATUS_PROCESSING => [
-            'label' => 'Processing',
-            'color' => 'success',
-        ],
-        self::STATUS_ON_DELIVERY => [
-            'label' => 'On Delivery',
-            'color' => 'success',
-        ],
-        self::STATUS_COMPLETED => [
-            'label' => 'Completed',
-            'color' => 'info',
-        ],
-        self::STATUS_CANCELLED => [
-            'label' => 'Cancelled',
-            'color' => 'danger',
-        ],
-    ];
-
     protected $fillable = [
         'user_id',
         'total_price',

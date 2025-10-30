@@ -27,10 +27,10 @@ class ContactReplyMail extends Mailable implements ShouldQueue
     public function content(): Content
     {
         return new Content(
-            markdown: 'emails.contact.reply',
+            view: 'emails.contact.reply',
             with: [
                 'reply' => $this->reply,
-                'message' => $this->message,
+                'contactMessage' => $this->message,
             ]
         );
     }

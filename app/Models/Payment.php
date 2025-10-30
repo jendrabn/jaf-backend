@@ -18,12 +18,6 @@ class Payment extends Model
 
     public const STATUS_RELEASED = 'realeased';
 
-    public const STATUSES = [
-        self::STATUS_PENDING => ['label' => 'Pending'],
-        self::STATUS_CANCELLED => ['label' => 'Cancelled'],
-        self::STATUS_RELEASED => ['label' => 'Realeased'],
-    ];
-
     public const METHOD_BANK = 'bank';
 
     public const METHOD_EWALLET = 'ewallet';

@@ -286,7 +286,7 @@
             <div class="card-tools">
                 <a class="btn btn-link"
                    href="{{ route('admin.orders.index') }}">
-                    View all
+                    View all <i class="bi bi-arrow-right ml-1"></i>
                 </a>
             </div>
         </div>
@@ -346,7 +346,7 @@
             <div class="card-tools">
                 <a class="btn btn-link"
                    href="{{ route('admin.messages.index') }}">
-                    View all
+                    View all <i class="bi bi-arrow-right ml-1"></i>
                 </a>
             </div>
         </div>
@@ -413,7 +413,7 @@
             <div class="card-tools">
                 <a class="btn btn-link"
                    href="{{ route('admin.audit-logs.index') }}">
-                    View all
+                    View all <i class="bi bi-arrow-right ml-1"></i>
                 </a>
             </div>
         </div>

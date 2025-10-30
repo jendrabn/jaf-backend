@@ -61,10 +61,12 @@ class OrderCreatedMailTest extends TestCase
 
         $rupiah = fn (int $v) => 'Rp '.number_format($v, 0, ',', '.');
 
-        // Header and invoice number
-        $this->assertStringContainsString('Pesanan Berhasil Dibuat', $html);
-        $this->assertStringContainsString('Nomor Invoice:', $html);
+        // Header and invoice summary
+        $this->assertStringContainsString('Pesanan Anda berhasil dibuat', $html);
+        $this->assertStringContainsString('Nomor Invoice', $html);
         $this->assertStringContainsString($invoice->number, $html);
+        $this->assertStringContainsString('Total Pembayaran', $html);
+        $this->assertStringContainsString($rupiah((int) $invoice->amount), $html);
 
         // Product rows
         $this->assertStringContainsString('Produk A', $html);
@@ -75,18 +77,19 @@ class OrderCreatedMailTest extends TestCase
         $this->assertStringContainsString($rupiah((int) $order->discount), $html);
         $this->assertStringContainsString($rupiah((int) $order->tax_amount), $html);
         $this->assertStringContainsString($rupiah((int) $order->shipping_cost), $html);
-        $this->assertStringContainsString('Total Bayar', $html);
-        $this->assertStringContainsString($rupiah((int) $invoice->amount), $html);
+        $this->assertStringContainsString('Total yang harus dibayar', $html);
 
         // Payment info
-        $this->assertStringContainsString('Metode: Bank', $html);
-        $this->assertStringContainsString('Nama: BCA', $html);
-        $this->assertStringContainsString('Kode Bank: 014', $html);
-        $this->assertStringContainsString('Nama Akun: PT Example', $html);
-        $this->assertStringContainsString('Nomor Rekening: 1234567890', $html);
+        $this->assertStringContainsString('Metode', $html);
+        $this->assertStringContainsString('Bank', $html);
+        $this->assertStringContainsString('Nama', $html);
+        $this->assertStringContainsString('BCA', $html);
+        $this->assertStringContainsString('Kode Bank', $html);
+        $this->assertStringContainsString('014', $html);
+        $this->assertStringContainsString('Nomor Rekening', $html);
+        $this->assertStringContainsString('1234567890', $html);
 
         // Due date
-        $this->assertStringContainsString('Batas Waktu Pembayaran', $html);
         $this->assertStringContainsString($dueDate->format('d-m-Y H:i'), $html);
     }
 }

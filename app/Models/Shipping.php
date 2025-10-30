@@ -17,12 +17,6 @@ class Shipping extends Model
 
     public const STATUS_SHIPPED = 'shipped';
 
-    public const STATUSES = [
-        self::STATUS_PENDING => ['label' => 'Pending'],
-        self::STATUS_PROCESSING => ['label' => 'Processing'],
-        self::STATUS_SHIPPED => ['label' => 'Shipped'],
-    ];
-
     public const MAX_WEIGHT = 25000;
 
     public const COURIERS = ['jne', 'tiki', 'pos'];

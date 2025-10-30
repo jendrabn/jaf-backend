@@ -64,6 +64,7 @@ class OrdersDataTable extends DataTable
                 'user',
                 'items',
                 'items.product',
+                'items.product.productRatings',
                 'items.product.media',
                 'invoice',
                 'shipping',

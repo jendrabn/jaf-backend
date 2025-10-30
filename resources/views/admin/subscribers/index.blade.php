@@ -49,35 +49,45 @@
                     return;
                 }
 
-                if (!confirm('Delete selected subscribers?')) {
-                    return;
-                }
-
-                $.ajax({
-                    url: "{{ route('admin.subscribers.massDestroy') }}",
-                    method: 'POST',
-                    data: {
-                        ids: ids,
-                        _method: 'DELETE',
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        dt.ajax.reload(null, false);
-                        if (window.toastr) {
-                            toastr.success(response?.message ?? 'Deleted successfully.');
-                        }
-                    },
-                    error: function() {
-                        if (window.toastr) {
-                            toastr.error('Delete failed.');
-                        }
+                Swal.fire({
+                    title: 'Delete selected?',
+                    text: 'Selected subscribers will be deleted.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-trash3 mr-1"></i> Delete',
+                    showLoaderOnConfirm: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: "{{ route('admin.subscribers.massDestroy') }}",
+                            method: 'POST',
+                            data: {
+                                ids: ids,
+                                _method: 'DELETE',
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                dt.ajax.reload(null, false);
+                                if (window.toastr) {
+                                    toastr.success(response?.message ??
+                                        'Deleted successfully.');
+                                }
+                            },
+                            error: function() {
+                                if (window.toastr) {
+                                    toastr.error('Delete failed.');
+                                }
+                            }
+                        });
                     }
                 });
+
             }
         };
     </script>
 
     {!! $dataTable->scripts() !!}
+
     <script>
         $(function() {
             const table = window.LaravelDataTables && window.LaravelDataTables['subscribers-table'] ?
@@ -149,31 +159,41 @@
             });
 
             $(document).on('click', '.btn-delete-subscriber', function() {
-                if (!confirm('Delete this subscriber?')) {
-                    return;
-                }
+                Swal.fire({
+                    title: 'Delete?',
+                    text: 'This subscriber will be deleted.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-trash3 mr-1"></i> Delete',
+                    showLoaderOnConfirm: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const url = $(this).data('url');
 
-                const url = $(this).data('url');
-
-                $.ajax({
-                    url: url,
-                    method: 'POST',
-                    data: {
-                        _method: 'DELETE',
-                        _token: '{{ csrf_token() }}'
-                    },
-                    success: function(response) {
-                        table.ajax.reload(null, false);
-                        if (window.toastr) {
-                            toastr.success(response?.message ?? 'Deleted successfully.');
-                        }
-                    },
-                    error: function() {
-                        if (window.toastr) {
-                            toastr.error('Delete failed.');
-                        }
+                        $.ajax({
+                            url: url,
+                            method: 'POST',
+                            data: {
+                                _method: 'DELETE',
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                table.ajax.reload(null, false);
+                                if (window.toastr) {
+                                    toastr.success(response?.message ??
+                                        'Deleted successfully.');
+                                }
+                            },
+                            error: function() {
+                                if (window.toastr) {
+                                    toastr.error('Delete failed.');
+                                }
+                            }
+                        });
                     }
-                });
+                })
+
+
             });
         });
     </script>
