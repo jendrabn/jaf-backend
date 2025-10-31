@@ -66,6 +66,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/me', 'get');
         Route::put('/user', 'update');
         Route::put('/user/change_password', 'updatePassword');
+        Route::put('/user/fcm-token', 'updateFcmToken');
 
         // Notifications
         Route::get('/notifications', [UserController::class, 'notifications']);

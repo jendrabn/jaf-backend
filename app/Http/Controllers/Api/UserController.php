@@ -38,7 +38,7 @@ class UserController extends Controller
             }
 
             $file = $request->file('avatar');
-            $fileName = uniqid().'_'.pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME).'.jpeg';
+            $fileName = uniqid() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.jpeg';
 
             $imageBase64 = (new ImageManager(new Driver))->read($file)->toJpeg(50)->toDataUri();
 
@@ -120,6 +120,21 @@ class UserController extends Controller
 
         return response()->json([
             'data' => $count,
+        ], Response::HTTP_OK);
+    }
+
+    public function updateFcmToken(Request $request): JsonResponse
+    {
+        $request->validate([
+            'fcm_token' => 'required|string',
+        ]);
+
+        $user = auth()->user();
+        $user->update(['fcm_token' => $request->fcm_token]);
+
+        return response()->json([
+            'data' => true,
+            'message' => 'FCM token updated successfully',
         ], Response::HTTP_OK);
     }
 }

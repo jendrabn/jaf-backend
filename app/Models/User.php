@@ -44,6 +44,7 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
         'sex',
         'birth_date',
         'google_id',
+        'fcm_token',
     ];
 
     protected $hidden = [
@@ -94,7 +95,7 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
     public function sexLabel(): Attribute
     {
         return Attribute::make(
-            get: fn ($value, $attributes) => self::SEX_SELECT[$attributes['sex'] ?? null] ?? ''
+            get: fn($value, $attributes) => self::SEX_SELECT[$attributes['sex'] ?? null] ?? ''
         );
     }
 
@@ -133,7 +134,7 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
     protected function phone(): Attribute
     {
         return Attribute::make(
-            set: fn ($value) => normalizePhoneNumber($value),
+            set: fn($value) => normalizePhoneNumber($value),
         );
     }
 }
