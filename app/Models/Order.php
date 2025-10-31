@@ -79,6 +79,11 @@ class Order extends Model
         return $this->hasOne(Shipping::class);
     }
 
+    public function notifications()
+    {
+        return $this->hasMany(UserNotification::class, 'meta->order_id');
+    }
+
     public function totalQuantity(): Attribute
     {
         return Attribute::get(fn () => $this->items->reduce(fn ($carry, $item) => $carry + $item->quantity));

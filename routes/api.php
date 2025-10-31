@@ -66,6 +66,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/me', 'get');
         Route::put('/user', 'update');
         Route::put('/user/change_password', 'updatePassword');
+
+        // Notifications
+        Route::get('/notifications', [UserController::class, 'notifications']);
+        Route::put('/notifications/{notification}/read', [UserController::class, 'markNotificationAsRead']);
+        Route::put('/notifications/read-all', [UserController::class, 'markAllNotificationsAsRead']);
+        Route::get('/notifications/unread-count', [UserController::class, 'getUnreadCount']);
     });
 
     // Checkout

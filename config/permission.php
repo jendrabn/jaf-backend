@@ -256,5 +256,8 @@ return [
 
         // Campaigns (resource + custom actions aligned with routes)
         'campaigns' => ['view', 'show', 'create', 'edit', 'delete', 'send_all', 'test_send'],
+
+        // User Notifications (resource + massDestroy + custom actions)
+        'user_notifications' => ['view', 'show', 'create', 'edit', 'delete', 'mass_delete'],
     ],
 ];

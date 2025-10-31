@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\OrderCancelled;
+use App\Events\OrderProcessing;
 use App\Http\Controllers\Controller;
 use App\Models\Invoice;
 use App\Models\Order;
@@ -95,6 +97,9 @@ class PaymentGatewayController extends Controller
         if ($invoice->order) {
             // Move order to processing after successful payment
             $invoice->order->update(['status' => Order::STATUS_PROCESSING]);
+
+            // Dispatch OrderProcessing event for notification
+            OrderProcessing::dispatch($invoice->order);
         }
     }
 
@@ -116,6 +121,9 @@ class PaymentGatewayController extends Controller
                 'status' => Order::STATUS_CANCELLED,
                 'cancel_reason' => 'Cancelled by payment gateway',
             ]);
+
+            // Dispatch OrderCancelled event for notification
+            OrderCancelled::dispatch($invoice->order);
         }
     }
 }

@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\DataTables\OrdersDataTable;
+use App\Events\OrderCancelled;
+use App\Events\OrderCompleted;
+use App\Events\OrderProcessing;
+use App\Events\OrderShipped;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\OrderRequest;
 use App\Models\Invoice;
@@ -74,6 +78,9 @@ class OrderController extends Controller
                 $order->invoice->update(['status' => Invoice::STATUS_PAID]);
                 $order->invoice->payment->update(['status' => Payment::STATUS_RELEASED]);
                 $order->shipping->update(['status' => Shipping::STATUS_PROCESSING]);
+
+                // Dispatch OrderProcessing event for notification
+                OrderProcessing::dispatch($order);
             }
 
             if ($validatedData['action'] === 'reject') {
@@ -84,6 +91,9 @@ class OrderController extends Controller
                 $order->invoice->update(['status' => Invoice::STATUS_UNPAID]);
                 $order->invoice->payment->update(['status' => Payment::STATUS_CANCELLED]);
                 $order->items->each(fn ($item) => $item->product->increment('stock', $item->quantity));
+
+                // Dispatch OrderCancelled event for notification
+                OrderCancelled::dispatch($order);
             }
         }, 3);
 
@@ -112,6 +122,9 @@ class OrderController extends Controller
                 'status' => Shipping::STATUS_SHIPPED,
                 'tracking_number' => $validatedData['tracking_number'],
             ]);
+
+            // Dispatch OrderShipped event for notification
+            OrderShipped::dispatch($order);
         }, 3);
 
         toastr('Shipping confirmed successfully.', 'success');
@@ -199,6 +212,9 @@ class OrderController extends Controller
                     if ($invoice) {
                         $invoice->update(['status' => Invoice::STATUS_PAID]);
                     }
+
+                    // Dispatch OrderProcessing event for notification
+                    OrderProcessing::dispatch($order);
                     break;
 
                 case \App\Enums\OrderStatus::OnDelivery->value:
@@ -215,6 +231,9 @@ class OrderController extends Controller
                     if ($invoice) {
                         $invoice->update(['status' => Invoice::STATUS_PAID]);
                     }
+
+                    // Dispatch OrderShipped event for notification
+                    OrderShipped::dispatch($order);
                     break;
 
                 case \App\Enums\OrderStatus::Completed->value:
@@ -227,10 +246,16 @@ class OrderController extends Controller
                     if ($invoice) {
                         $invoice->update(['status' => Invoice::STATUS_PAID]);
                     }
+
+                    // Dispatch OrderCompleted event for notification
+                    OrderCompleted::dispatch($order);
                     break;
 
                 case \App\Enums\OrderStatus::Cancelled->value:
                     // Do NOT change payment/shipping/invoice statuses
+
+                    // Dispatch OrderCancelled event for notification
+                    OrderCancelled::dispatch($order);
                     break;
             }
         }, 3);

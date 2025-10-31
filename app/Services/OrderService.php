@@ -2,6 +2,10 @@
 
 namespace App\Services;
 
+use App\Events\OrderCancelled;
+use App\Events\OrderCompleted;
+use App\Events\OrderCreated;
+use App\Events\PaymentConfirmed;
 use App\Http\Requests\Api\ConfirmPaymentRequest;
 use App\Http\Requests\Api\CreateOrderRequest;
 use App\Mail\OrderCreatedMail;
@@ -82,6 +86,9 @@ class OrderService
                 'cancel_reason' => 'Order cancelled by system.',
             ]);
 
+            // Dispatch OrderCancelled event for notification
+            OrderCancelled::dispatch($order);
+
             throw ValidationException::withMessages([
                 'order_id' => 'Order canceled, payment time has expired.',
             ]);
@@ -102,6 +109,9 @@ class OrderService
                 }
 
                 $order->update(['status' => Order::STATUS_PENDING]);
+
+                // Dispatch PaymentConfirmed event for notification
+                PaymentConfirmed::dispatch($order);
             });
         } catch (QueryException $e) {
             throw $e;
@@ -125,6 +135,9 @@ class OrderService
             DB::transaction(function () use ($order) {
                 $order->update(['status' => Order::STATUS_COMPLETED]);
                 $order->shipping->update(['status' => Shipping::STATUS_SHIPPED]);
+
+                // Dispatch OrderCompleted event for notification
+                OrderCompleted::dispatch($order);
             });
         } catch (QueryException $e) {
             throw $e;
@@ -413,6 +426,9 @@ class OrderService
 
             DB::afterCommit(function () use ($user, $order, $invoice, $payment) {
                 Mail::to($user->email)->queue(new OrderCreatedMail($order, $invoice, $payment));
+
+                // Dispatch OrderCreated event for notification
+                OrderCreated::dispatch($order);
             });
 
             // Schedule automatic cancellation via delayed queue message (24h after creation)

@@ -40,9 +40,10 @@ class ContactReplyController extends Controller
                 'error_message' => null,
             ]);
 
+            toastr('Reply sent successfully', 'success');
+
             return redirect()
-                ->back()
-                ->with('success', 'Balasan berhasil dikirim.');
+                ->back();
         } catch (\Throwable $e) {
             // Mark as failed
             $reply->update([
@@ -50,9 +51,10 @@ class ContactReplyController extends Controller
                 'error_message' => $e->getMessage(),
             ]);
 
+            toastr('Failed to send reply', 'error');
+
             return redirect()
-                ->back()
-                ->with('error', 'Gagal mengirim balasan: '.$e->getMessage());
+                ->back();
         }
     }
 

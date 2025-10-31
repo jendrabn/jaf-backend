@@ -58,6 +58,21 @@
                     </li>
                 @endcan
 
+                {{-- User Notifications --}}
+                @can('user_notifications.view')
+                    <li class="nav-item">
+                        <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.user-notifications.*') ? 'active' : '' }}"
+                           href="{{ route('admin.user-notifications.index') }}">
+                            <i class="nav-icon bi bi-bell mr-2"></i>
+                            <p class="mb-0">User Notification</p>
+                            @php $unread_count = \App\Models\UserNotification::whereNull('read_at')->count(); @endphp
+                            @if ($unread_count > 0)
+                                <span class="badge badge-warning ml-auto">{{ $unread_count }}</span>
+                            @endif
+                        </a>
+                    </li>
+                @endcan
+
                 {{-- User Role --}}
                 @canany(['roles.view', 'permissions.view'])
                     <li class="nav-item">

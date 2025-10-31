@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\TaxController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\UserNotificationController;
 use App\Http\Controllers\Api\ContactMessageController as PublicContactController;
 use Illuminate\Support\Facades\Route;
 
@@ -116,6 +117,53 @@ Route::middleware(['auth', 'permission:backoffice.access'])
             ->whereNumber('user')
             ->name('users.destroy')
             ->middleware('permission:users.delete');
+
+        // -------- User Notifications (resource + massDestroy + custom actions) --------
+        Route::delete('user-notifications/destroy', [UserNotificationController::class, 'massDestroy'])
+            ->name('user-notifications.massDestroy')
+            ->middleware('permission:user_notifications.mass_delete');
+
+        Route::get('user-notifications', [UserNotificationController::class, 'index'])
+            ->name('user-notifications.index')
+            ->middleware('permission:user_notifications.view');
+
+        Route::get('user-notifications/create', [UserNotificationController::class, 'create'])
+            ->name('user-notifications.create')
+            ->middleware('permission:user_notifications.create');
+
+        Route::post('user-notifications', [UserNotificationController::class, 'store'])
+            ->name('user-notifications.store')
+            ->middleware('permission:user_notifications.create');
+
+        Route::get('user-notifications/{userNotification}', [UserNotificationController::class, 'show'])
+            ->whereNumber('userNotification')
+            ->name('user-notifications.show')
+            ->middleware('permission:user_notifications.show');
+
+        Route::get('user-notifications/{userNotification}/edit', [UserNotificationController::class, 'edit'])
+            ->whereNumber('userNotification')
+            ->name('user-notifications.edit')
+            ->middleware('permission:user_notifications.edit');
+
+        Route::put('user-notifications/{userNotification}', [UserNotificationController::class, 'update'])
+            ->whereNumber('userNotification')
+            ->name('user-notifications.update')
+            ->middleware('permission:user_notifications.edit');
+
+        Route::delete('user-notifications/{userNotification}', [UserNotificationController::class, 'destroy'])
+            ->whereNumber('userNotification')
+            ->name('user-notifications.destroy')
+            ->middleware('permission:user_notifications.delete');
+
+        Route::put('user-notifications/{userNotification}/markAsRead', [UserNotificationController::class, 'markAsRead'])
+            ->whereNumber('userNotification')
+            ->name('user-notifications.markAsRead')
+            ->middleware('permission:user_notifications.edit');
+
+        Route::put('user-notifications/{userNotification}/markAsUnread', [UserNotificationController::class, 'markAsUnread'])
+            ->whereNumber('userNotification')
+            ->name('user-notifications.markAsUnread')
+            ->middleware('permission:user_notifications.edit');
 
         // -------- Orders (custom + massDestroy + generate invoice) --------
         Route::delete('orders/destroy', [OrderController::class, 'massDestroy'])

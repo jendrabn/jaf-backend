@@ -86,6 +86,11 @@ class User extends Authenticatable implements CanResetPassword, HasMedia
         return $this->hasMany(Order::class, 'user_id', 'id');
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(UserNotification::class, 'user_id', 'id');
+    }
+
     public function sexLabel(): Attribute
     {
         return Attribute::make(
