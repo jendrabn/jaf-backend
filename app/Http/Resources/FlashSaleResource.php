@@ -14,6 +14,14 @@ class FlashSaleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $products = $this->whenLoaded('products', function () {
+            return $this->products->map(function ($product) {
+                $product->flash_sale_status = $this->status;
+
+                return $product;
+            });
+        });
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -24,9 +32,7 @@ class FlashSaleResource extends JsonResource
             'status_label' => $this->status_label,
             'status_color' => $this->status_color,
             'is_active' => (bool) $this->is_active,
-            'products' => FlashSaleProductResource::collection(
-                $this->whenLoaded('products')
-            ),
+            'products' => FlashSaleProductResource::collection($products),
         ];
     }
 }

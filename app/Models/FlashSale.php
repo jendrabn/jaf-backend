@@ -68,6 +68,14 @@ class FlashSale extends Model
             ->where('end_at', '>=', $moment);
     }
 
+    public function scopeScheduled(Builder $query, ?CarbonInterface $moment = null): Builder
+    {
+        $moment ??= now();
+
+        return $query->active()
+            ->where('start_at', '>', $moment);
+    }
+
     public function timelineStatus(?CarbonInterface $moment = null): string
     {
         $moment ??= now();

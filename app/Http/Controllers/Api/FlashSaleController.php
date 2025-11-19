@@ -12,14 +12,32 @@ class FlashSaleController extends Controller
 {
     public function index(): JsonResponse
     {
-        $flashSales = FlashSale::query()
+        $relations = [
+            'products.media',
+            'products.flashSales',
+        ];
+
+        $runningFlashSales = FlashSale::query()
             ->runningNow()
-            ->with([
-                'products.media',
-                'products.flashSales',
-            ])
+            ->with($relations)
             ->orderBy('end_at')
+            ->limit(1)
             ->get();
+
+        $scheduledLimit = max(0, min(2, 3 - $runningFlashSales->count()));
+
+        $upcomingFlashSales = $scheduledLimit === 0
+            ? collect()
+            : FlashSale::query()
+                ->scheduled()
+                ->with($relations)
+                ->orderBy('start_at')
+                ->limit($scheduledLimit)
+                ->get();
+
+        $flashSales = $runningFlashSales
+            ->concat($upcomingFlashSales)
+            ->values();
 
         return FlashSaleResource::collection($flashSales)
             ->response()

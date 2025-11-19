@@ -46,6 +46,7 @@ class FlashSaleApiTest extends TestCase
             ->assertJsonCount(2, 'data.0.products')
             ->assertJsonPath('data.0.status', 'running')
             ->assertJsonPath('data.0.products.0.flash_price', 50000)
+            ->assertJsonPath('data.0.products.0.flash_price_display', '50.000')
             ->assertJsonPath('data.0.products.0.flash_stock_remaining', 20)
             ->assertJsonPath('data.0.products.1.flash_stock_remaining', 20)
             ->assertJsonPath('data.0.products.1.max_qty_per_user', 2);
@@ -58,49 +59,105 @@ class FlashSaleApiTest extends TestCase
             ->assertJsonPath('data.flash_sale_end_at', $flashSale->end_at->format('Y-m-d H:i:s'));
     }
 
-    public function test_flash_sale_is_returned_when_schedule_matches(): void
+    public function test_it_returns_one_running_and_two_scheduled_flash_sales_when_available(): void
     {
-        $category = ProductCategory::factory()->create();
-        $brand = ProductBrand::factory()->create();
-
-        $flashSale = FlashSale::factory()->create([
-            'start_at' => now()->subMinutes(10),
-            'end_at' => now()->addHour(),
-            'is_active' => true,
-        ]);
-
-        $product = Product::factory()
-            ->for($category, 'category')
-            ->for($brand, 'brand')
+        $runningBase = now();
+        $running = FlashSale::factory()
+            ->running()
+            ->count(3)
+            ->sequence(
+                ...collect([30, 10, 20])
+                    ->map(fn (int $minutes) => [
+                        'end_at' => $runningBase->copy()->addMinutes($minutes),
+                    ])
+                    ->all()
+            )
             ->create();
 
-        $flashSale->products()->attach($product->id, [
-            'flash_price' => 45000,
-            'stock_flash' => 15,
-            'sold' => 1,
-            'max_qty_per_user' => 2,
-        ]);
+        $scheduledBase = now();
+        $scheduled = FlashSale::factory()
+            ->count(4)
+            ->sequence(
+                ...collect([2, 1, 3, 4])
+                    ->map(fn (int $hours) => [
+                        'start_at' => $scheduledBase->copy()->addHours($hours),
+                        'end_at' => $scheduledBase->copy()->addHours($hours + 1),
+                        'is_active' => true,
+                    ])
+                    ->all()
+            )
+            ->create();
 
         $response = $this->getJson('/api/flash-sale');
 
         $response->assertOk()
-            ->assertJsonCount(1, 'data')
+            ->assertJsonCount(3, 'data')
             ->assertJsonPath('data.0.status', 'running')
-            ->assertJsonPath('data.0.products.0.flash_price', 45000);
+            ->assertJsonPath('data.1.status', 'scheduled')
+            ->assertJsonPath('data.2.status', 'scheduled');
+
+        $expectedOrder = $running->sortBy('end_at')
+            ->take(1)
+            ->pluck('id')
+            ->concat(
+                $scheduled->sortBy('start_at')
+                    ->take(2)
+                    ->pluck('id')
+            )
+            ->values()
+            ->all();
+
+        $this->assertSame(
+            $expectedOrder,
+            collect($response->json('data'))->pluck('id')->all()
+        );
     }
 
-    public function test_it_ignores_inactive_or_non_running_flash_sales(): void
+    public function test_it_returns_only_scheduled_flash_sales_when_no_running_available(): void
+    {
+        $scheduledBase = now();
+        $scheduled = FlashSale::factory()
+            ->count(3)
+            ->sequence(
+                ...collect([3, 1, 2])
+                    ->map(fn (int $hours) => [
+                        'start_at' => $scheduledBase->copy()->addHours($hours),
+                        'end_at' => $scheduledBase->copy()->addHours($hours + 1),
+                        'is_active' => true,
+                    ])
+                    ->all()
+            )
+            ->create();
+
+        FlashSale::factory()->finished()->count(2)->create();
+
+        $response = $this->getJson('/api/flash-sale');
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data');
+
+        $data = collect($response->json('data'));
+
+        $this->assertTrue(
+            $data->pluck('status')->every(fn (string $status) => $status === 'scheduled')
+        );
+
+        $this->assertSame(
+            $scheduled->sortBy('start_at')->take(2)->pluck('id')->values()->all(),
+            $data->pluck('id')->all()
+        );
+    }
+
+    public function test_scheduled_flash_sale_products_have_masked_price_display(): void
     {
         $category = ProductCategory::factory()->create();
         $brand = ProductBrand::factory()->create();
 
         $scheduled = FlashSale::factory()->create([
-            'start_at' => now()->addHour(),
-            'end_at' => now()->addHours(2),
+            'start_at' => now()->addDays(1),
+            'end_at' => now()->addDays(1)->addHours(2),
             'is_active' => true,
         ]);
-
-        $finished = FlashSale::factory()->finished()->create();
 
         $product = Product::factory()
             ->for($category, 'category')
@@ -108,22 +165,19 @@ class FlashSaleApiTest extends TestCase
             ->create();
 
         $scheduled->products()->attach($product->id, [
-            'flash_price' => 40000,
+            'flash_price' => 254000,
             'stock_flash' => 10,
             'sold' => 0,
-            'max_qty_per_user' => 1,
-        ]);
-
-        $finished->products()->attach($product->id, [
-            'flash_price' => 30000,
-            'stock_flash' => 5,
-            'sold' => 5,
             'max_qty_per_user' => 1,
         ]);
 
         $response = $this->getJson('/api/flash-sale');
 
         $response->assertOk()
-            ->assertJsonCount(0, 'data');
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.status', 'scheduled')
+            ->assertJsonPath('data.0.products.0.flash_price', 254000)
+            ->assertJsonPath('data.0.products.0.flash_price_display', '?54.000')
+            ->assertJsonPath('data.0.products.0.is_flash_price_masked', true);
     }
 }
