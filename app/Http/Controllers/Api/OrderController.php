@@ -58,6 +58,7 @@ class OrderController extends Controller
             'items.product',
             'items.product.category',
             'items.product.brand',
+            'items.product.flashSales' => fn ($query) => $query->where('is_active', true),
             'items.rating',
             'invoice',
             'invoice.payment',

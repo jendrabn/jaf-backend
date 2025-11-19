@@ -15,6 +15,7 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
+        'flash_sale_id',
         'name',
         'weight',
         'price',
@@ -36,6 +37,11 @@ class OrderItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function flashSale(): BelongsTo
+    {
+        return $this->belongsTo(FlashSale::class);
     }
 
     public function rating(): HasOne

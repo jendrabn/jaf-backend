@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ContactMessageController as AdminContactMessageCo
 use App\Http\Controllers\Admin\ContactReplyController as AdminContactReplyController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EwalletController;
+use App\Http\Controllers\Admin\FlashSaleController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductBrandController;
 use App\Http\Controllers\Admin\ProductCategoryController;
@@ -409,6 +410,38 @@ Route::middleware(['auth', 'permission:backoffice.access'])
         Route::post('banners/reorder', [BannerController::class, 'reorder'])
             ->name('banners.reorder')
             ->middleware('permission:banners.edit');
+
+        // -------- Flash Sales (resource + massDestroy) --------
+        Route::delete('flash-sales/destroy', [FlashSaleController::class, 'massDestroy'])
+            ->name('flash-sales.massDestroy')
+            ->middleware('permission:flash_sales.mass_delete');
+
+        Route::get('flash-sales', [FlashSaleController::class, 'index'])
+            ->name('flash-sales.index')
+            ->middleware('permission:flash_sales.view');
+
+        Route::get('flash-sales/create', [FlashSaleController::class, 'create'])
+            ->name('flash-sales.create')
+            ->middleware('permission:flash_sales.create');
+
+        Route::post('flash-sales', [FlashSaleController::class, 'store'])
+            ->name('flash-sales.store')
+            ->middleware('permission:flash_sales.create');
+
+        Route::get('flash-sales/{flashSale}/edit', [FlashSaleController::class, 'edit'])
+            ->whereNumber('flashSale')
+            ->name('flash-sales.edit')
+            ->middleware('permission:flash_sales.edit');
+
+        Route::put('flash-sales/{flashSale}', [FlashSaleController::class, 'update'])
+            ->whereNumber('flashSale')
+            ->name('flash-sales.update')
+            ->middleware('permission:flash_sales.edit');
+
+        Route::delete('flash-sales/{flashSale}', [FlashSaleController::class, 'destroy'])
+            ->whereNumber('flashSale')
+            ->name('flash-sales.destroy')
+            ->middleware('permission:flash_sales.delete');
 
         // -------- Products (resource + uploads + massDestroy) --------
         Route::delete('products/destroy', [ProductController::class, 'massDestroy'])

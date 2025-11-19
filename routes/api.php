@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\ContactMessageController;
+use App\Http\Controllers\Api\FlashSaleController;
 use App\Http\Controllers\Api\LandingController;
 use App\Http\Controllers\Api\NewsletterController;
 use App\Http\Controllers\Api\OrderController;
@@ -17,6 +18,9 @@ use Illuminate\Support\Facades\Route;
 
 // Landi Page
 Route::get('/landing', LandingController::class);
+
+// Flash Sale
+Route::get('/flash-sale', [FlashSaleController::class, 'index']);
 
 // Public Contact
 Route::post('/contact', [ContactMessageController::class, 'store'])

@@ -444,8 +444,8 @@
 
                         {{-- Action Buttons --}}
                     </div>
-                    <div class="card-footer d-flex justify-content-end">
-                        <a class="btn btn-light mr-2"
+                    <div class="card-footer d-flex justify-content-end border-top-0 gap-2">
+                        <a class="btn btn-light"
                            href="{{ route('admin.coupons.index') }}">
                             <i class="bi bi-x-circle mr-1"></i>Cancel
                         </a>

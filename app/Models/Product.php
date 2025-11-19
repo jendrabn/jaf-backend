@@ -53,6 +53,10 @@ class Product extends Model implements HasMedia
         'is_discounted',
         'discount_in_percent',
         'price_after_discount',
+        'flash_sale_price',
+        'is_in_flash_sale',
+        'final_price',
+        'flash_sale_end_at',
     ];
 
     protected $casts = [
@@ -162,7 +166,13 @@ class Product extends Model implements HasMedia
 
     public function sexLabel(): Attribute
     {
-        return Attribute::get(fn () => $this->attributes['sex'] ? self::SEX_SELECT[$this->attributes['sex']] : '');
+        return Attribute::get(function () {
+            $sex = $this->attributes['sex'] ?? null;
+
+            return $sex !== null && isset(self::SEX_SELECT[$sex])
+                ? self::SEX_SELECT[$sex]
+                : '';
+        });
     }
 
     public function productRatings(): HasManyThrough
@@ -183,6 +193,18 @@ class Product extends Model implements HasMedia
     public function coupons(): BelongsToMany
     {
         return $this->belongsToMany(Coupon::class, 'coupon_product', 'product_id', 'coupon_id');
+    }
+
+    public function flashSales(): BelongsToMany
+    {
+        return $this->belongsToMany(FlashSale::class, 'flash_sale_products')
+            ->withPivot([
+                'flash_price',
+                'stock_flash',
+                'sold',
+                'max_qty_per_user',
+            ])
+            ->withTimestamps();
     }
 
     public function discount(): Attribute
@@ -229,6 +251,52 @@ class Product extends Model implements HasMedia
 
             return max(0, $this->price - ($this->discount->discount_amount / 100) * $this->price);
         });
+    }
+
+    public function flashSalePrice(): Attribute
+    {
+        return Attribute::get(function () {
+            $flashSale = $this->activeFlashSale();
+
+            return $flashSale
+                ? (float) $flashSale->pivot->flash_price
+                : null;
+        });
+    }
+
+    public function isInFlashSale(): Attribute
+    {
+        return Attribute::get(fn () => (bool) $this->activeFlashSale());
+    }
+
+    public function finalPrice(): Attribute
+    {
+        return Attribute::get(function () {
+            $flashSale = $this->activeFlashSale();
+
+            if ($flashSale) {
+                return (float) $flashSale->pivot->flash_price;
+            }
+
+            return $this->priceAfterDiscount;
+        });
+    }
+
+    public function flashSaleEndAt(): Attribute
+    {
+        return Attribute::get(function () {
+            $flashSale = $this->activeFlashSale();
+
+            return $flashSale ? $flashSale->end_at : null;
+        });
+    }
+
+    private function activeFlashSale(): ?FlashSale
+    {
+        return $this->flashSales()
+            ->runningNow()
+            ->orderByDesc('end_at')
+            ->first();
     }
 
     public function sku(): Attribute

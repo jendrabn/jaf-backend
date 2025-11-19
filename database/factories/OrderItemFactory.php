@@ -21,6 +21,7 @@ class OrderItemFactory extends Factory
         return [
             'order_id' => Order::inRandomOrder()->first()->id,
             'product_id' => Product::inRandomOrder()->first()->id,
+            'flash_sale_id' => null,
             'name' => fake()->sentence(),
             'weight' => fake()->numberBetween(1000, 5000),
             'price' => fake()->numberBetween(50000, 1000000),

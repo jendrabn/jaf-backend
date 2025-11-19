@@ -20,6 +20,8 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Shipping;
 use App\Models\Tax;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
@@ -44,11 +46,12 @@ class OrderService
             'items.product.media',
             'items.product.category',
             'items.product.brand',
+            'items.product.flashSales' => fn($query) => $query->where('is_active', true),
         ])->where('user_id', auth()->id());
 
         $orders->when(
             $request->has('status'),
-            fn ($q) => $q->where('status', $request->get('status'))
+            fn($q) => $q->where('status', $request->get('status'))
         );
 
         $orders->when(
@@ -61,7 +64,7 @@ class OrderService
 
                 $q->orderBy(...$sorts[$request->get('sort_by')] ?? $sorts['newest']);
             },
-            fn ($q) => $q->orderBy('id', 'desc')
+            fn($q) => $q->orderBy('id', 'desc')
         );
 
         $orders = $orders->paginate(perPage: $size, page: $page);
@@ -204,6 +207,7 @@ class OrderService
             }
 
             $this->validateBeforeCreateOrder($lockedCarts);
+            $this->applyEffectivePricing($lockedCarts, $user);
 
             $lockedTotalWeight = $this->totalWeight($lockedCarts);
 
@@ -318,24 +322,33 @@ class OrderService
                     ])
                 );
 
+                $unitPrice = (int) ($item->getAttribute('effective_price') ?? $this->effectiveItemPrice($item));
+                $flashSaleId = $item->getAttribute('applied_flash_sale_id');
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item->product->id,
                     'name' => $item->product->name,
                     'weight' => $item->product->weight,
-                    'price' => $item->product->price,
+                    'price' => $unitPrice,
                     'discount_in_percent' => $item->product->discount_in_percent,
-                    'price_after_discount' => $item->product->price_after_discount,
+                    'price_after_discount' => $unitPrice,
                     'quantity' => $item->quantity,
+                    'flash_sale_id' => $flashSaleId,
                 ]);
 
                 $item->product->decrement('stock', $item->quantity);
+
+                if ($flashSaleId) {
+                    $this->incrementFlashSaleSold($flashSaleId, $item->product->id, $item->quantity);
+                }
+
                 $item->delete();
             }
 
             $invoice = Invoice::create([
                 'order_id' => $order->id,
-                'number' => 'INV'.$order->created_at->format('dmy').$order->id,
+                'number' => 'INV' . $order->created_at->format('dmy') . $order->id,
                 'amount' => $totalAmount + $gatewayFee,
                 'status' => Invoice::STATUS_UNPAID,
                 'due_date' => $order->created_at->addDays(1),
@@ -452,14 +465,14 @@ class OrderService
         );
 
         throw_if(
-            $carts->filter(fn ($item) => ! $item->product->is_publish)->isNotEmpty(),
+            $carts->filter(fn($item) => ! $item->product->is_publish)->isNotEmpty(),
             ValidationException::withMessages([
                 'cart_ids' => 'The product must be published.',
             ])
         );
 
         throw_if(
-            $carts->filter(fn ($item) => $item->quantity > $item->product->stock)->isNotEmpty(),
+            $carts->filter(fn($item) => $item->quantity > $item->product->stock)->isNotEmpty(),
             ValidationException::withMessages([
                 'cart_ids' => 'The quantity must not be greater than stock.',
             ])
@@ -475,17 +488,19 @@ class OrderService
 
     public function totalWeight(Collection $items): int
     {
-        return $items->reduce(fn ($carry, $item) => $carry + ($item->quantity * $item->product->weight));
+        return $items->reduce(fn($carry, $item) => $carry + ($item->quantity * $item->product->weight));
     }
 
     public function totalPrice(Collection $items): int
     {
-        return $items->reduce(fn ($carry, $item) => $carry + ($item->quantity * $item->product->price_after_discount), 0);
+        return $items->reduce(function ($carry, $item) {
+            return $carry + ($item->quantity * $this->effectiveItemPrice($item));
+        }, 0);
     }
 
     public function totalQuantity(Collection $items): int
     {
-        return $items->reduce(fn ($carry, $item) => $carry + $item->quantity);
+        return $items->reduce(fn($carry, $item) => $carry + $item->quantity);
     }
 
     /**
@@ -518,5 +533,118 @@ class OrderService
         $tax = $this->totalTax($items, $discount);
 
         return max(0, $subtotal - max(0, $discount) + max(0, $shipping) + $tax);
+    }
+
+    private function effectiveItemPrice($item): int
+    {
+        $explicit = $item->getAttribute('effective_price');
+        if ($explicit !== null) {
+            return (int) $explicit;
+        }
+
+        $product = $item->product;
+
+        if (! $product) {
+            return 0;
+        }
+
+        if ($product->is_in_flash_sale && $product->flash_sale_price !== null) {
+            return (int) round($product->flash_sale_price);
+        }
+
+        return (int) ($product->price_after_discount ?? $product->price ?? 0);
+    }
+
+    private function applyEffectivePricing(Collection $carts, User $user): void
+    {
+        foreach ($carts as $cart) {
+            $pricing = $this->resolveFlashSalePricing($cart, $user);
+            $cart->setAttribute('effective_price', $pricing['unit_price']);
+            $cart->setAttribute('applied_flash_sale_id', $pricing['flash_sale_id']);
+            $cart->setAttribute('flash_sale_end_at', $pricing['flash_sale_end_at']);
+        }
+    }
+
+    private function resolveFlashSalePricing(Cart $cart, User $user): array
+    {
+        $product = $cart->product;
+        if (! $product) {
+            throw ValidationException::withMessages([
+                'cart_ids' => 'One or more products are no longer available.',
+            ]);
+        }
+
+        $unitPrice = (int) ($product->price_after_discount ?? $product->price ?? 0);
+        $now = Carbon::now();
+
+        $flashSaleRow = DB::table('flash_sale_products as fsp')
+            ->join('flash_sales as fs', 'fs.id', '=', 'fsp.flash_sale_id')
+            ->where('fsp.product_id', $product->id)
+            ->where('fs.is_active', true)
+            ->where('fs.start_at', '<=', $now)
+            ->where('fs.end_at', '>=', $now)
+            ->select([
+                'fsp.flash_sale_id',
+                'fsp.flash_price',
+                'fsp.stock_flash',
+                'fsp.sold',
+                'fsp.max_qty_per_user',
+                'fs.end_at',
+            ])
+            ->orderBy('fs.end_at')
+            ->lockForUpdate()
+            ->first();
+
+        if (! $flashSaleRow) {
+            return [
+                'unit_price' => $unitPrice,
+                'flash_sale_id' => null,
+                'flash_sale_end_at' => null,
+            ];
+        }
+
+        $available = (int) $flashSaleRow->stock_flash - (int) $flashSaleRow->sold;
+
+        if ($cart->quantity > $available) {
+            throw ValidationException::withMessages([
+                'cart_ids' => sprintf('Flash sale stock is not enough for %s.', $product->name),
+            ]);
+        }
+
+        $maxPerUser = (int) $flashSaleRow->max_qty_per_user;
+        if ($maxPerUser > 0) {
+            $previousQty = $this->userFlashSaleQuantity((int) $flashSaleRow->flash_sale_id, $user->id);
+
+            if ($previousQty + $cart->quantity > $maxPerUser) {
+                throw ValidationException::withMessages([
+                    'cart_ids' => sprintf('You have reached the purchase limit for %s.', $product->name),
+                ]);
+            }
+        }
+
+        return [
+            'unit_price' => (int) round($flashSaleRow->flash_price),
+            'flash_sale_id' => (int) $flashSaleRow->flash_sale_id,
+            'flash_sale_end_at' => Carbon::parse($flashSaleRow->end_at),
+        ];
+    }
+
+    private function incrementFlashSaleSold(int $flashSaleId, int $productId, int $quantity): void
+    {
+        DB::table('flash_sale_products')
+            ->where('flash_sale_id', $flashSaleId)
+            ->where('product_id', $productId)
+            ->increment('sold', $quantity);
+    }
+
+    private function userFlashSaleQuantity(int $flashSaleId, int $userId): int
+    {
+        return OrderItem::query()
+            ->where('flash_sale_id', $flashSaleId)
+            ->whereHas('order', function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                    ->where('status', '!=', Order::STATUS_CANCELLED);
+            })
+            ->sum('quantity');
     }
 }

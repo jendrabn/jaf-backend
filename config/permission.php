@@ -239,6 +239,9 @@ return [
         // Coupons (resource + custom massDestroy)
         'coupons' => ['view', 'show', 'create', 'edit', 'delete', 'mass_delete'],
 
+        // Flash Sales (resource + massDestroy)
+        'flash_sales' => ['view', 'create', 'edit', 'delete', 'mass_delete'],
+
         // Roles (resource)
         'roles' => ['view', 'show', 'create', 'edit', 'delete'],
 

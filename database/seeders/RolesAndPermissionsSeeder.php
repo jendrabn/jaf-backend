@@ -16,16 +16,17 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        $permissions = config('permission.permissions');
-        foreach ($permissions as $module => $permissions) {
+        $permissionsConfig = config('permission.permissions');
+        foreach ($permissionsConfig as $module => $permissions) {
             foreach ($permissions as $permission) {
-                Permission::create(['name' => $module.'.'.$permission]);
+                Permission::firstOrCreate(['name' => $module.'.'.$permission]);
             }
         }
 
-        $roleUser = Role::create(['name' => 'user']);
-        $roleAdmin = Role::create(['name' => 'admin']);
+        $roleUser = Role::firstOrCreate(['name' => 'user']);
+        $roleAdmin = Role::firstOrCreate(['name' => 'admin']);
 
         $roleAdmin->syncPermissions(Permission::all());
+        $roleUser->syncPermissions([]);
     }
 }

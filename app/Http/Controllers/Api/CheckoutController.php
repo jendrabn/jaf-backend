@@ -27,7 +27,13 @@ class CheckoutController extends Controller
 
     public function checkout(CheckoutRequest $request): JsonResponse
     {
-        $carts = Cart::with(['product', 'product.media', 'product.category', 'product.brand'])
+        $carts = Cart::with([
+            'product',
+            'product.media',
+            'product.category',
+            'product.brand',
+            'product.flashSales' => fn ($query) => $query->where('is_active', true),
+        ])
             ->whereIn('id', $request->validated('cart_ids'))
             ->get();
 

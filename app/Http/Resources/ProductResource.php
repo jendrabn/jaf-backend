@@ -32,6 +32,10 @@ class ProductResource extends JsonResource
             'is_discounted' => $this->is_discounted,
             'discount_in_percent' => $this->discount_in_percent,
             'price_after_discount' => $this->price_after_discount,
+            'flash_sale_price' => $this->flash_sale_price,
+            'is_in_flash_sale' => $this->is_in_flash_sale,
+            'final_price' => $this->final_price,
+            'flash_sale_end_at' => optional($this->flash_sale_end_at)?->format('Y-m-d H:i:s'),
             'coupons' => $this->coupons,
         ];
     }

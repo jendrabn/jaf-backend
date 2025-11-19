@@ -6,6 +6,7 @@ use App\Models\Banner;
 use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
+use App\Models\FlashSale;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductBrand;
@@ -371,6 +372,7 @@ class DataSeeder extends Seeder
             $products = $this->buildProducts($categories, $brands);
             $this->persistProducts($products);
             $this->setPublicationAndStockFlags();
+            $this->seedFlashSales();
             $this->seedCoupons();
             $this->attachProductCoupons($this->productCouponPlans);
             $this->seedBanks();
@@ -509,6 +511,83 @@ class DataSeeder extends Seeder
 
             return $payload;
         });
+    }
+
+    private function seedFlashSales(): void
+    {
+        if (! Schema::hasTable('flash_sales') || ! Schema::hasTable('flash_sale_products')) {
+            info('DataSeeder: flash sale tables missing, skip flash sale seeding.');
+
+            return;
+        }
+
+        $eligibleProducts = $this->productPayloads
+            ->pluck('model')
+            ->filter(function ($product) {
+                return $product instanceof Product
+                    && $product->is_publish
+                    && ($product->stock ?? 0) > 0;
+            })
+            ->values();
+
+        if ($eligibleProducts->count() < 10) {
+            info('DataSeeder: insufficient products to seed flash sales.');
+
+            return;
+        }
+
+        $base = CarbonImmutable::now('Asia/Jakarta');
+
+        $definitions = [
+            [
+                'name' => 'Midnight Instant Flash',
+                'description' => 'Promo kilat 3 jam yang langsung aktif hari ini.',
+                'start_at' => $base,
+                'end_at' => $base->addHours(3),
+            ],
+            [
+                'name' => 'Weekly Shock Flash',
+                'description' => 'Flash sale spesial pekanan dengan stok terbatas.',
+                'start_at' => $base->addWeek(),
+                'end_at' => $base->addWeek()->addHours(3),
+            ],
+            [
+                'name' => 'Monthly Grand Flash',
+                'description' => 'Event flash sale bulanan dengan pilihan bestseller.',
+                'start_at' => $base->addMonth(),
+                'end_at' => $base->addMonth()->addHours(3),
+            ],
+        ];
+
+        foreach ($definitions as $definition) {
+            $flashSale = FlashSale::query()->updateOrCreate(
+                ['name' => $definition['name']],
+                [
+                    'description' => $definition['description'],
+                    'start_at' => $definition['start_at'],
+                    'end_at' => $definition['end_at'],
+                    'is_active' => true,
+                ]
+            );
+
+            $selection = $eligibleProducts->random(10);
+
+            $syncPayload = [];
+            foreach ($selection as $product) {
+                $basePrice = (float) $product->price;
+                $flashPrice = max(1, round($basePrice * 0.8, 2));
+                $stockFlash = max(10, min((int) $product->stock, 100));
+
+                $syncPayload[$product->id] = [
+                    'flash_price' => number_format($flashPrice, 2, '.', ''),
+                    'stock_flash' => $stockFlash,
+                    'sold' => 0,
+                    'max_qty_per_user' => random_int(1, 3),
+                ];
+            }
+
+            $flashSale->products()->sync($syncPayload);
+        }
     }
 
     private function seedCoupons(): void

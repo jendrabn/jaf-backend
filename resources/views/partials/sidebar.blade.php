@@ -5,6 +5,7 @@
         request()->routeIs('admin.product-brands.*') ||
         request()->routeIs('admin.couriers.*') ||
         request()->routeIs('admin.coupons.*') ||
+        request()->routeIs('admin.flash-sales.*') ||
         request()->routeIs('admin.taxes.*');
 
     $paymentActive = request()->routeIs('admin.banks.*') || request()->routeIs('admin.ewallets.*');
@@ -101,7 +102,7 @@
 
                 {{-- Shop (treeview) --}}
                 @canany(['products.view', 'product_categories.view', 'product_brands.view', 'couriers.view',
-                    'coupons.view', 'taxes.view'])
+                    'coupons.view', 'flash_sales.view', 'taxes.view'])
                     <li class="nav-item has-treeview {{ $shopActive ? 'menu-open' : '' }}">
                         <a class="nav-link d-flex align-items-center nav-dropdown-toggle {{ $shopActive ? 'active' : '' }}"
                            href="#">
@@ -157,6 +158,16 @@
                                        href="{{ route('admin.coupons.index') }}">
                                         <i class="nav-icon bi bi-circle mr-2"></i>
                                         <p class="mb-0">Coupon</p>
+                                    </a>
+                                </li>
+                            @endcan
+
+                            @can('flash_sales.view')
+                                <li class="nav-item">
+                                    <a class="nav-link d-flex align-items-center {{ request()->routeIs('admin.flash-sales.*') ? 'active' : '' }}"
+                                       href="{{ route('admin.flash-sales.index') }}">
+                                        <i class="nav-icon bi bi-circle mr-2"></i>
+                                        <p class="mb-0">Flash Sale</p>
                                     </a>
                                 </li>
                             @endcan
