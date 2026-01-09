@@ -120,7 +120,10 @@ Route::controller(BlogController::class)->group(function () {
     Route::get('/blogs', 'list');
     Route::get('/blogs/categories', 'categories');
     Route::get('/blogs/tags', 'tags');
+    Route::get('/blogs/popular', 'popular');
+    Route::get('/blogs/latest', 'latest');
     Route::get('/blogs/{blog:slug}', 'get');
+    Route::get('/blogs/{blog:slug}/related', 'related');
 });
 
 // Newsletter

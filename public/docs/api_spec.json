@@ -2646,6 +2646,147 @@
                     "Blog"
                 ]
             }
+        },
+        "/api/blogs/{slug}/related": {
+            "get": {
+                "description": "List blogs that are related to the provided blog slug.",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "style": "form",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 20,
+                            "default": 4
+                        },
+                        "description": "Number of related blogs to return (max 20)."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Blog"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Blog"
+                ]
+            }
+        },
+        "/api/blogs/popular": {
+            "get": {
+                "description": "List popular blogs within a specified window.",
+                "parameters": [
+                    {
+                        "name": "window",
+                        "in": "query",
+                        "style": "form",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "1d",
+                                "7d",
+                                "30d"
+                            ],
+                            "default": "7d"
+                        },
+                        "description": "Time window used to determine popularity."
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "style": "form",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 20,
+                            "default": 4
+                        },
+                        "description": "Maximum number of blogs to return (cap at 20)."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Blog"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Blog"
+                ]
+            }
+        },
+        "/api/blogs/latest": {
+            "get": {
+                "description": "List the most recent blogs.",
+                "parameters": [
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "style": "form",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 20,
+                            "default": 4
+                        },
+                        "description": "Number of recent blogs to return (max 20)."
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Blog"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Blog"
+                ]
+            }
         }
     },
     "components": {

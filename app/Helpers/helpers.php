@@ -82,6 +82,10 @@ if (! function_exists('audit_log')) {
     if (! function_exists('normalizePhoneNumber')) {
         function normalizePhoneNumber(string $phone): string
         {
+            if (empty($phone)) {
+                return $phone;
+            }
+
             // Hapus semua spasi, strip, titik
             $phone = preg_replace('/[\s\.\-]/', '', $phone);
 
