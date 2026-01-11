@@ -80,9 +80,9 @@ if (! function_exists('audit_log')) {
     }
 
     if (! function_exists('normalizePhoneNumber')) {
-        function normalizePhoneNumber(string $phone): string
+        function normalizePhoneNumber(?string $phone): ?string
         {
-            if (empty($phone)) {
+            if ($phone === null || $phone === '') {
                 return $phone;
             }
 
