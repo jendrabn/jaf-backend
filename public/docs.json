@@ -136,11 +136,20 @@
                                             "properties": {
                                                 "auth_token": {
                                                     "type": "string"
+                                                },
+                                                "otp_required": {
+                                                    "type": "boolean"
+                                                },
+                                                "otp_expires_at": {
+                                                    "type": "string"
+                                                },
+                                                "otp_sent_to": {
+                                                    "type": "string"
+                                                },
+                                                "otp_resend_available_at": {
+                                                    "type": "string"
                                                 }
-                                            },
-                                            "required": [
-                                                "auth_token"
-                                            ]
+                                            }
                                         }
                                     },
                                     "required": [
@@ -353,7 +362,157 @@
                 ]
             }
         },
-        "/api/user": {
+        "/api/auth/verify_login_otp": {
+            "post": {
+                "description": "API untuk verifikasi OTP login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "code": {
+                                        "type": "string",
+                                        "minLength": 6,
+                                        "maxLength": 6
+                                    }
+                                },
+                                "required": [
+                                    "email",
+                                    "code"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success verify OTP",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            ],
+                                            "properties": {
+                                                "auth_token": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "auth_token"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Auth"
+                ]
+            }
+        },
+        "/api/auth/resend_login_otp": {
+            "post": {
+                "description": "API untuk kirim ulang OTP login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "required": [
+                                    "email"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success resend OTP",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            ],
+                                            "properties": {
+                                                "otp_required": {
+                                                    "type": "boolean"
+                                                },
+                                                "otp_expires_at": {
+                                                    "type": "string"
+                                                },
+                                                "otp_sent_to": {
+                                                    "type": "string"
+                                                },
+                                                "otp_resend_available_at": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Auth"
+                ]
+            }
+        },
+        "/api/account/me": {
             "get": {
                 "description": "API untuk mendapatkan profil",
                 "parameters": [
@@ -513,7 +672,55 @@
                 ]
             }
         },
-        "/api/user/change_password": {
+        "/api/me": {
+            "get": {
+                "description": "API untuk mendapatkan profil pengguna saat ini",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success get current user profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "User"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/account/change-password": {
             "put": {
                 "description": "API untuk meng-update password",
                 "parameters": [
@@ -634,12 +841,12 @@
                 ]
             }
         },
-        "/api/region/cities/{province_id}": {
+        "/api/region/cities/{provinceId}": {
             "get": {
                 "description": "API untuk mendapatkan kota by ID provinsi",
                 "parameters": [
                     {
-                        "name": "province_id",
+                        "name": "provinceId",
                         "in": "path",
                         "style": "simple",
                         "required": true,
@@ -713,7 +920,7 @@
                     }
                 },
                 "tags": [
-                    "Category"
+                    "Product"
                 ]
             }
         },
@@ -744,7 +951,7 @@
                     }
                 },
                 "tags": [
-                    "Brand"
+                    "Product"
                 ]
             }
         },
@@ -918,12 +1125,18 @@
                 ]
             }
         },
-        "/api/products/{product_id}": {
+        "/api/products/{product:slug}": {
             "get": {
-                "description": "API untuk mendapatkan detail produk by ID produk",
+                "description": "API untuk mendapatkan detail produk by slug produk",
                 "parameters": [
                     {
-                        "$ref": "#/components/parameters/productId"
+                        "name": "product:slug",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -961,12 +1174,18 @@
                 ]
             }
         },
-        "/api/products/{product_id}/similars": {
+        "/api/products/{product:slug}/similars": {
             "get": {
-                "description": "API untuk mendapatkan produk serupa by ID produk (max. 5 produk)",
+                "description": "API untuk mendapatkan produk serupa by slug produk (max. 5 produk)",
                 "parameters": [
                     {
-                        "$ref": "#/components/parameters/productId"
+                        "name": "product:slug",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -1190,7 +1409,7 @@
                 ]
             }
         },
-        "/api/carts/{cart_id}": {
+        "/api/carts/{cart}": {
             "put": {
                 "description": "API untuk meng-update kuantitas produk pada keranjang belanja",
                 "parameters": [
@@ -1198,7 +1417,13 @@
                         "$ref": "#/components/parameters/auth"
                     },
                     {
-                        "$ref": "#/components/parameters/cartId"
+                        "name": "cart",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -1702,7 +1927,7 @@
                     }
                 },
                 "tags": [
-                    "Shipping Cost"
+                    "Checkout"
                 ],
                 "security": [
                     {
@@ -2017,15 +2242,21 @@
                 ]
             }
         },
-        "/api/orders/{order_id}": {
+        "/api/orders/{order}": {
             "get": {
-                "description": "API untuk mendapatkan detail order by ID order",
+                "description": "API untuk mendapatkan detail order by order",
                 "parameters": [
                     {
                         "$ref": "#/components/parameters/auth"
                     },
                     {
-                        "$ref": "#/components/parameters/orderId"
+                        "name": "order",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
@@ -2034,229 +2265,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
+                                    "type": "object",
                                     "properties": {
-                                        "id": {
-                                            "type": "integer"
-                                        },
-                                        "items": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/OrderItem"
-                                            }
-                                        },
-                                        "invoice": {
-                                            "type": "object",
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer"
-                                                },
-                                                "number": {
-                                                    "type": "string",
-                                                    "description": "INV/[YYYYMMDD]/[order_id]"
-                                                },
-                                                "amount": {
-                                                    "type": "integer"
-                                                },
-                                                "due_date": {
-                                                    "type": "string",
-                                                    "format": "date-time"
-                                                },
-                                                "status": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "id",
-                                                "number",
-                                                "amount",
-                                                "due_date",
-                                                "payment",
-                                                "status"
-                                            ]
-                                        },
-                                        "payment": {
-                                            "type": "object",
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer"
-                                                },
-                                                "method": {
-                                                    "type": "string"
-                                                },
-                                                "info": {
-                                                    "properties": {
-                                                        "name": {
-                                                            "type": "string"
-                                                        },
-                                                        "code": {
-                                                            "type": "string"
-                                                        },
-                                                        "account_name": {
-                                                            "type": "number"
-                                                        },
-                                                        "account_number": {
-                                                            "type": "string"
-                                                        }
-                                                    },
-                                                    "required": [
-                                                        "name",
-                                                        "code",
-                                                        "account_name",
-                                                        "account_number"
-                                                    ]
-                                                },
-                                                "amount": {
-                                                    "type": "integer"
-                                                },
-                                                "status": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "id",
-                                                "method",
-                                                "info",
-                                                "amount",
-                                                "status"
-                                            ]
-                                        },
-                                        "shipping_address": {
-                                            "properties": {
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "phone": {
-                                                    "type": "string"
-                                                },
-                                                "province": {
-                                                    "type": "string"
-                                                },
-                                                "city": {
-                                                    "type": "string"
-                                                },
-                                                "district": {
-                                                    "type": "string"
-                                                },
-                                                "postal_code": {
-                                                    "type": "string"
-                                                },
-                                                "address": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "name",
-                                                "phone",
-                                                "province",
-                                                "city",
-                                                "district",
-                                                "postal_code",
-                                                "address"
-                                            ]
-                                        },
-                                        "shipping": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer"
-                                                },
-                                                "courir": {
-                                                    "type": "string"
-                                                },
-                                                "courier_name": {
-                                                    "type": "string"
-                                                },
-                                                "service": {
-                                                    "type": "string"
-                                                },
-                                                "service_name": {
-                                                    "type": "string"
-                                                },
-                                                "etd": {
-                                                    "type": "string"
-                                                },
-                                                "tracking_number": {
-                                                    "type": "string"
-                                                },
-                                                "status": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "required": [
-                                                "id",
-                                                "courir",
-                                                "courier_name",
-                                                "service",
-                                                "service_name",
-                                                "etd",
-                                                "weight",
-                                                "tracking_number",
-                                                "status"
-                                            ]
-                                        },
-                                        "note": {
-                                            "type": "string"
-                                        },
-                                        "cancel_reason": {
-                                            "type": "string"
-                                        },
-                                        "status": {
-                                            "type": "string"
-                                        },
-                                        "total_quantity": {
-                                            "type": "integer"
-                                        },
-                                        "total_weight": {
-                                            "type": "integer"
-                                        },
-                                        "total_price": {
-                                            "type": "integer"
-                                        },
-                                        "shipping_cost": {
-                                            "type": "integer"
-                                        },
-                                        "total_amount": {
-                                            "type": "integer"
-                                        },
-                                        "payment_due_date": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                        },
-                                        "confirmed_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                        },
-                                        "completed_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                        },
-                                        "cancelled_at": {
-                                            "type": "string",
-                                            "format": "date-time"
-                                        },
-                                        "created_at": {
-                                            "type": "string",
-                                            "format": "date-time"
+                                        "data": {
+                                            "$ref": "#/components/schemas/Order"
                                         }
                                     },
                                     "required": [
-                                        "id",
-                                        "items",
-                                        "invoice",
-                                        "payment",
-                                        "shipping_address",
-                                        "shipping",
-                                        "note",
-                                        "status",
-                                        "cancel_reason",
-                                        "total_quantity",
-                                        "total_weight",
-                                        "total_price",
-                                        "shipping_cost",
-                                        "total_amount",
-                                        "confirmed_at",
-                                        "completed_at",
-                                        "cancelled_at",
-                                        "created_at"
+                                        "data"
                                     ]
                                 }
                             }
@@ -2293,7 +2309,7 @@
                 ]
             }
         },
-        "/api/orders/{order_id}/confirm_payment": {
+        "/api/orders/{order}/confirm_payment": {
             "post": {
                 "description": "API untuk konfirmasi pembayaran (transfer bank)",
                 "parameters": [
@@ -2301,7 +2317,13 @@
                         "$ref": "#/components/parameters/auth"
                     },
                     {
-                        "$ref": "#/components/parameters/orderId"
+                        "name": "order",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -2393,7 +2415,7 @@
                 ]
             }
         },
-        "/api/orders/{order_id}/confirm_order_delivered": {
+        "/api/orders/{order}/confirm_order_delivered": {
             "put": {
                 "description": "API untuk konfirmasi order telah diterima",
                 "parameters": [
@@ -2401,7 +2423,13 @@
                         "$ref": "#/components/parameters/auth"
                     },
                     {
-                        "$ref": "#/components/parameters/orderId"
+                        "name": "order",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
@@ -2588,55 +2616,96 @@
                 ]
             }
         },
-        "/api/blogs/{slug}": {
+        "/api/blogs/{blog:slug}": {
             "get": {
-                "description": "",
-                "parameters": [],
+                "description": "API untuk mendapatkan detail blog by slug",
+                "parameters": [
+                    {
+                        "name": "blog:slug",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success get blog detail",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "id": {
-                                            "type": "integer"
-                                        },
-                                        "title": {
-                                            "type": "string"
-                                        },
-                                        "slug": {
-                                            "type": "string"
-                                        },
-                                        "content": {
-                                            "type": "string"
-                                        },
-                                        "min_read": {
-                                            "type": "integer"
-                                        },
-                                        "featured_image": {
-                                            "type": "string"
-                                        },
-                                        "featured_image_description": {
-                                            "type": "string"
-                                        },
-                                        "views_count": {
-                                            "type": "integer"
-                                        },
-                                        "author": {
-                                            "type": "string"
-                                        },
-                                        "category": {
-                                            "$ref": "#/components/schemas/BlogCategory"
-                                        },
-                                        "tags": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/BlogTag"
-                                            }
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "slug": {
+                                                    "type": "string"
+                                                },
+                                                "content": {
+                                                    "type": "string"
+                                                },
+                                                "min_read": {
+                                                    "type": "integer"
+                                                },
+                                                "featured_image": {
+                                                    "type": "string"
+                                                },
+                                                "featured_image_description": {
+                                                    "type": "string"
+                                                },
+                                                "views_count": {
+                                                    "type": "integer"
+                                                },
+                                                "author": {
+                                                    "type": "string"
+                                                },
+                                                "category": {
+                                                    "$ref": "#/components/schemas/BlogCategory"
+                                                },
+                                                "tags": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/BlogTag"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "title",
+                                                "slug",
+                                                "content",
+                                                "min_read",
+                                                "featured_image",
+                                                "featured_image_description",
+                                                "views_count",
+                                                "author",
+                                                "category",
+                                                "tags"
+                                            ]
                                         }
-                                    }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorNotFound404"
                                 }
                             }
                         }
@@ -2647,10 +2716,19 @@
                 ]
             }
         },
-        "/api/blogs/{slug}/related": {
+        "/api/blogs/{blog:slug}/related": {
             "get": {
                 "description": "List blogs that are related to the provided blog slug.",
                 "parameters": [
+                    {
+                        "name": "blog:slug",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
                     {
                         "name": "limit",
                         "in": "query",
@@ -2666,7 +2744,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Success get related blogs",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2678,7 +2756,20 @@
                                                 "$ref": "#/components/schemas/Blog"
                                             }
                                         }
-                                    }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorNotFound404"
                                 }
                             }
                         }
@@ -2785,6 +2876,1251 @@
                 },
                 "tags": [
                     "Blog"
+                ]
+            }
+        },
+        "/api/auth/google": {
+            "post": {
+                "description": "API untuk login dengan Google",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id_token": {
+                                        "type": "string",
+                                        "description": "Google ID token"
+                                    }
+                                },
+                                "required": [
+                                    "id_token"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success login with Google",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "allOf": [
+                                                {
+                                                    "$ref": "#/components/schemas/User"
+                                                }
+                                            ],
+                                            "properties": {
+                                                "auth_token": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Auth"
+                ]
+            }
+        },
+        "/api/region/districts/{cityId}": {
+            "get": {
+                "description": "API untuk mendapatkan kecamatan by ID kota",
+                "parameters": [
+                    {
+                        "name": "cityId",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success get districts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/District"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorNotFound404"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Region"
+                ]
+            }
+        },
+        "/api/region/sub-districts/{districtId}": {
+            "get": {
+                "description": "API untuk mendapatkan kelurahan by ID kecamatan",
+                "parameters": [
+                    {
+                        "name": "districtId",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success get sub-districts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SubDistrict"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorNotFound404"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Region"
+                ]
+            }
+        },
+        "/api/products/suggestions": {
+            "get": {
+                "description": "API untuk mendapatkan saran produk",
+                "responses": {
+                    "200": {
+                        "description": "Success get product suggestions",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Product"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Product"
+                ]
+            }
+        },
+        "/api/contact": {
+            "post": {
+                "description": "API untuk mengirim pesan kontak",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 100
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "nullable": true
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "maxLength": 500
+                                    }
+                                },
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "message"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success send contact message",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Contact"
+                ]
+            }
+        },
+        "/api/flash-sale": {
+            "get": {
+                "description": "API untuk mendapatkan produk flash sale",
+                "responses": {
+                    "200": {
+                        "description": "Success get flash sale products",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Product"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Product"
+                ]
+            }
+        },
+        "/api/orders/ratings": {
+            "post": {
+                "description": "API untuk menambahkan rating ke order",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "order_id": {
+                                        "type": "integer"
+                                    },
+                                    "product_id": {
+                                        "type": "integer"
+                                    },
+                                    "rating": {
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "maximum": 5
+                                    },
+                                    "review": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "maxLength": 500
+                                    }
+                                },
+                                "required": [
+                                    "order_id",
+                                    "product_id",
+                                    "rating"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success add rating to order",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Order"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/orders/{order}/waybill": {
+            "get": {
+                "description": "API untuk melacak waybill order",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    },
+                    {
+                        "name": "order",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success track waybill",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/Waybill"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorNotFound404"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Order"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/fcm-token": {
+            "put": {
+                "description": "API untuk meng-update FCM token",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "fcm_token": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "fcm_token"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success update FCM token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notification"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications": {
+            "get": {
+                "description": "API untuk mendapatkan notifikasi",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success get notifications",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    },
+                                                    "notifiable_type": {
+                                                        "type": "string"
+                                                    },
+                                                    "notifiable_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "data": {
+                                                        "type": "object"
+                                                    },
+                                                    "read_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notification"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/{notification}/read": {
+            "put": {
+                "description": "API untuk menandai notifikasi sebagai sudah dibaca",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    },
+                    {
+                        "name": "notification",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success mark notification as read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notification"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/read-all": {
+            "put": {
+                "description": "API untuk menandai semua notifikasi sebagai sudah dibaca",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success mark all notifications as read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notification"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/unread-count": {
+            "get": {
+                "description": "API untuk mendapatkan jumlah notifikasi yang belum dibaca",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success get unread notifications count",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Notification"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/apply_coupon": {
+            "post": {
+                "description": "API untuk menerapkan kupon",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "coupon_code": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "coupon_code"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success apply coupon",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean"
+                                                },
+                                                "message": {
+                                                    "type": "string"
+                                                },
+                                                "discount_amount": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Checkout"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/remove_coupon": {
+            "post": {
+                "description": "API untuk menghapus kupon",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/auth"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "coupon_code": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "coupon_code"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success remove coupon",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorUnauthenticated401"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Checkout"
+                ],
+                "security": [
+                    {
+                        "AuthSanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/payments/midtrans/notification": {
+            "post": {
+                "description": "API untuk menerima notifikasi webhook dari Midtrans",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success process Midtrans notification"
+                    }
+                },
+                "tags": [
+                    "Payment"
+                ]
+            }
+        },
+        "/api/newsletter/subscribe": {
+            "post": {
+                "description": "API untuk berlangganan newsletter",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "required": [
+                                    "email"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success subscribe to newsletter",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorValidation422"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Newsletter"
+                ]
+            }
+        },
+        "/api/newsletter/unsubscribe/{token}": {
+            "get": {
+                "description": "API untuk berhenti berlangganan newsletter",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success unsubscribe from newsletter",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorNotFound404"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Newsletter"
+                ]
+            }
+        },
+        "/api/newsletter/confirm/{token}": {
+            "get": {
+                "description": "API untuk mengonfirmasi berlangganan newsletter",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success confirm newsletter subscription",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorNotFound404"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Newsletter"
+                ]
+            }
+        },
+        "/api/newsletter/track/open/{receipt}/{token}": {
+            "get": {
+                "description": "API untuk melacak pembukaan email newsletter",
+                "parameters": [
+                    {
+                        "name": "receipt",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success track newsletter open",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NewsletterTrackingResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Newsletter"
+                ]
+            }
+        },
+        "/api/newsletter/track/click/{receipt}/{token}": {
+            "get": {
+                "description": "API untuk melacak klik tautan di newsletter",
+                "parameters": [
+                    {
+                        "name": "receipt",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success track newsletter click",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NewsletterTrackingResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Newsletter"
+                ]
+            }
+        },
+        "/api/newsletter/webview/{receipt}/{token}": {
+            "get": {
+                "description": "API untuk menampilkan tampilan web dari newsletter",
+                "parameters": [
+                    {
+                        "name": "receipt",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "style": "simple",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success display newsletter webview",
+                        "content": {
+                            "text/html": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "tags": [
+                    "Newsletter"
                 ]
             }
         }
@@ -3122,13 +4458,194 @@
                             "$ref": "#/components/schemas/OrderItem"
                         }
                     },
+                    "invoice": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "integer"
+                            },
+                            "number": {
+                                "type": "string",
+                                "description": "INV/[YYYYMMDD]/[order_id]"
+                            },
+                            "amount": {
+                                "type": "integer"
+                            },
+                            "due_date": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "status": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "number",
+                            "amount",
+                            "due_date",
+                            "status"
+                        ]
+                    },
+                    "payment": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "integer"
+                            },
+                            "method": {
+                                "type": "string"
+                            },
+                            "info": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "code": {
+                                        "type": "string"
+                                    },
+                                    "account_name": {
+                                        "type": "number"
+                                    },
+                                    "account_number": {
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "name",
+                                    "code",
+                                    "account_name",
+                                    "account_number"
+                                ]
+                            },
+                            "amount": {
+                                "type": "integer"
+                            },
+                            "status": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "method",
+                            "info",
+                            "amount",
+                            "status"
+                        ]
+                    },
+                    "shipping_address": {
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "phone": {
+                                "type": "string"
+                            },
+                            "province": {
+                                "type": "string"
+                            },
+                            "city": {
+                                "type": "string"
+                            },
+                            "district": {
+                                "type": "string"
+                            },
+                            "postal_code": {
+                                "type": "string"
+                            },
+                            "address": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "phone",
+                            "province",
+                            "city",
+                            "district",
+                            "postal_code",
+                            "address"
+                        ]
+                    },
+                    "shipping": {
+                        "properties": {
+                            "id": {
+                                "type": "integer"
+                            },
+                            "courir": {
+                                "type": "string"
+                            },
+                            "courier_name": {
+                                "type": "string"
+                            },
+                            "service": {
+                                "type": "string"
+                            },
+                            "service_name": {
+                                "type": "string"
+                            },
+                            "etd": {
+                                "type": "string"
+                            },
+                            "weight": {
+                                "type": "integer"
+                            },
+                            "tracking_number": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "courir",
+                            "courier_name",
+                            "service",
+                            "service_name",
+                            "etd",
+                            "weight",
+                            "tracking_number",
+                            "status"
+                        ]
+                    },
+                    "note": {
+                        "type": "string"
+                    },
+                    "cancel_reason": {
+                        "type": "string"
+                    },
                     "status": {
                         "type": "string"
+                    },
+                    "total_quantity": {
+                        "type": "integer"
+                    },
+                    "total_weight": {
+                        "type": "integer"
+                    },
+                    "total_price": {
+                        "type": "integer"
+                    },
+                    "shipping_cost": {
+                        "type": "integer"
                     },
                     "total_amount": {
                         "type": "integer"
                     },
                     "payment_due_date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "confirmed_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "completed_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "cancelled_at": {
                         "type": "string",
                         "format": "date-time"
                     },
@@ -3140,9 +4657,21 @@
                 "required": [
                     "id",
                     "items",
+                    "invoice",
+                    "payment",
+                    "shipping_address",
+                    "shipping",
+                    "note",
                     "status",
+                    "cancel_reason",
+                    "total_quantity",
+                    "total_weight",
+                    "total_price",
+                    "shipping_cost",
                     "total_amount",
-                    "payment_due_date",
+                    "confirmed_at",
+                    "completed_at",
+                    "cancelled_at",
                     "created_at"
                 ]
             },
@@ -3256,6 +4785,122 @@
                     "id",
                     "product",
                     "quantity"
+                ]
+            },
+            "District": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "SubDistrict": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "id",
+                    "name"
+                ]
+            },
+            "Waybill": {
+                "type": "object",
+                "properties": {
+                    "waybill_number": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "summary": {
+                        "type": "object",
+                        "properties": {
+                            "status": {
+                                "type": "string"
+                            },
+                            "waybill_number": {
+                                "type": "string"
+                            },
+                            "service": {
+                                "type": "string"
+                            },
+                            "shipper_name": {
+                                "type": "string"
+                            },
+                            "receiver_name": {
+                                "type": "string"
+                            },
+                            "origin": {
+                                "type": "string"
+                            },
+                            "destination": {
+                                "type": "string"
+                            },
+                            "weight": {
+                                "type": "string"
+                            },
+                            "date": {
+                                "type": "string"
+                            },
+                            "time": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "manifest": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "manifest_code": {
+                                    "type": "string"
+                                },
+                                "manifest_description": {
+                                    "type": "string"
+                                },
+                                "manifest_date": {
+                                    "type": "string"
+                                },
+                                "manifest_time": {
+                                    "type": "string"
+                                },
+                                "city_name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "required": [
+                    "waybill_number",
+                    "status",
+                    "summary",
+                    "manifest"
+                ]
+            },
+            "NewsletterTrackingResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "success"
                 ]
             },
             "ErrorUnauthenticated401": {
@@ -3373,33 +5018,6 @@
         "requestBodies": {},
         "responses": {},
         "parameters": {
-            "productId": {
-                "name": "product_id",
-                "in": "path",
-                "required": true,
-                "style": "simple",
-                "schema": {
-                    "type": "integer"
-                }
-            },
-            "orderId": {
-                "name": "order_id",
-                "in": "path",
-                "required": true,
-                "style": "simple",
-                "schema": {
-                    "type": "integer"
-                }
-            },
-            "cartId": {
-                "name": "cart_id",
-                "in": "path",
-                "required": true,
-                "style": "simple",
-                "schema": {
-                    "type": "integer"
-                }
-            },
             "auth": {
                 "name": "Authorization",
                 "in": "header",
@@ -3415,6 +5033,12 @@
                 "scheme": "bearer",
                 "bearerFormat": "JWT"
             }
-        }
+        },
+        "tags": [
+            {
+                "name": "Product",
+                "description": "Product related APIs including categories and brands"
+            }
+        ]
     }
 }

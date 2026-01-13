@@ -19,7 +19,7 @@
     <script>
         window.onload = () => {
             window.ui = SwaggerUIBundle({
-                url: "{{ url('docs/api_spec.json') }}",
+                url: "{{ url('docs.json') }}",
                 dom_id: '#swagger-ui',
             });
         };

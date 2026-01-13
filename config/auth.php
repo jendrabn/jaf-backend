@@ -112,4 +112,17 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | OTP Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for Login OTP functionality.
+    |
+    */
+
+    'otp_enabled' => env('LOGIN_OTP_ENABLED', true),
+    'otp_expiry' => env('LOGIN_OTP_EXPIRY_MINUTES', 10),
+    'otp_resend_throttle' => env('LOGIN_OTP_RESEND_THROTTLE', 60),
+
 ];

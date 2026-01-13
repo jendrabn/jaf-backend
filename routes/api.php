@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\CartController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Api\ContactMessageController;
 use App\Http\Controllers\Api\FlashSaleController;
 use App\Http\Controllers\Api\LandingController;
 use App\Http\Controllers\Api\NewsletterController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentGatewayController;
 use App\Http\Controllers\Api\ProductController;
@@ -64,19 +66,20 @@ Route::post('/payments/midtrans/notification', [PaymentGatewayController::class,
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
-    // User Account
-    Route::controller(UserController::class)->group(function () {
-        Route::get('/user', 'get');
-        Route::get('/me', 'get');
-        Route::put('/user', 'update');
-        Route::put('/user/change_password', 'updatePassword');
-        Route::put('/user/fcm-token', 'updateFcmToken');
+    // Account
+    Route::controller(AccountController::class)->group(function () {
+        Route::get('/account/me', 'get');
+        Route::put('/account/me', 'update');
+        Route::put('/account/change-password', 'updatePassword');
+    });
 
-        // Notifications
-        Route::get('/notifications', [UserController::class, 'notifications']);
-        Route::put('/notifications/{notification}/read', [UserController::class, 'markNotificationAsRead']);
-        Route::put('/notifications/read-all', [UserController::class, 'markAllNotificationsAsRead']);
-        Route::get('/notifications/unread-count', [UserController::class, 'getUnreadCount']);
+    // Notifications
+    Route::controller(NotificationController::class)->group(function () {
+        Route::get('/notifications', 'notifications');
+        Route::put('/notifications/{notification}/read', 'markNotificationAsRead');
+        Route::put('/notifications/read-all', 'markAllNotificationsAsRead');
+        Route::get('/notifications/unread-count', 'getUnreadCount');
+        Route::put('/notifications/fcm-token', 'updateFcmToken');
     });
 
     // Checkout

@@ -28,6 +28,7 @@ class UserResource extends JsonResource
             'otp_required' => $this->whenNotNull($this->otp_required, fn () => (bool) $this->otp_required),
             'otp_expires_at' => $this->whenNotNull($this->otp_expires_at, fn () => $this->otp_expires_at instanceof \DateTimeInterface ? $this->otp_expires_at->format('d-m-Y H:i:s') : $this->otp_expires_at),
             'otp_sent_to' => $this->whenNotNull($this->otp_sent_to),
+            'otp_resend_available_at' => $this->whenNotNull($this->otp_resend_available_at, fn () => $this->otp_resend_available_at instanceof \DateTimeInterface ? $this->otp_resend_available_at->format('d-m-Y H:i:s') : $this->otp_resend_available_at),
         ];
     }
 }

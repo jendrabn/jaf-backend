@@ -35,9 +35,15 @@ class AuthService
         /** @var User $user */
         $user = User::where('email', $validatedData['email'])->firstOrFail();
 
+        if (! config('auth.otp_enabled', env('LOGIN_OTP_ENABLED', true))) {
+            $user->auth_token = $user->createToken('auth_token')->plainTextToken;
+
+            return $user;
+        }
+
         // Generate 6-digit numeric OTP and expiry
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $expiresAt = now()->addMinutes(10);
+        $expiresAt = now()->addMinutes(config('auth.otp_expiry', env('LOGIN_OTP_EXPIRY_MINUTES', 10)));
 
         // Remove any previous unconsumed OTPs for safety
         LoginOtp::query()
@@ -56,10 +62,13 @@ class AuthService
         // Send OTP email (queued)
         Mail::to($user->email)->queue(new LoginOtpMail($code, Carbon::parse($expiresAt)));
 
+        $resendThrottle = (int) config('auth.otp_resend_throttle', env('LOGIN_OTP_RESEND_THROTTLE', 60));
+
         // Attach context properties for API response
         $user->setAttribute('otp_required', true);
         $user->setAttribute('otp_expires_at', $expiresAt);
         $user->setAttribute('otp_sent_to', $this->maskEmail($user->email));
+        $user->setAttribute('otp_resend_available_at', now()->addSeconds($resendThrottle));
 
         return $user;
     }
@@ -156,6 +165,10 @@ class AuthService
 
         $otp->forceFill(['consumed_at' => now()])->save();
 
+        if (is_null($user->email_verified_at)) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+        }
+
         $user->auth_token = $user->createToken('auth_token')->plainTextToken;
 
         return $user;
@@ -190,10 +203,11 @@ class AuthService
 
         // Rate limit: satu permintaan setiap 30 detik per pengguna (berdasarkan waktu request)
         $key = 'resend-login-otp:'.$user->id;
+        $throttle = (int) config('auth.otp_resend_throttle', env('LOGIN_OTP_RESEND_THROTTLE', 60));
 
         if (RateLimiter::tooManyAttempts($key, 1)) {
             $wait = (int) RateLimiter::availableIn($key);
-            $wait = max(1, min(30, $wait)); // batasi 1..30 detik
+            // $wait = max(1, min($throttle, $wait)); // batasi 1..throttle detik
             Log::warning('Resend OTP rate limit reached.', ['user_id' => $user->id, 'email' => $user->email, 'wait' => $wait]);
 
             throw ValidationException::withMessages([
@@ -201,8 +215,8 @@ class AuthService
             ]);
         }
 
-        // Tandai percobaan dengan masa berlaku 30 detik
-        RateLimiter::hit($key, 30);
+        // Tandai percobaan dengan masa berlaku sesuai throttle
+        RateLimiter::hit($key, $throttle);
 
         // Clear previous unconsumed OTPs
         LoginOtp::query()
@@ -212,7 +226,7 @@ class AuthService
 
         // Generate and send new OTP
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $expiresAt = now()->addMinutes(10);
+        $expiresAt = now()->addMinutes(config('auth.otp_expiry', env('LOGIN_OTP_EXPIRY_MINUTES', 10)));
 
         LoginOtp::create([
             'user_id' => $user->id,
@@ -228,6 +242,7 @@ class AuthService
         $user->setAttribute('otp_required', true);
         $user->setAttribute('otp_expires_at', $expiresAt);
         $user->setAttribute('otp_sent_to', $this->maskEmail($user->email));
+        $user->setAttribute('otp_resend_available_at', now()->addSeconds($throttle));
 
         return $user;
     }
