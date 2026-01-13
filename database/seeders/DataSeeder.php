@@ -546,26 +546,18 @@ class DataSeeder extends Seeder
 
         $base = CarbonImmutable::now('Asia/Jakarta');
 
-        $definitions = [
-            [
-                'name' => 'Midnight Instant Flash',
-                'description' => 'Promo kilat 3 jam yang langsung aktif hari ini.',
-                'start_at' => $base,
-                'end_at' => $base->addHours(3),
-            ],
-            [
-                'name' => 'Weekly Shock Flash',
-                'description' => 'Flash sale spesial pekanan dengan stok terbatas.',
-                'start_at' => $base->addWeek(),
-                'end_at' => $base->addWeek()->addHours(3),
-            ],
-            [
-                'name' => 'Monthly Grand Flash',
-                'description' => 'Event flash sale bulanan dengan pilihan bestseller.',
-                'start_at' => $base->addMonth(),
-                'end_at' => $base->addMonth()->addHours(3),
-            ],
-        ];
+        $definitions = [];
+
+        for ($i = 0; $i < 12; $i++) {
+            $start = $base->copy()->addDays(30)->addMonths($i);
+
+            $definitions[] = [
+                'name' => sprintf('Flash Sale %s', $start->translatedFormat('F')),
+                'description' => sprintf('Promo flash sale eksklusif untuk bulan %s.', $start->translatedFormat('F')),
+                'start_at' => $start,
+                'end_at' => $start->copy()->addDays(3),
+            ];
+        }
 
         foreach ($definitions as $definition) {
             $flashSale = FlashSale::query()->updateOrCreate(
