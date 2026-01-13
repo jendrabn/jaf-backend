@@ -1131,7 +1131,7 @@ class DataSeeder extends Seeder
 
         if ($existing->count() >= $count) {
             $this->imagePools[$type] = $existing->map(fn ($f) => $f->getPathname())->values()->all();
-            info("DataSeeder: Using existing pool for {$type} (" . count($this->imagePools[$type]) . " images).");
+            info("DataSeeder: Using existing pool for {$type} (".count($this->imagePools[$type]).' images).');
 
             return;
         }
@@ -1142,20 +1142,20 @@ class DataSeeder extends Seeder
         $this->imagePools[$type] = $existing->map(fn ($f) => $f->getPathname())->values()->all();
 
         for ($i = 0; $i < $needed; $i++) {
-            $seed = "{$type}-" . Str::random(8);
+            $seed = "{$type}-".Str::random(8);
             $url = $this->picsumSeedUrl($seed, $width, $height);
-            $filename = "{$type}-" . Str::random(12) . ".jpg";
+            $filename = "{$type}-".Str::random(12).'.jpg';
             $path = "{$dir}/{$filename}";
 
             if ($this->downloadWithRetry($url, $path)) {
                 $this->imagePools[$type][] = $path;
                 if (($i + 1) % 10 === 0) {
-                    info("DataSeeder: Downloaded " . ($i + 1) . "/{$needed} for {$type}.");
+                    info('DataSeeder: Downloaded '.($i + 1)."/{$needed} for {$type}.");
                 }
             }
         }
 
-        info("DataSeeder: Pool for {$type} ready with " . count($this->imagePools[$type]) . " images.");
+        info("DataSeeder: Pool for {$type} ready with ".count($this->imagePools[$type]).' images.');
     }
 
     private function downloadWithRetry(string $url, string $savePath, int $retries = 5): bool
