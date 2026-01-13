@@ -343,12 +343,18 @@ class DataSeeder extends Seeder
 
     private CarbonImmutable $referenceDate;
 
+    private array $imagePools = [];
+
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
         File::cleanDirectory(storage_path('app/public'));
+
+        $this->downloadImagePool('products', 100, 1000, 1000);
+        $this->downloadImagePool('banners', 10, 1600, 600);
+        $this->downloadImagePool('blogs', 50, 1600, 1000);
 
         $this->productPayloads = collect();
         $this->productCouponPlans = [];
@@ -1124,9 +1130,75 @@ class DataSeeder extends Seeder
         return $selected;
     }
 
+    private function downloadImagePool(string $type, int $count, int $width, int $height): void
+    {
+        $dir = storage_path("app/tmp/downloads/{$type}");
+        File::ensureDirectoryExists($dir);
+
+        $existing = collect(File::files($dir));
+
+        if ($existing->count() >= $count) {
+            $this->imagePools[$type] = $existing->map(fn ($f) => $f->getPathname())->values()->all();
+            info("DataSeeder: Using existing pool for {$type} (" . count($this->imagePools[$type]) . " images).");
+
+            return;
+        }
+
+        $needed = $count - $existing->count();
+        info("DataSeeder: Downloading {$needed} images for {$type}...");
+
+        $this->imagePools[$type] = $existing->map(fn ($f) => $f->getPathname())->values()->all();
+
+        for ($i = 0; $i < $needed; $i++) {
+            $seed = "{$type}-" . Str::random(8);
+            $url = $this->picsumSeedUrl($seed, $width, $height);
+            $filename = "{$type}-" . Str::random(12) . ".jpg";
+            $path = "{$dir}/{$filename}";
+
+            if ($this->downloadWithRetry($url, $path)) {
+                $this->imagePools[$type][] = $path;
+                if (($i + 1) % 10 === 0) {
+                    info("DataSeeder: Downloaded " . ($i + 1) . "/{$needed} for {$type}.");
+                }
+            }
+        }
+
+        info("DataSeeder: Pool for {$type} ready with " . count($this->imagePools[$type]) . " images.");
+    }
+
+    private function downloadWithRetry(string $url, string $savePath, int $retries = 5): bool
+    {
+        for ($attempt = 1; $attempt <= $retries; $attempt++) {
+            try {
+                $response = Http::timeout(15)->get($url);
+                if ($response->successful()) {
+                    File::put($savePath, $response->body());
+
+                    return true;
+                }
+            } catch (Throwable $e) {
+                // quiet failure until last attempt
+            }
+
+            if ($attempt < $retries) {
+                usleep(500000);
+            }
+        }
+
+        info("DataSeeder: Failed to download {$url} after {$retries} attempts.");
+
+        return false;
+    }
+
     private function attachProductMedia(): void
     {
         if (! $this->shouldAttachMedia()) {
+            return;
+        }
+
+        if (empty($this->imagePools['products'])) {
+            info('DataSeeder: product image pool empty, skipping media attachment.');
+
             return;
         }
 
@@ -1138,33 +1210,24 @@ class DataSeeder extends Seeder
                 return;
             }
 
-            $candidates = $payload['media_candidates'] ?? [];
+            $pool = collect($this->imagePools['products']);
+            $count = min(3, $pool->count());
+            $images = $pool->random($count);
 
-            if (empty($candidates)) {
-                return;
-            }
-
-            $url = $this->pickReachableImageUrl($candidates);
-
-            if (! $url) {
-                info(sprintf('DataSeeder: no reachable media for %s', $product->slug));
-
-                return;
-            }
-
-            $domain = parse_url($url, PHP_URL_HOST) ?? 'unknown';
-
-            try {
-                $product
-                    ->addMediaFromUrl($url)
-                    ->usingFileName($product->slug.'.jpg')
-                    ->withCustomProperties([
-                        'source' => $domain,
-                        'alt' => $product->name,
-                    ])
-                    ->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
-            } catch (Throwable $exception) {
-                info(sprintf('DataSeeder: failed to attach media for %s: %s', $product->slug, $exception->getMessage()));
+            foreach ($images as $path) {
+                try {
+                    $product
+                        ->addMedia($path)
+                        ->preservingOriginal()
+                        ->usingFileName(basename($path))
+                        ->withCustomProperties([
+                            'source' => 'local-pool',
+                            'alt' => $product->name,
+                        ])
+                        ->toMediaCollection(Product::MEDIA_COLLECTION_NAME);
+                } catch (Throwable $exception) {
+                    info(sprintf('DataSeeder: failed to attach media for %s: %s', $product->slug, $exception->getMessage()));
+                }
             }
         });
     }
@@ -3966,42 +4029,19 @@ class DataSeeder extends Seeder
             return 'skipped';
         }
 
-        foreach ($this->pickImageCandidatesFor($topic) as $candidate) {
-            $signature = sha1($candidate);
-
-            if ($this->mediaAlreadyAttached($blog, Blog::MEDIA_COLLECTION_NAME, $signature)) {
-                return 'skipped';
-            }
-
-            if (! $this->isHttps($candidate) || ! $this->urlOk($candidate)) {
-                info(sprintf('DataSeeder: skipped blog image candidate %s for %s (unreachable).', $candidate, $blog->slug));
-
-                continue;
-            }
-
-            $downloadedPath = $this->downloadToTemp($candidate, 'blog');
-
-            if (! $downloadedPath) {
-                info(sprintf('DataSeeder: failed downloading blog image candidate %s for %s.', $candidate, $blog->slug));
-
-                continue;
-            }
+        if (! empty($this->imagePools['blogs'])) {
+            $path = collect($this->imagePools['blogs'])->random();
 
             try {
                 $blog
-                    ->addMedia($downloadedPath)
-                    ->usingFileName($this->suggestFileName($topic, $candidate))
+                    ->addMedia($path)
+                    ->preservingOriginal()
+                    ->usingFileName(basename($path))
                     ->withCustomProperties([
-                        'source_url' => $candidate,
-                        'source_signature' => $signature,
+                        'source_url' => 'local-pool',
                         'featured_image_description' => $description,
                     ])
-                    ->preservingOriginal()
                     ->toMediaCollection(Blog::MEDIA_COLLECTION_NAME);
-
-                File::delete($downloadedPath);
-
-                info(sprintf('DataSeeder: attached blog media from %s.', $candidate));
 
                 if (empty($blog->featured_image_description)) {
                     $blog->forceFill(['featured_image_description' => $description])->saveQuietly();
@@ -4009,8 +4049,7 @@ class DataSeeder extends Seeder
 
                 return 'url_success';
             } catch (Throwable $exception) {
-                File::delete($downloadedPath);
-                info(sprintf('DataSeeder: failed attaching blog media from %s (%s).', $candidate, $exception->getMessage()));
+                info(sprintf('DataSeeder: failed attaching blog media from pool (%s).', $exception->getMessage()));
             }
         }
 
@@ -4371,43 +4410,31 @@ class DataSeeder extends Seeder
 
     protected function attachBannerImage(Banner $banner, string $url, string $description): string
     {
-        $signature = sha1($url);
-
-        if ($this->mediaAlreadyAttached($banner, Banner::MEDIA_COLLECTION_NAME, $signature)) {
-            return 'skipped';
-        }
-
         if ($banner->hasMedia(Banner::MEDIA_COLLECTION_NAME)) {
             return 'skipped';
         }
 
-        if ($this->isHttps($url) && $this->urlOk($url)) {
-            $downloadedPath = $this->downloadToTemp($url, 'banner');
+        if (! empty($this->imagePools['banners'])) {
+            $path = collect($this->imagePools['banners'])->random();
 
-            if ($downloadedPath) {
-                try {
-                    $banner
-                        ->addMedia($downloadedPath)
-                        ->usingFileName($this->suggestFileName('banner', $url))
-                        ->withCustomProperties([
-                            'source_url' => $url,
-                            'source_signature' => $signature,
-                            'image_description' => $description,
-                        ])
-                        ->preservingOriginal()
-                        ->toMediaCollection(Banner::MEDIA_COLLECTION_NAME);
+            try {
+                $banner
+                    ->addMedia($path)
+                    ->preservingOriginal()
+                    ->usingFileName(basename($path))
+                    ->withCustomProperties([
+                        'source_url' => 'local-pool',
+                        'image_description' => $description,
+                    ])
+                    ->toMediaCollection(Banner::MEDIA_COLLECTION_NAME);
 
-                    File::delete($downloadedPath);
-
-                    if (empty($banner->image_description)) {
-                        $banner->forceFill(['image_description' => $description])->saveQuietly();
-                    }
-
-                    return 'url_success';
-                } catch (Throwable $exception) {
-                    File::delete($downloadedPath);
-                    info(sprintf('DataSeeder: failed attaching banner media from %s (%s).', $url, $exception->getMessage()));
+                if (empty($banner->image_description)) {
+                    $banner->forceFill(['image_description' => $description])->saveQuietly();
                 }
+
+                return 'url_success';
+            } catch (Throwable $exception) {
+                info(sprintf('DataSeeder: failed attaching banner media from pool (%s).', $exception->getMessage()));
             }
         }
 
