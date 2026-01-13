@@ -35,7 +35,7 @@ class AuthService
         /** @var User $user */
         $user = User::where('email', $validatedData['email'])->firstOrFail();
 
-        if (! config('auth.otp_enabled', env('LOGIN_OTP_ENABLED', true))) {
+        if (! config('auth.otp_enabled', true)) {
             $user->auth_token = $user->createToken('auth_token')->plainTextToken;
 
             return $user;
@@ -43,7 +43,7 @@ class AuthService
 
         // Generate 6-digit numeric OTP and expiry
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $expiresAt = now()->addMinutes(config('auth.otp_expiry', env('LOGIN_OTP_EXPIRY_MINUTES', 10)));
+        $expiresAt = now()->addMinutes((int) config('auth.otp_expiry', 10));
 
         // Remove any previous unconsumed OTPs for safety
         LoginOtp::query()
@@ -62,7 +62,7 @@ class AuthService
         // Send OTP email (queued)
         Mail::to($user->email)->queue(new LoginOtpMail($code, Carbon::parse($expiresAt)));
 
-        $resendThrottle = (int) config('auth.otp_resend_throttle', env('LOGIN_OTP_RESEND_THROTTLE', 60));
+        $resendThrottle = (int) config('auth.otp_resend_throttle', 60);
 
         // Attach context properties for API response
         $user->setAttribute('otp_required', true);
@@ -203,7 +203,7 @@ class AuthService
 
         // Rate limit: satu permintaan setiap 30 detik per pengguna (berdasarkan waktu request)
         $key = 'resend-login-otp:'.$user->id;
-        $throttle = (int) config('auth.otp_resend_throttle', env('LOGIN_OTP_RESEND_THROTTLE', 60));
+        $throttle = (int) config('auth.otp_resend_throttle', 60);
 
         if (RateLimiter::tooManyAttempts($key, 1)) {
             $wait = (int) RateLimiter::availableIn($key);
@@ -226,7 +226,7 @@ class AuthService
 
         // Generate and send new OTP
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $expiresAt = now()->addMinutes(config('auth.otp_expiry', env('LOGIN_OTP_EXPIRY_MINUTES', 10)));
+        $expiresAt = now()->addMinutes((int) config('auth.otp_expiry', 10));
 
         LoginOtp::create([
             'user_id' => $user->id,

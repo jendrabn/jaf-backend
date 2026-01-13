@@ -41,6 +41,7 @@ class AuthLoginPostTest extends ApiTestCase
     #[Test]
     public function can_login()
     {
+        config(['auth.otp_enabled' => false]);
         $user = $this->createUser(['password' => $password = 'Secret123']);
 
         $response = $this->postJson('/api/auth/login', [
@@ -65,6 +66,47 @@ class AuthLoginPostTest extends ApiTestCase
             ]);
 
         $this->assertCount(1, $user->fresh()->tokens);
+    }
+
+    #[Test]
+    public function login_with_otp_enabled_accepts_string_config_values()
+    {
+        config([
+            'auth.otp_enabled' => true,
+            'auth.otp_expiry' => '10',
+            'auth.otp_resend_throttle' => '60',
+        ]);
+
+        $user = $this->createUser(['password' => $password = 'Secret123']);
+
+        $response = $this->postJson('/api/auth/login', [
+            'email' => $user->email,
+            'password' => $password,
+        ]);
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'data' => [
+                    'id',
+                    'name',
+                    'email',
+                    'phone',
+                    'sex',
+                    'birth_date',
+                    'otp_required',
+                    'otp_expires_at',
+                    'otp_sent_to',
+                    'otp_resend_available_at',
+                ],
+            ])
+            ->assertJson([
+                'data' => [
+                    'otp_required' => true,
+                ],
+            ]);
+
+        $this->assertCount(0, $user->fresh()->tokens);
+        $this->assertDatabaseCount('login_otps', 1);
     }
 
     #[Test]

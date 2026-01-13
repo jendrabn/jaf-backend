@@ -348,6 +348,8 @@ class DataSeeder extends Seeder
      */
     public function run(): void
     {
+        File::cleanDirectory(storage_path('app/public'));
+
         $this->productPayloads = collect();
         $this->productCouponPlans = [];
         $this->blogCategoryMap = [];
@@ -1072,7 +1074,7 @@ class DataSeeder extends Seeder
 
             $timestamp = now('Asia/Jakarta');
 
-            $rows = array_map(static fn(int $productId) => [
+            $rows = array_map(static fn (int $productId) => [
                 'coupon_id' => $couponRecord->id,
                 'product_id' => $productId,
                 'created_at' => $timestamp,
@@ -1155,7 +1157,7 @@ class DataSeeder extends Seeder
             try {
                 $product
                     ->addMediaFromUrl($url)
-                    ->usingFileName($product->slug . '.jpg')
+                    ->usingFileName($product->slug.'.jpg')
                     ->withCustomProperties([
                         'source' => $domain,
                         'alt' => $product->name,
@@ -2132,7 +2134,7 @@ class DataSeeder extends Seeder
         ];
 
         $this->laundryDefinitionsCache = collect($definitions)->map(function (array $definition) {
-            $seed = $definition['media_seed'] ?? 'laundry-' . Str::slug($definition['name']);
+            $seed = $definition['media_seed'] ?? 'laundry-'.Str::slug($definition['name']);
             $definition['media_candidates'] = [$this->picsumSeedUrl($seed, 1200, 1200)];
             unset($definition['media_seed']);
 
@@ -2200,7 +2202,7 @@ class DataSeeder extends Seeder
         ];
 
         $this->roomFragranceDefinitionsCache = collect($definitions)->map(function (array $definition) {
-            $seed = $definition['media_seed'] ?? 'room-' . Str::slug($definition['name']);
+            $seed = $definition['media_seed'] ?? 'room-'.Str::slug($definition['name']);
             $definition['media_candidates'] = [$this->picsumSeedUrl($seed, 1600, 1000)];
             unset($definition['media_seed']);
 
@@ -2274,7 +2276,7 @@ class DataSeeder extends Seeder
         ];
 
         $this->travelDefinitionsCache = collect($definitions)->map(function (array $definition) {
-            $seed = $definition['media_seed'] ?? 'travel-' . Str::slug($definition['name']);
+            $seed = $definition['media_seed'] ?? 'travel-'.Str::slug($definition['name']);
             $definition['media_candidates'] = [$this->picsumSeedUrl($seed, 1200, 1200)];
             unset($definition['media_seed']);
 
@@ -2459,7 +2461,7 @@ class DataSeeder extends Seeder
         ];
 
         $this->bottleTemplatesCache = collect($templates)->map(function (array $template) {
-            $seed = $template['media_seed'] ?? 'bottle-' . Str::slug($template['style'] . ' ' . $template['finish']);
+            $seed = $template['media_seed'] ?? 'bottle-'.Str::slug($template['style'].' '.$template['finish']);
             $template['media_candidates'] = [$this->picsumSeedUrl($seed, 1200, 1200)];
             unset($template['media_seed']);
 
@@ -2475,7 +2477,7 @@ class DataSeeder extends Seeder
 
         foreach ($this->perfumeDefinitions() as $definition) {
             $key = $definition['media_key'];
-            $map[$key] = $this->picsumSeedSet('perfume-' . $key, 3, 1200, 1200);
+            $map[$key] = $this->picsumSeedSet('perfume-'.$key, 3, 1200, 1200);
         }
 
         return $map;
@@ -2503,7 +2505,7 @@ class DataSeeder extends Seeder
 
         if (! Schema::hasTable('banks')) {
             info('DataSeeder: banks table missing, skip bank seeding.');
-            $this->bankDirectory = array_map(fn(array $bank) => $bank + ['id' => null], self::BANK_DEFINITIONS);
+            $this->bankDirectory = array_map(fn (array $bank) => $bank + ['id' => null], self::BANK_DEFINITIONS);
 
             return;
         }
@@ -2511,7 +2513,7 @@ class DataSeeder extends Seeder
         $timestamp = $this->referenceDate->toMutable();
 
         $rows = array_map(
-            fn(array $bank) => array_merge($bank, [
+            fn (array $bank) => array_merge($bank, [
                 'created_at' => $timestamp,
                 'updated_at' => $timestamp,
             ]),
@@ -2536,7 +2538,7 @@ class DataSeeder extends Seeder
             ->whereIn('code', array_column(self::BANK_DEFINITIONS, 'code'))
             ->orderBy('code')
             ->get(['id', 'name', 'code', 'account_name', 'account_number'])
-            ->map(fn($row) => (array) $row)
+            ->map(fn ($row) => (array) $row)
             ->values()
             ->all();
 
@@ -2549,7 +2551,7 @@ class DataSeeder extends Seeder
 
         if (! Schema::hasTable('ewallets')) {
             info('DataSeeder: ewallets table missing, using fallback data.');
-            $this->ewalletDirectory = array_map(fn(array $wallet) => $wallet + ['id' => null], self::EWALLET_DEFINITIONS);
+            $this->ewalletDirectory = array_map(fn (array $wallet) => $wallet + ['id' => null], self::EWALLET_DEFINITIONS);
 
             return;
         }
@@ -2557,7 +2559,7 @@ class DataSeeder extends Seeder
         $timestamp = $this->referenceDate->toMutable();
 
         $rows = array_map(
-            fn(array $wallet) => array_merge($wallet, [
+            fn (array $wallet) => array_merge($wallet, [
                 'created_at' => $timestamp,
                 'updated_at' => $timestamp,
             ]),
@@ -2587,7 +2589,7 @@ class DataSeeder extends Seeder
             ->whereIn('name', array_column(self::EWALLET_DEFINITIONS, 'name'))
             ->orderBy('name')
             ->get(['id', 'name', 'account_name', 'account_username', 'phone'])
-            ->map(fn($row) => (array) $row)
+            ->map(fn ($row) => (array) $row)
             ->values()
             ->all();
 
@@ -2737,7 +2739,7 @@ class DataSeeder extends Seeder
     {
         return [
             'name' => sprintf('Customer %d', $userId),
-            'phone' => $this->normalizePhone('0812300000' . str_pad((string) ($userId % 100), 2, '0', STR_PAD_LEFT)),
+            'phone' => $this->normalizePhone('0812300000'.str_pad((string) ($userId % 100), 2, '0', STR_PAD_LEFT)),
             'province' => 'Jawa Timur',
             'city' => 'Jember',
             'district' => 'Sumbersari',
@@ -2778,10 +2780,10 @@ class DataSeeder extends Seeder
         }
 
         if (Str::startsWith($digits, '0')) {
-            return '62' . ltrim($digits, '0');
+            return '62'.ltrim($digits, '0');
         }
 
-        return '62' . $digits;
+        return '62'.$digits;
     }
 
     private function cancelReasonForOrder(int $index): string
@@ -3126,7 +3128,7 @@ class DataSeeder extends Seeder
 
             $this->upsertOrderGraph([
                 'order' => [
-                    'note' => 'Order No: ' . $orderNumber,
+                    'note' => 'Order No: '.$orderNumber,
                     'user_id' => $userId,
                     'total_price' => $totalPrice,
                     'discount' => $discount,
@@ -3614,7 +3616,7 @@ class DataSeeder extends Seeder
             if (Schema::hasTable('blog_tag_blog') && ! empty($this->blogTagSlugToId)) {
                 $tagSlugs = $this->pickTagsFor($slug);
                 $tagIds = array_values(array_filter(
-                    array_map(fn(string $tagSlug) => $this->blogTagSlugToId[$tagSlug] ?? null, $tagSlugs)
+                    array_map(fn (string $tagSlug) => $this->blogTagSlugToId[$tagSlug] ?? null, $tagSlugs)
                 ));
 
                 if (! empty($tagIds)) {
@@ -3691,7 +3693,7 @@ class DataSeeder extends Seeder
         $suffix = 2;
 
         while (isset($this->blogSlugRegistry[$slug])) {
-            $slug = $base . '-v' . $suffix;
+            $slug = $base.'-v'.$suffix;
             $suffix++;
         }
 
@@ -3796,7 +3798,7 @@ class DataSeeder extends Seeder
             $candidates = $this->blogImageUrlMap['default'] ?? ($fallback['default'] ?? []);
         }
 
-        $candidates = array_values(array_filter($candidates, fn($url) => $this->isHttps($url)));
+        $candidates = array_values(array_filter($candidates, fn ($url) => $this->isHttps($url)));
 
         if (empty($candidates)) {
             $candidates = $fallback['default'] ?? [];
@@ -3831,7 +3833,7 @@ class DataSeeder extends Seeder
         $map = [];
 
         foreach ($topics as $topic) {
-            $map[$topic] = $this->picsumSeedSet('blog-topic-' . $topic, 3, 1600, 1000);
+            $map[$topic] = $this->picsumSeedSet('blog-topic-'.$topic, 3, 1600, 1000);
         }
 
         return $map;
@@ -3905,7 +3907,7 @@ class DataSeeder extends Seeder
                 return null;
             }
 
-            $baseDir = storage_path('app/tmp/' . $prefix . '-images');
+            $baseDir = storage_path('app/tmp/'.$prefix.'-images');
             File::ensureDirectoryExists($baseDir);
 
             $path = parse_url($url, PHP_URL_PATH) ?? '';
@@ -3916,7 +3918,7 @@ class DataSeeder extends Seeder
             }
 
             $fileName = sprintf('%s-%s.%s', $prefix, substr(sha1($url), 0, 12), $extension);
-            $fullPath = $baseDir . DIRECTORY_SEPARATOR . $fileName;
+            $fullPath = $baseDir.DIRECTORY_SEPARATOR.$fileName;
 
             File::put($fullPath, $response->body());
 
@@ -4092,18 +4094,18 @@ class DataSeeder extends Seeder
 
         $contentParts = [
             implode("\n\n", $introParagraphs),
-            "## Dasar dan Ilmu\n\n" . implode("\n\n", $knowledgeParagraphs),
-            "## Praktik dan Tips\n\n" . implode("\n\n", $practiceParagraphs),
-            "## Kesalahan Umum\n\n" . implode("\n\n", $mistakeParagraphs) . "\n\n" . implode("\n", $mistakeList),
-            "## Studi Kasus dan Contoh\n\n" . implode("\n\n", $caseParagraphs),
-            "## Ringkasan\n\n" . implode("\n", $summaryBullets),
+            "## Dasar dan Ilmu\n\n".implode("\n\n", $knowledgeParagraphs),
+            "## Praktik dan Tips\n\n".implode("\n\n", $practiceParagraphs),
+            "## Kesalahan Umum\n\n".implode("\n\n", $mistakeParagraphs)."\n\n".implode("\n", $mistakeList),
+            "## Studi Kasus dan Contoh\n\n".implode("\n\n", $caseParagraphs),
+            "## Ringkasan\n\n".implode("\n", $summaryBullets),
         ];
 
         $content = implode("\n\n", $contentParts);
         $wordCount = str_word_count(strip_tags($content));
 
         while ($wordCount < 1000) {
-            $content .= "\n\n" . $this->additionalInsightParagraph($topicDescriptor);
+            $content .= "\n\n".$this->additionalInsightParagraph($topicDescriptor);
             $wordCount = str_word_count(strip_tags($content));
         }
 
@@ -4466,7 +4468,7 @@ class DataSeeder extends Seeder
     protected function picsumSeedSet(string $prefix, int $count, int $width, int $height): array
     {
         return collect(range(1, $count))->map(function (int $index) use ($prefix, $width, $height) {
-            return $this->picsumSeedUrl($prefix . '-' . $index, $width, $height);
+            return $this->picsumSeedUrl($prefix.'-'.$index, $width, $height);
         })->all();
     }
 
