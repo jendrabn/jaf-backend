@@ -123,4 +123,20 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Demo Mode Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This option controls whether the application is running in demo mode.
+    | When enabled, the demo credentials will be used for login.
+    |
+    */
+
+    'demo_mode' => [
+        'enabled' => env('DEMO_MODE', false),
+        'username' => env('DEMO_MODE_USERNAME', 'admin@mail.com'),
+        'password' => env('DEMO_MODE_PASSWORD', 'password'),
+    ],
+
 ];

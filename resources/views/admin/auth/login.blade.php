@@ -16,7 +16,7 @@
                            placeholder="Email"
                            required
                            type="email"
-                           value="{{ config('app.debug') ? 'admin@mail.com' : '' }}" />
+                           value="{{ config('app.demo_mode.enabled') ? config('app.demo_mode.username') : (config('app.debug') ? 'admin@mail.com' : '') }}" />
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-envelope"></span>
@@ -34,7 +34,7 @@
                            placeholder="Password"
                            required
                            type="password"
-                           value="{{ config('app.debug') ? 'password' : '' }}">
+                           value="{{ config('app.demo_mode.enabled') ? config('app.demo_mode.password') : (config('app.debug') ? 'password' : '') }}">
                     <div class="input-group-append">
                         <div class="input-group-text">
                             <span class="fas fa-lock"></span>

@@ -23,7 +23,7 @@ class SendOrderProcessingNotification
     public function handle(OrderProcessing $event): void
     {
         $order = $event->order;
-        $title = 'Pesanan kamu sedang dikemas 📦';
+        $title = 'Pesanan kamu sedang dikemas';
 
         // Check if notification already exists
         if (UserNotification::existsForOrder($order->user_id, $order->id, $title)) {

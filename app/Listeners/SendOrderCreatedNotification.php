@@ -23,7 +23,7 @@ class SendOrderCreatedNotification
     public function handle(OrderCreated $event): void
     {
         $order = $event->order;
-        $title = 'Pesanan kamu berhasil dibuat 🧾';
+        $title = 'Pesanan kamu berhasil dibuat';
 
         // Check if notification already exists
         if (UserNotification::existsForOrder($order->user_id, $order->id, $title)) {

@@ -23,7 +23,7 @@ class SendOrderCancelledNotification
     public function handle(OrderCancelled $event): void
     {
         $order = $event->order;
-        $title = 'Pesanan kamu dibatalkan ❌';
+        $title = 'Pesanan kamu dibatalkan';
 
         // Check if notification already exists
         if (UserNotification::existsForOrder($order->user_id, $order->id, $title)) {

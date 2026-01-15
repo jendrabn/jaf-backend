@@ -23,7 +23,7 @@ class SendPaymentConfirmedNotification
     public function handle(PaymentConfirmed $event): void
     {
         $order = $event->order;
-        $title = 'Pembayaran kamu sudah kami terima 💰';
+        $title = 'Pembayaran kamu sudah kami terima';
 
         // Check if notification already exists
         if (UserNotification::existsForOrder($order->user_id, $order->id, $title)) {

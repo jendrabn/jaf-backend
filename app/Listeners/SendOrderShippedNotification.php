@@ -24,7 +24,7 @@ class SendOrderShippedNotification
     {
         $order = $event->order;
         $shipping = $order->shipping;
-        $title = 'Pesanan kamu sedang dikirim 🚚';
+        $title = 'Pesanan kamu sedang dikirim';
 
         // Check if notification already exists
         if (UserNotification::existsForOrder($order->user_id, $order->id, $title)) {
