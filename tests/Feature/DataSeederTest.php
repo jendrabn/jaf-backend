@@ -7,6 +7,7 @@ use App\Models\Blog;
 use App\Models\BlogCategory;
 use App\Models\BlogTag;
 use App\Models\Coupon;
+use App\Models\FlashSale;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductBrand;
@@ -33,6 +34,8 @@ class DataSeederTest extends TestCase
 
     protected function tearDown(): void
     {
+        CarbonImmutable::setTestNow();
+
         Schema::disableForeignKeyConstraints();
         Schema::dropAllTables();
         Schema::enableForeignKeyConstraints();
@@ -42,6 +45,10 @@ class DataSeederTest extends TestCase
 
     public function test_data_seeder_populates_expected_catalog(): void
     {
+        CarbonImmutable::setTestNow(
+            CarbonImmutable::create(2025, 1, 15, 9, 0, 0, 'Asia/Jakarta')
+        );
+
         config(['seed.attach_media' => false]);
 
         Artisan::call('db:seed', [
@@ -77,6 +84,23 @@ class DataSeederTest extends TestCase
             Product::query()->where('is_publish', false)->where('stock', 0)->count(),
             'Unpublished products must not overlap with out-of-stock selection.'
         );
+
+        $flashSales = FlashSale::query()->orderBy('start_at')->get();
+        $this->assertSame(12, $flashSales->count());
+
+        $flashSales->values()->each(function (FlashSale $flashSale, int $index): void {
+            $expectedStart = CarbonImmutable::now('Asia/Jakarta')->addDays(30 * ($index + 1));
+            $expectedEnd = $expectedStart->addDays(3);
+
+            $this->assertSame(
+                $expectedStart->format('Y-m-d'),
+                CarbonImmutable::parse($flashSale->start_at)->format('Y-m-d')
+            );
+            $this->assertSame(
+                $expectedEnd->format('Y-m-d'),
+                CarbonImmutable::parse($flashSale->end_at)->format('Y-m-d')
+            );
+        });
 
         $bleu = Product::query()->where('slug', 'bleu-de-chanel-edp-100ml')->first();
         $this->assertNotNull($bleu);
@@ -274,8 +298,13 @@ class DataSeederTest extends TestCase
             $media = $bannerItem->getMedia(Banner::MEDIA_COLLECTION_NAME);
             $this->assertSame(1, $media->count());
             $signature = $media->first()->getCustomProperty('source_signature');
+            $sourceUrl = $media->first()->getCustomProperty('source_url');
             $this->assertNotEmpty($signature);
-            $this->assertTrue(Str::startsWith($media->first()->getCustomProperty('source_url') ?? '', 'https://picsum.photos') || $signature === 'placeholder');
+            $this->assertTrue(
+                Str::startsWith($sourceUrl ?? '', 'https://picsum.photos')
+                || $sourceUrl === 'local-pool'
+                || $signature === 'placeholder'
+            );
         }
 
         $blogs = Blog::with('tags')->get();
@@ -288,6 +317,8 @@ class DataSeederTest extends TestCase
 
             if ($signature === 'placeholder' || $sourceUrl === null) {
                 $this->assertSame('placeholder', $signature);
+            } elseif ($sourceUrl === 'local-pool') {
+                $this->assertNotEmpty($signature);
             } else {
                 $this->assertTrue(Str::startsWith($sourceUrl, 'https://picsum.photos'));
             }
@@ -352,6 +383,8 @@ class DataSeederTest extends TestCase
             'database/migrations/2023_09_11_034340_create_product_categories_table.php',
             'database/migrations/2023_09_11_034348_create_product_brands_table.php',
             'database/migrations/2023_09_11_034514_create_products_table.php',
+            'database/migrations/2025_11_18_002420_create_flash_sales_tables.php',
+            'database/migrations/2025_11_18_002546_create_flash_sale_products_table.php',
             'database/migrations/2023_09_11_035744_create_user_addresses_table.php',
             'database/migrations/2024_08_06_112850_create_permission_tables.php',
             'database/migrations/2024_08_06_112906_create_media_table.php',

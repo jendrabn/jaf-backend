@@ -548,8 +548,8 @@ class DataSeeder extends Seeder
 
         $definitions = [];
 
-        for ($i = 0; $i < 12; $i++) {
-            $start = $base->copy()->addDays(30)->addMonths($i);
+        for ($i = 1; $i <= 12; $i++) {
+            $start = $base->copy()->addDays(30 * $i);
 
             $definitions[] = [
                 'name' => sprintf('Flash Sale %s', $start->translatedFormat('F')),
@@ -4031,6 +4031,7 @@ class DataSeeder extends Seeder
                     ->usingFileName(basename($path))
                     ->withCustomProperties([
                         'source_url' => 'local-pool',
+                        'source_signature' => sha1($path),
                         'featured_image_description' => $description,
                     ])
                     ->toMediaCollection(Blog::MEDIA_COLLECTION_NAME);
@@ -4416,6 +4417,7 @@ class DataSeeder extends Seeder
                     ->usingFileName(basename($path))
                     ->withCustomProperties([
                         'source_url' => 'local-pool',
+                        'source_signature' => sha1($path),
                         'image_description' => $description,
                     ])
                     ->toMediaCollection(Banner::MEDIA_COLLECTION_NAME);
