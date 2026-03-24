@@ -25,6 +25,7 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->seed(BankSeeder::class);
         $this->user = $this->createUser();
         $this->data = [
@@ -32,6 +33,27 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
             'account_name' => 'Abdullah',
             'account_number' => '1988162520',
         ];
+    }
+
+    private function createPendingPaymentOrder(User $user, array $orderAttributes = [], array $invoiceAttributes = []): Order
+    {
+        return Order::factory([
+            'created_at' => now(),
+        ])
+            ->for($user)
+            ->afterCreating(
+                fn ($order) => Invoice::factory(array_merge([
+                    'due_date' => $order->created_at->copy()->addDay(),
+                ], $invoiceAttributes))
+                    ->has(Payment::factory([
+                        'method' => Payment::METHOD_BANK,
+                    ]))
+                    ->for($order)
+                    ->create()
+            )
+            ->create(array_merge([
+                'status' => Order::STATUS_PENDING_PAYMENT,
+            ], $orderAttributes));
     }
 
     #[Test]
@@ -45,30 +67,15 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
     }
 
     #[Test]
-    public function confirm_payment_request_has_the_correct_validation_rules()
+    public function confirm_payment_request_requires_bank_transfer_fields()
     {
-        $this->markTestSkipped();
+        $order = $this->createPendingPaymentOrder($this->user);
+        Sanctum::actingAs($this->user);
 
-        $this->assertValidationRules([
-            'name' => [
-                'required',
-                'string',
-                'min:1',
-                'max:50',
-            ],
-            'account_name' => [
-                'required',
-                'string',
-                'min:1',
-                'max:50',
-            ],
-            'account_number' => [
-                'required',
-                'string',
-                'min:1',
-                'max:50',
-            ],
-        ], (new ConfirmPaymentRequest)->rules());
+        $response = $this->postJson('/api/orders/'.$order->id.'/confirm_payment', []);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['name', 'account_name', 'account_number']);
     }
 
     #[Test]
@@ -83,17 +90,7 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
     #[Test]
     public function can_confirm_payment()
     {
-        $order = Order::factory([
-            'created_at' => now(),
-        ])
-            ->for($this->user)
-            ->afterCreating(
-                fn ($order) => Invoice::factory(['due_date' => $order->created_at->addDays(1)])
-                    ->has(Payment::factory())
-                    ->for($order)
-                    ->create()
-            )
-            ->create(['status' => Order::STATUS_PENDING_PAYMENT]);
+        $order = $this->createPendingPaymentOrder($this->user);
 
         Sanctum::actingAs($this->user);
 
@@ -103,44 +100,32 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
             ->assertJson(['data' => true]);
 
         $this->assertDatabaseHas('payment_banks', $this->data);
-        $this->assertTrue($order->fresh()->status === Order::STATUS_PENDING);
+        $this->assertSame(Order::STATUS_PENDING, $order->fresh()->status);
     }
 
     #[Test]
     public function cannot_confirm_payment_if_order_doenot_exist()
     {
-        $this->markTestSkipped();
-
-        $order = Order::factory()->for($this->createUser())->create();
+        $otherUserOrder = $this->createPendingPaymentOrder($this->createUser());
 
         Sanctum::actingAs($this->user);
 
-        // Unauthorized order id
-        $response1 = $this->postJson('/api/orders/'.$order->id.'/confirm_payment', $this->data);
+        $unauthorizedOrderResponse = $this->postJson('/api/orders/'.$otherUserOrder->id.'/confirm_payment', $this->data);
+        $invalidOrderResponse = $this->postJson('/api/orders/'.($otherUserOrder->id + 1).'/confirm_payment', $this->data);
 
-        $response1->assertNotFound()
+        $unauthorizedOrderResponse->assertNotFound()
             ->assertJsonStructure(['message']);
 
-        // Invalid order id
-        $response2 = $this->postJson('/api/orders/'.$order->id + 1 .'/confirm_payment', $this->data);
-
-        $response2->assertNotFound()
+        $invalidOrderResponse->assertNotFound()
             ->assertJsonStructure(['message']);
     }
 
     #[Test]
     public function cannot_confirm_payment_if_order_status_is_not_pending_payment()
     {
-        $this->markTestSkipped();
-
-        $order = Order::factory()
-            ->for($this->user)
-            ->afterCreating(
-                fn ($order) => Invoice::factory(['due_date' => $order->created_at->addDays(1)])
-                    ->for($order)
-                    ->create()
-            )
-            ->create(['status' => Order::STATUS_PENDING]);
+        $order = $this->createPendingPaymentOrder($this->user, [
+            'status' => Order::STATUS_PENDING,
+        ]);
 
         Sanctum::actingAs($this->user);
 
@@ -153,18 +138,9 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
     #[Test]
     public function cannot_confirm_payment_if_past_the_payment_due_date()
     {
-        $this->markTestSkipped();
-
-        $order = Order::factory()
-            ->for($this->user)
-            ->afterCreating(
-                fn ($order) => Invoice::factory(['due_date' => $order->created_at->addDays(1)])
-                    ->for($order)
-                    ->create()
-            )
-            ->create(['status' => Order::STATUS_PENDING_PAYMENT]);
-
-        $this->travel(25)->hours();
+        $order = $this->createPendingPaymentOrder($this->user, [], [
+            'due_date' => now()->subMinute(),
+        ]);
 
         Sanctum::actingAs($this->user);
 
@@ -173,6 +149,6 @@ class OrderConfirmPaymentPostTest extends ApiTestCase
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['order_id']);
 
-        $this->assertTrue($order->fresh()->status === Order::STATUS_CANCELLED);
+        $this->assertSame(Order::STATUS_CANCELLED, $order->fresh()->status);
     }
 }

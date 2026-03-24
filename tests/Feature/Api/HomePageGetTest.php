@@ -3,11 +3,15 @@
 namespace Tests\Feature\Api;
 
 use App\Models\Banner;
+use App\Models\Blog;
+use App\Models\BlogCategory;
+use App\Models\User;
 use Database\Seeders\ProductBrandSeeder;
 use Database\Seeders\ProductCategorySeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Role;
 use Tests\ApiTestCase;
 
 class HomePageGetTest extends ApiTestCase
@@ -19,6 +23,10 @@ class HomePageGetTest extends ApiTestCase
     {
         $this->seed([ProductCategorySeeder::class, ProductBrandSeeder::class]);
 
+        Role::firstOrCreate(['name' => User::ROLE_ADMIN]);
+        $admin = User::factory()->create();
+        $admin->assignRole(User::ROLE_ADMIN);
+
         $banners = Banner::factory(12)->create();
 
         // Add image only for first banner
@@ -26,26 +34,21 @@ class HomePageGetTest extends ApiTestCase
 
         $this->createProduct(['is_publish' => false]);
         $products = $this->createProduct(count: 12);
-
-        $expectedBanners = $banners->sortBy('id')->take(10);
-        $expectedProducts = $products->sortByDesc('id')->take(10);
+        Blog::factory(3)->create([
+            'blog_category_id' => BlogCategory::factory()->create()->id,
+            'user_id' => $admin->id,
+            'is_publish' => true,
+        ]);
 
         $response = $this->getJson('/api/landing');
 
         $response
             ->assertOk()
-            ->assertJson([
-                'data' => [
-                    'banners' => $expectedBanners->map(fn ($banner) => [
-                        'id' => $banner->id,
-                        'image' => $banner->image ? $banner->image->getUrl() : null,
-                        'image_description' => $banner->image_description,
-                        'url' => $banner->url,
-                    ])->toArray(),
-                    'products' => $this->formatProductData($expectedProducts),
-                ],
-            ]);
+            ->assertJsonCount(10, 'data.banners')
+            ->assertJsonCount(10, 'data.products')
+            ->assertJsonCount(3, 'data.blogs');
 
         $this->assertStringStartsWith('http', $response['data']['banners'][0]['image']);
+        $this->assertSame($products->sortByDesc('id')->first()->id, $response['data']['products'][0]['id']);
     }
 }

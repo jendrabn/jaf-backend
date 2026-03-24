@@ -39,11 +39,19 @@ class ProductService
             $searchTerm = $request->get('search');
 
             if (! empty($searchTerm)) {
-                $q->where(function ($query) use ($searchTerm) {
-                    $query->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', [$searchTerm])
-                        ->orWhere('name', 'like', "%{$searchTerm}%")
-                        ->orWhereHas('category', fn ($c) => $c->where('name', 'like', "%{$searchTerm}%"))
-                        ->orWhereHas('brand', fn ($b) => $b->where('name', 'like', "%{$searchTerm}%"));
+                $driver = DB::connection()->getDriverName();
+
+                $q->where(function ($query) use ($searchTerm, $driver) {
+                    if ($driver === 'mysql') {
+                        $query->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', [$searchTerm])
+                            ->orWhere('name', 'like', "%{$searchTerm}%")
+                            ->orWhereHas('category', fn ($c) => $c->where('name', 'like', "%{$searchTerm}%"))
+                            ->orWhereHas('brand', fn ($b) => $b->where('name', 'like', "%{$searchTerm}%"));
+                    } else {
+                        $query->where('name', 'like', "%{$searchTerm}%")
+                            ->orWhereHas('category', fn ($c) => $c->where('name', 'like', "%{$searchTerm}%"))
+                            ->orWhereHas('brand', fn ($b) => $b->where('name', 'like', "%{$searchTerm}%"));
+                    }
                 });
             }
         });

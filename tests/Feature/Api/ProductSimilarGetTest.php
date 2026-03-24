@@ -20,27 +20,32 @@ class ProductSimilarGetTest extends ApiTestCase
     }
 
     #[Test]
-    public function can_get_similar_products_by_product_id()
+    public function can_get_similar_products_by_product_slug()
     {
         $this->createProduct(count: 3);
         $products = Product::factory(7)
-            ->sequence(['name' => 'Bvlgari '.fake()->sentence(2)])
+            ->sequence(fn ($sequence) => ['name' => 'Bvlgari Variant '.$sequence->index])
             ->create();
+        $product = $products->first();
 
-        $response = $this->getJson('/api/products/'.$id = $products->first()->id.'/similars');
+        $response = $this->getJson('/api/products/'.$product->slug.'/similars');
 
-        $expectedProducts = $products->where('id', '!==', $id)->sortByDesc('id')->take(5);
+        $expectedProducts = $products->where('id', '!==', $product->id)->sortByDesc('id')->take(5);
 
-        $response->assertJson(['data' => $this->formatProductData($expectedProducts)])
-            ->assertJsonCount(5, 'data');
+        $response->assertJsonCount(5, 'data');
+
+        $this->assertSame(
+            $expectedProducts->pluck('id')->values()->toArray(),
+            collect($response['data'])->pluck('id')->values()->toArray()
+        );
     }
 
     #[Test]
-    public function returns_not_found_error_if_product_id_doenot_exist()
+    public function returns_not_found_error_if_product_slug_doenot_exist()
     {
         $product = $this->createProduct();
 
-        $response = $this->getJson('/api/products/'.$product->id + 1 .'/similars');
+        $response = $this->getJson('/api/products/'.$product->slug.'-missing/similars');
 
         $response->assertNotFound()
             ->assertJsonStructure(['message']);

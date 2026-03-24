@@ -23,6 +23,6 @@ class CategoryGetTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJson(['data' => $this->formatCategoryData($categories)])
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount($categories->count(), 'data');
     }
 }

@@ -11,11 +11,12 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Shipping;
+use App\Models\Tax;
 use App\Models\User;
 use Database\Seeders\BankSeeder;
-use Database\Seeders\CitySeeder;
+use Database\Seeders\CourierSeeder;
+use Database\Seeders\ProductBrandSeeder;
 use Database\Seeders\ProductCategorySeeder;
-use Database\Seeders\ProvinceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
 use Illuminate\Validation\Rule;
@@ -36,21 +37,27 @@ class OrderPostTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->seed([
             ProductCategorySeeder::class,
+            ProductBrandSeeder::class,
             BankSeeder::class,
-            // ProvinceSeeder::class,
-            // CitySeeder::class
+            CourierSeeder::class,
         ]);
+
+        $this->fakeRajaOngkirApi();
+
         $this->user = $this->createUser();
-        $this->bank = Bank::first();
+        $this->bank = Bank::firstOrFail();
         $this->data = [
             'shipping_address' => [
                 'name' => 'Garfield',
-                'phone' => '+6282310009788',
+                'phone' => '081234567890',
+                'province_id' => 11,
                 'city_id' => 154,
-                'district' => 'Cipayung',
-                'postal_code' => '13845',
+                'district_id' => 2550,
+                'subdistrict_id' => 3500,
+                'zip_code' => '13845',
                 'address' => 'Jl. Belimbing XII No.19',
             ],
             'shipping_courier' => 'jne',
@@ -114,18 +121,23 @@ class OrderPostTest extends ApiTestCase
                 'min:10',
                 'max:15',
             ],
+            'shipping_address.province_id' => [
+                'required',
+                'integer',
+            ],
             'shipping_address.city_id' => [
                 'required',
                 'integer',
-                'exists:cities,id',
             ],
-            'shipping_address.district' => [
+            'shipping_address.district_id' => [
                 'required',
-                'string',
-                'min:1',
-                'max:100',
+                'integer',
             ],
-            'shipping_address.postal_code' => [
+            'shipping_address.subdistrict_id' => [
+                'required',
+                'integer',
+            ],
+            'shipping_address.zip_code' => [
                 'required',
                 'string',
                 'min:5',
@@ -140,7 +152,7 @@ class OrderPostTest extends ApiTestCase
             'shipping_courier' => [
                 'required',
                 'string',
-                Rule::in(Shipping::COURIERS),
+                'exists:couriers,code',
             ],
             'shipping_service' => [
                 'required',
@@ -166,6 +178,11 @@ class OrderPostTest extends ApiTestCase
                 'string',
                 'max:200',
             ],
+            'coupon_code' => [
+                'nullable',
+                'string',
+                'exists:coupons,code',
+            ],
         ], $rules);
     }
 
@@ -181,48 +198,39 @@ class OrderPostTest extends ApiTestCase
     #[Test]
     public function can_create_order()
     {
+        Tax::query()->create([
+            'name' => 'PPN',
+            'rate' => 0,
+        ]);
+
         $cart1 = $this->createCart(2, ['price' => 25000, 'stock' => 5, 'weight' => 500]);
         $cart2 = $this->createCart(1, ['price' => 50000, 'stock' => 5, 'weight' => 500]);
-        $totalWeight = 1500;
-        $totalPrice = 100000;
-        $shippingCost = 34000;
-        $totalAmount = $totalPrice + $shippingCost;
 
         $response = $this->attemptToCreateOrder(['cart_ids' => [$cart1->id, $cart2->id]]);
 
         $this->assertDatabaseCount('orders', 1);
 
-        $order = Order::first();
-        $paymentDueDate = $order['created_at']->addDays(1);
+        $order = Order::query()->with(['invoice.payment', 'shipping'])->firstOrFail();
 
         $response->assertCreated()
-            ->assertJson([
-                'data' => [
-                    'id' => $order->id,
-                    'total_amount' => $totalAmount,
-                    'payment_method' => $this->data['payment_method'],
-                    'payment_info' => [
-                        'name' => $this->bank->name,
-                        'code' => $this->bank->code,
-                        'account_name' => $this->bank->account_name,
-                        'account_number' => $this->bank->account_number,
-                    ],
-                    'payment_due_date' => $paymentDueDate->toISOString(),
-                    'created_at' => $order->created_at->toISOString(),
-                ],
-            ]);
+            ->assertJsonPath('data.id', $order->id)
+            ->assertJsonPath('data.total_amount', 134000)
+            ->assertJsonPath('data.payment_method', 'bank')
+            ->assertJsonPath('data.payment_info.name', $this->bank->name)
+            ->assertJsonPath('data.gateway_fee', 0)
+            ->assertJsonPath('data.gateway_fee_name', null);
 
         $this->assertDatabaseHas('orders', [
-            'id' => $response['data']['id'],
-            'total_price' => $totalPrice,
-            'shipping_cost' => $shippingCost,
+            'id' => $order->id,
+            'total_price' => 100000,
+            'shipping_cost' => 34000,
+            'tax_amount' => 0,
             'note' => $this->data['note'],
             'status' => Order::STATUS_PENDING_PAYMENT,
         ]);
 
-        // $cart1
         $this->assertDatabaseHas('order_items', [
-            'order_id' => $response['data']['id'],
+            'order_id' => $order->id,
             'product_id' => $cart1->product->id,
             'name' => $cart1->product->name,
             'weight' => $cart1->product->weight,
@@ -230,9 +238,8 @@ class OrderPostTest extends ApiTestCase
             'quantity' => $cart1->quantity,
         ]);
 
-        // $cart2
         $this->assertDatabaseHas('order_items', [
-            'order_id' => $response['data']['id'],
+            'order_id' => $order->id,
             'product_id' => $cart2->product->id,
             'name' => $cart2->product->name,
             'weight' => $cart2->product->weight,
@@ -241,42 +248,26 @@ class OrderPostTest extends ApiTestCase
         ]);
 
         $this->assertDatabaseHas('invoices', [
-            'order_id' => $response['data']['id'],
-            'number' => 'INV'.$order->created_at->format('dmy').$response['data']['id'],
-            'amount' => $totalAmount,
+            'order_id' => $order->id,
+            'amount' => 134000,
             'status' => Invoice::STATUS_UNPAID,
-            'due_date' => $paymentDueDate,
         ]);
 
         $this->assertDatabaseHas('payments', [
-            'method' => $this->data['payment_method'],
-            'info' => json_encode([
-                'name' => $this->bank->name,
-                'code' => $this->bank->code,
-                'account_name' => $this->bank->account_name,
-                'account_number' => $this->bank->account_number,
-            ]),
-            'amount' => $totalAmount,
+            'invoice_id' => $order->invoice->id,
+            'method' => Payment::METHOD_BANK,
+            'amount' => 134000,
             'status' => Payment::STATUS_PENDING,
         ]);
 
         $this->assertDatabaseHas('shippings', [
-            'order_id' => $response['data']['id'],
-            'address' => json_encode([
-                'name' => $this->data['shipping_address']['name'],
-                'phone' => $this->data['shipping_address']['phone'],
-                'province' => 'DKI Jakarta',
-                'city' => 'Jakarta Timur',
-                'district' => $this->data['shipping_address']['district'],
-                'postal_code' => $this->data['shipping_address']['postal_code'],
-                'address' => $this->data['shipping_address']['address'],
-            ]),
-            'courier' => $this->data['shipping_courier'],
+            'order_id' => $order->id,
+            'courier' => 'jne',
             'courier_name' => 'Jalur Nugraha Ekakurir (JNE)',
-            'service' => $this->data['shipping_service'],
+            'service' => 'REG',
             'service_name' => 'Layanan Reguler',
             'etd' => '1-2 hari',
-            'weight' => $totalWeight,
+            'weight' => 1500,
             'status' => Shipping::STATUS_PENDING,
         ]);
 
@@ -291,6 +282,12 @@ class OrderPostTest extends ApiTestCase
             'id' => $cart2->product->id,
             'stock' => 4,
         ]);
+
+        $this->assertSame('DKI Jakarta', $order->shipping->address['province']);
+        $this->assertSame('Jakarta Timur', $order->shipping->address['city']);
+        $this->assertSame('Cipayung', $order->shipping->address['district']);
+        $this->assertSame('Cilangkap', $order->shipping->address['subdistrict']);
+        $this->assertSame('13845', $order->shipping->address['zip_code']);
     }
 
     #[Test]

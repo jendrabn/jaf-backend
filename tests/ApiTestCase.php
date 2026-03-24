@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use JMac\Testing\Traits\AdditionalAssertions;
 
@@ -93,11 +94,10 @@ class ApiTestCase extends BaseTestCase
         ];
     }
 
-
     protected function formatCategoryData(ProductCategory|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatCategoryData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatCategoryData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -109,7 +109,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatBrandData(ProductBrand|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatBrandData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatBrandData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -121,7 +121,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatCartData(Cart|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatCartData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatCartData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'product' => $this->formatProductData($data['product']),
@@ -132,7 +132,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatBankData(Bank|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatBankData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatBankData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -160,7 +160,7 @@ class ApiTestCase extends BaseTestCase
     protected function formatProductData(Product|Collection $data): array
     {
         return $data instanceof Collection
-            ? $data->map(fn($data) => $this->formatProductData($data))->values()->toArray()
+            ? $data->map(fn ($data) => $this->formatProductData($data))->values()->toArray()
             : [
                 'id' => $data['id'],
                 'name' => $data['name'],
@@ -179,7 +179,7 @@ class ApiTestCase extends BaseTestCase
 
     public function fakeHttpRajaOngkir(): void
     {
-        $url = config('shop.rajaongkir.base_url') . '/cost';
+        $url = config('shop.rajaongkir.base_url').'/cost';
 
         Http::fake([
             $url => function (Request $request) {
@@ -189,7 +189,7 @@ class ApiTestCase extends BaseTestCase
 
                         if ($request->data()['courier'] === $courier) {
                             $file = file_get_contents(
-                                base_path('tests/fixtures/rajaongkir/' . $courier . '.json')
+                                base_path('tests/fixtures/rajaongkir/'.$courier.'.json')
                             );
 
                             return Http::response($file);
@@ -197,6 +197,69 @@ class ApiTestCase extends BaseTestCase
                     }
                 }
             },
+        ]);
+    }
+
+    protected function fakeRajaOngkirApi(
+        ?array $provinces = null,
+        ?array $cities = null,
+        ?array $districts = null,
+        ?array $subdistricts = null,
+        ?array $costs = null,
+        ?array $waybill = null,
+    ): void {
+        Cache::flush();
+
+        $baseUrl = rtrim((string) config('shop.rajaongkir.base_url'), '/');
+
+        Http::fake([
+            $baseUrl.'/destination/province' => Http::response([
+                'data' => $provinces ?? [
+                    ['id' => 11, 'name' => 'DKI Jakarta'],
+                ],
+            ], 200),
+            $baseUrl.'/destination/city/*' => Http::response([
+                'data' => $cities ?? [
+                    ['id' => 154, 'province_id' => 11, 'name' => 'Jakarta Timur'],
+                ],
+            ], 200),
+            $baseUrl.'/destination/district/*' => Http::response([
+                'data' => $districts ?? [
+                    ['id' => 2550, 'city_id' => 154, 'name' => 'Cipayung'],
+                ],
+            ], 200),
+            $baseUrl.'/destination/sub-district/*' => Http::response([
+                'data' => $subdistricts ?? [
+                    ['id' => 3500, 'district_id' => 2550, 'name' => 'Cilangkap'],
+                ],
+            ], 200),
+            $baseUrl.'/calculate/district/domestic-cost' => Http::response([
+                'data' => $costs ?? [
+                    [
+                        'code' => 'jne',
+                        'name' => 'Jalur Nugraha Ekakurir (JNE)',
+                        'service' => 'REG',
+                        'description' => 'Layanan Reguler',
+                        'cost' => 34000,
+                        'etd' => '1-2 hari',
+                    ],
+                ],
+            ], 200),
+            $baseUrl.'/track/waybill' => Http::response([
+                'data' => $waybill ?? [
+                    'summary' => [
+                        'awb' => 'RESI123456789',
+                        'courier' => 'jne',
+                        'status' => 'DELIVERED',
+                    ],
+                    'details' => [
+                        [
+                            'date' => '2026-03-24 10:00:00',
+                            'desc' => 'Package delivered',
+                        ],
+                    ],
+                ],
+            ], 200),
         ]);
     }
 }

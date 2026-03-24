@@ -14,7 +14,7 @@ class UserGetTest extends ApiTestCase
     #[Test]
     public function unauthenticated_user_cannot_get_profile()
     {
-        $response = $this->putJson('/api/user');
+        $response = $this->getJson('/api/account/me');
 
         $response->assertUnauthorized()
             ->assertJson(['message' => 'Unauthenticated.']);
@@ -27,9 +27,14 @@ class UserGetTest extends ApiTestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/api/account/me');
 
         $response->assertOk()
-            ->assertJson(['data' => $this->formatUserData($user)]);
+            ->assertJson([
+                'data' => [
+                    ...$this->formatUserData($user),
+                    'avatar' => asset('images/default-profile.jpg'),
+                ],
+            ]);
     }
 }

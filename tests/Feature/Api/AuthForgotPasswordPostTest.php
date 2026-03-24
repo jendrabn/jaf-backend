@@ -52,7 +52,7 @@ class AuthForgotPasswordPostTest extends ApiTestCase
                 $mail = $notification->toMail($user)->toArray();
 
                 $this->assertEquals(
-                    config('shop.front_url')."/auth/reset_password?email={$user->email}&token={$notification->token}",
+                    config('shop.front_url')."/auth/reset-password?email={$user->email}&token={$notification->token}",
                     $mail['actionUrl']
                 );
 

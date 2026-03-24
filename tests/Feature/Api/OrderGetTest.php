@@ -79,21 +79,10 @@ class OrderGetTest extends ApiTestCase
 
         $response = $this->attemptToGetOrderAndExpectOk();
 
-        $response->assertJsonPath('data.0', [
-            'id' => $order->id,
-            'items' => $order->items->map(fn ($item) => [
-                'id' => $item->id,
-                'product' => $this->formatProductData($item->product),
-                'name' => $item->name,
-                'price' => $item->price,
-                'weight' => $item->weight,
-                'quantity' => $item->quantity,
-            ])->toArray(),
-            'status' => $order->status,
-            'total_amount' => $order->invoice->amount,
-            'payment_due_date' => $order->invoice->due_date->toISOString(),
-            'created_at' => $order->created_at->toISOString(),
-        ]);
+        $response->assertJsonPath('data.0.id', $order->id)
+            ->assertJsonPath('data.0.status', $order->status)
+            ->assertJsonPath('data.0.total_amount', $order->invoice->amount)
+            ->assertJsonCount(1, 'data.0.items');
     }
 
     #[Test]

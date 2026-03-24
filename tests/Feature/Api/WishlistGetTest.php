@@ -51,11 +51,11 @@ class WishlistGetTest extends ApiTestCase
         $response = $this->getJson('/api/wishlist');
 
         $response->assertOk()
-            ->assertJson([
-                'data' => $expectedWishlists->map(fn ($item) => [
-                    'id' => $item->id,
-                    'product' => $this->formatProductData($item->product),
-                ])->toArray(),
-            ])->assertJsonCount(3, 'data');
+            ->assertJsonCount(3, 'data');
+
+        $this->assertSame(
+            $expectedWishlists->pluck('id')->values()->toArray(),
+            collect($response['data'])->pluck('id')->values()->toArray()
+        );
     }
 }

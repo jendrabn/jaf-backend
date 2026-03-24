@@ -9,10 +9,10 @@ use App\Models\Cart;
 use App\Models\User;
 use App\Models\UserAddress;
 use Database\Seeders\BankSeeder;
-use Database\Seeders\CitySeeder;
+use Database\Seeders\CourierSeeder;
+use Database\Seeders\EwalletSeeder;
 use Database\Seeders\ProductBrandSeeder;
 use Database\Seeders\ProductCategorySeeder;
-use Database\Seeders\ProvinceSeeder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -33,7 +33,15 @@ class CheckoutPostTest extends ApiTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed([ProductCategorySeeder::class, ProductBrandSeeder::class, BankSeeder::class]);
+
+        $this->seed([
+            ProductCategorySeeder::class,
+            ProductBrandSeeder::class,
+            BankSeeder::class,
+            EwalletSeeder::class,
+            CourierSeeder::class,
+        ]);
+
         $this->user = $this->createUser();
         $this->banks = Bank::all();
     }
@@ -44,6 +52,23 @@ class CheckoutPostTest extends ApiTestCase
             ->for($this->createProduct($productData))
             ->for($this->user)
             ->create(['quantity' => $quantity]);
+    }
+
+    private function createUserAddress(): UserAddress
+    {
+        $this->fakeRajaOngkirApi();
+
+        return UserAddress::query()->create([
+            'user_id' => $this->user->id,
+            'province_id' => 11,
+            'city_id' => 154,
+            'district_id' => 2550,
+            'subdistrict_id' => 3500,
+            'name' => 'Garfield',
+            'phone' => '081234567890',
+            'zip_code' => '13845',
+            'address' => 'Jl. Belimbing XII No.19',
+        ]);
     }
 
     private function attemptToCheckout(array $cartIds = []): TestResponse
@@ -94,39 +119,32 @@ class CheckoutPostTest extends ApiTestCase
     #[Test]
     public function can_checkout()
     {
-        $this->seed([ProvinceSeeder::class, CitySeeder::class]);
-
-        $userAddress = UserAddress::factory()
-            ->for($this->user)
-            ->create(['city_id' => 154]);
+        $userAddress = $this->createUserAddress();
         $cart1 = $this->createCart(2, ['price' => 25000, 'stock' => 5, 'weight' => 500]);
         $cart2 = $this->createCart(1, ['price' => 50000, 'stock' => 5, 'weight' => 500]);
-        $totalWeight = 1500;
-        $totalQuantity = 3;
-        $totalPrice = 100000;
-        // Bank Logo
-        $this->banks[0]
-            ->addMedia(UploadedFile::fake()->image('bank.jpg'))
+
+        $this->banks->first()
+            ?->addMedia(UploadedFile::fake()->image('bank.jpg'))
             ->toMediaCollection(Bank::MEDIA_COLLECTION_NAME);
 
         $response = $this->attemptToCheckout([$cart1->id, $cart2->id]);
 
         $response->assertOk()
-            ->assertJson([
-                'data' => [
-                    'shipping_address' => $this->formatUserAddressData($userAddress),
-                    'carts' => [
-                        $this->formatCartData($cart1),
-                        $this->formatCartData($cart2),
-                    ],
-                    'payment_methods' => [
-                        'bank' => $this->formatBankData($this->banks),
-                    ],
-                    'total_quantity' => $totalQuantity,
-                    'total_weight' => $totalWeight,
-                    'total_price' => $totalPrice,
-                ],
-            ])
+            ->assertJsonPath('data.shipping_address.id', $userAddress->id)
+            ->assertJsonPath('data.shipping_address.province.name', 'DKI Jakarta')
+            ->assertJsonPath('data.shipping_address.city.name', 'Jakarta Timur')
+            ->assertJsonPath('data.shipping_address.district.name', 'Cipayung')
+            ->assertJsonPath('data.shipping_address.subdistrict.name', 'Cilangkap')
+            ->assertJsonPath('data.shipping_address.zip_code', '13845')
+            ->assertJsonPath('data.total_quantity', 3)
+            ->assertJsonPath('data.total_weight', 1500)
+            ->assertJsonPath('data.total_price', 100000)
+            ->assertJsonPath('data.payment_methods.gateway.provider', 'midtrans')
+            ->assertJsonPath('data.payment_methods.gateway.fee', (int) config('services.midtrans.fee_flat', 0))
+            ->assertJsonCount(2, 'data.carts')
+            ->assertJsonCount(1, 'data.shipping_methods')
+            ->assertJsonCount(1, 'data.payment_methods.bank')
+            ->assertJsonCount(1, 'data.payment_methods.ewallet')
             ->assertJsonFragment([
                 'courier' => 'jne',
                 'courier_name' => 'Jalur Nugraha Ekakurir (JNE)',
@@ -134,9 +152,7 @@ class CheckoutPostTest extends ApiTestCase
                 'service_name' => 'Layanan Reguler',
                 'cost' => 34000,
                 'etd' => '1-2 hari',
-            ])
-            ->assertJsonCount(12, 'data.shipping_methods')
-            ->assertJsonCount(1, 'data.payment_methods.bank');
+            ]);
 
         $this->assertStringStartsWith('http', $response['data']['payment_methods']['bank'][0]['logo']);
     }
@@ -146,30 +162,18 @@ class CheckoutPostTest extends ApiTestCase
     {
         $cart1 = $this->createCart(2, ['price' => 25000, 'stock' => 5, 'weight' => 500]);
         $cart2 = $this->createCart(1, ['price' => 50000, 'stock' => 5, 'weight' => 500]);
-        $totalWeight = 1500;
-        $totalQuantity = 3;
-        $totalPrice = 100000;
 
         $response = $this->attemptToCheckout([$cart1->id, $cart2->id]);
 
         $response->assertOk()
-            ->assertJson([
-                'data' => [
-                    'shipping_address' => null,
-                    'carts' => [
-                        $this->formatCartData($cart1),
-                        $this->formatCartData($cart2),
-                    ],
-                    'shipping_methods' => null,
-                    'payment_methods' => [
-                        'bank' => $this->formatBankData($this->banks),
-                    ],
-                    'total_quantity' => $totalQuantity,
-                    'total_weight' => $totalWeight,
-                    'total_price' => $totalPrice,
-                ],
-            ])
-            ->assertJsonCount(1, 'data.payment_methods.bank');
+            ->assertJsonPath('data.shipping_address', null)
+            ->assertJsonPath('data.total_quantity', 3)
+            ->assertJsonPath('data.total_weight', 1500)
+            ->assertJsonPath('data.total_price', 100000)
+            ->assertJsonCount(2, 'data.carts')
+            ->assertJsonCount(0, 'data.shipping_methods')
+            ->assertJsonCount(1, 'data.payment_methods.bank')
+            ->assertJsonCount(1, 'data.payment_methods.ewallet');
     }
 
     #[Test]

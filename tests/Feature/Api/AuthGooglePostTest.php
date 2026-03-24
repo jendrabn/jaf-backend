@@ -11,6 +11,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Laravel\Socialite\Two\User as SocialiteUser;
 use Mockery;
 use PHPUnit\Framework\Attributes\Test;
+use Spatie\Permission\Models\Role;
 use Tests\ApiTestCase;
 
 class AuthGooglePostTest extends ApiTestCase
@@ -44,10 +45,7 @@ class AuthGooglePostTest extends ApiTestCase
         $user = $this->createUser();
         $token = 'google-token';
 
-        $socialiteUser = (new SocialiteUser)
-            ->setId('google-id')
-            ->setEmail($user->email)
-            ->setName($user->name);
+        $socialiteUser = $this->makeSocialiteUser('google-id', $user->email, $user->name);
 
         $this->mockGoogleProvider($socialiteUser, $token);
 
@@ -81,13 +79,12 @@ class AuthGooglePostTest extends ApiTestCase
     #[Test]
     public function can_register_a_new_user_with_google()
     {
+        Role::firstOrCreate(['name' => User::ROLE_USER]);
+
         $token = 'register-token';
         $email = 'new.user@example.com';
 
-        $socialiteUser = (new SocialiteUser)
-            ->setId('new-google-id')
-            ->setEmail($email)
-            ->setName('New Google User');
+        $socialiteUser = $this->makeSocialiteUser('new-google-id', $email, 'New Google User');
 
         $this->mockGoogleProvider($socialiteUser, $token);
 
@@ -151,8 +148,7 @@ class AuthGooglePostTest extends ApiTestCase
     {
         $token = 'no-email-token';
 
-        $socialiteUser = (new SocialiteUser)
-            ->setId('no-email-id');
+        $socialiteUser = $this->makeSocialiteUser('no-email-id');
 
         $provider = Mockery::mock(Provider::class);
         $provider->shouldReceive('stateless')->once()->andReturnSelf();
@@ -175,5 +171,15 @@ class AuthGooglePostTest extends ApiTestCase
         $provider->shouldReceive('userFromToken')->once()->with($token)->andReturn($socialiteUser);
 
         Socialite::shouldReceive('driver')->once()->with('google')->andReturn($provider);
+    }
+
+    private function makeSocialiteUser(string $id, ?string $email = null, ?string $name = null): SocialiteUser
+    {
+        $socialiteUser = new SocialiteUser();
+        $socialiteUser->id = $id;
+        $socialiteUser->email = $email;
+        $socialiteUser->name = $name;
+
+        return $socialiteUser;
     }
 }

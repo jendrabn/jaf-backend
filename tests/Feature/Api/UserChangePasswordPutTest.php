@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Requests\Api\UpdatePasswordRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -19,7 +19,7 @@ class UserChangePasswordPutTest extends ApiTestCase
     public function update_password_uses_the_correct_form_request()
     {
         $this->assertActionUsesFormRequest(
-            UserController::class,
+            AccountController::class,
             'updatePassword',
             UpdatePasswordRequest::class
         );
@@ -47,7 +47,7 @@ class UserChangePasswordPutTest extends ApiTestCase
     #[Test]
     public function unauthenticated_user_cannot_update_password()
     {
-        $response = $this->putJson('/api/user/change_password');
+        $response = $this->putJson('/api/account/change-password');
 
         $response->assertUnauthorized()
             ->assertJsonStructure(['message']);
@@ -67,7 +67,7 @@ class UserChangePasswordPutTest extends ApiTestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->putJson('/api/user/change_password', $data);
+        $response = $this->putJson('/api/account/change-password', $data);
 
         $response->assertOk()
             ->assertJson(['data' => true]);

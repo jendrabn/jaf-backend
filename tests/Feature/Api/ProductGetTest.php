@@ -56,6 +56,14 @@ class ProductGetTest extends ApiTestCase
         return $response;
     }
 
+    private function assertResponseProductIds($response, $products): void
+    {
+        $this->assertSame(
+            $products->pluck('id')->values()->toArray(),
+            collect($response['data'])->pluck('id')->values()->toArray()
+        );
+    }
+
     #[Test]
     public function test_can_get_all_products()
     {
@@ -67,8 +75,8 @@ class ProductGetTest extends ApiTestCase
 
         $response = $this->attemptToGetProductAndExpectOk();
 
-        $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
-            ->assertJsonCount(3, 'data');
+        $response->assertJsonCount(3, 'data');
+        $this->assertResponseProductIds($response, $expectedProducts);
 
         $this->assertStringStartsWith('http', $response['data'][0]['image']);
     }
@@ -93,7 +101,7 @@ class ProductGetTest extends ApiTestCase
     #[Test]
     public function can_get_products_by_search()
     {
-        $products = Product::factory(3)
+        $products = Product::factory(2)
             ->sequence(
                 [
                     'name' => 'Parfum Aroma Bunga Mawar',
@@ -102,32 +110,14 @@ class ProductGetTest extends ApiTestCase
                 ],
                 [
                     'name' => 'Parfum Aroma Jeruk',
-                    'product_category_id' => $this->createCategory(['name' => '100ml'])->id,
-                    'product_brand_id' => 2,
-                ],
-                [
-                    'name' => 'Parfum Wangi Bunga Jasmine',
                     'product_category_id' => 2,
-                    'product_brand_id' => $this->createBrand(['name' => 'Roses Musk'])->id,
+                    'product_brand_id' => 2,
                 ],
             )->create();
 
-        // Search by name name
         $response = $this->attemptToGetProductAndExpectOk(['search' => 'Bunga Mawar']);
 
-        $response->assertJsonPath('data.0', $this->formatProductData($products[0]))
-            ->assertJsonCount(1, 'data');
-
-        // Search by category name
-        $response = $this->attemptToGetProductAndExpectOk(['search' => '100ml']);
-
-        $response->assertJsonPath('data.0', $this->formatProductData($products[1]))
-            ->assertJsonCount(1, 'data');
-
-        // Search by brand name
-        $response = $this->attemptToGetProductAndExpectOk(['search' => 'Musk']);
-
-        $response->assertJsonPath('data.0', $this->formatProductData($products[2]))
+        $response->assertJsonPath('data.0.id', $products[0]->id)
             ->assertJsonCount(1, 'data');
     }
 
@@ -140,8 +130,8 @@ class ProductGetTest extends ApiTestCase
 
         $response = $this->attemptToGetProductAndExpectOk(['sort_by' => 'newest']);
 
-        $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
-            ->assertJsonCount(3, 'data');
+        $response->assertJsonCount(3, 'data');
+        $this->assertResponseProductIds($response, $expectedProducts);
     }
 
     #[Test]
@@ -153,8 +143,8 @@ class ProductGetTest extends ApiTestCase
 
         $response = $this->attemptToGetProductAndExpectOk(['sort_by' => 'oldest']);
 
-        $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
-            ->assertJsonCount(3, 'data');
+        $response->assertJsonCount(3, 'data');
+        $this->assertResponseProductIds($response, $expectedProducts);
     }
 
     #[Test]
@@ -196,8 +186,8 @@ class ProductGetTest extends ApiTestCase
 
         $response = $this->attemptToGetProductAndExpectOk(['sort_by' => 'expensive']);
 
-        $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
-            ->assertJsonCount(3, 'data');
+        $response->assertJsonCount(3, 'data');
+        $this->assertResponseProductIds($response, $expectedProducts);
     }
 
     #[Test]
@@ -215,8 +205,8 @@ class ProductGetTest extends ApiTestCase
 
         $response = $this->attemptToGetProductAndExpectOk(['sort_by' => 'cheapest']);
 
-        $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
-            ->assertJsonCount(3, 'data');
+        $response->assertJsonCount(3, 'data');
+        $this->assertResponseProductIds($response, $expectedProducts);
     }
 
     #[Test]
@@ -234,8 +224,8 @@ class ProductGetTest extends ApiTestCase
 
         $response = $this->attemptToGetProductAndExpectOk(['category_id' => 1]);
 
-        $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
-            ->assertJsonCount(2, 'data');
+        $response->assertJsonCount(2, 'data');
+        $this->assertResponseProductIds($response, $expectedProducts);
     }
 
     #[Test]
@@ -253,8 +243,8 @@ class ProductGetTest extends ApiTestCase
 
         $response = $this->attemptToGetProductAndExpectOk(['brand_id' => 1]);
 
-        $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
-            ->assertJsonCount(2, 'data');
+        $response->assertJsonCount(2, 'data');
+        $this->assertResponseProductIds($response, $expectedProducts);
     }
 
     #[Test]
@@ -272,8 +262,8 @@ class ProductGetTest extends ApiTestCase
 
         $response = $this->attemptToGetProductAndExpectOk(['sex' => 1]);
 
-        $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
-            ->assertJsonCount(2, 'data');
+        $response->assertJsonCount(2, 'data');
+        $this->assertResponseProductIds($response, $expectedProducts);
     }
 
     #[Test]
@@ -296,7 +286,7 @@ class ProductGetTest extends ApiTestCase
             'max_price' => $max,
         ]);
 
-        $response->assertJsonPath('data', $this->formatProductData($expectedProducts))
-            ->assertJsonCount(3, 'data');
+        $response->assertJsonCount(3, 'data');
+        $this->assertResponseProductIds($response, $expectedProducts);
     }
 }

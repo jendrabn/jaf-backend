@@ -5,8 +5,6 @@ namespace Tests\Feature\Api;
 use App\Models\Order;
 use App\Models\Shipping;
 use App\Models\User;
-use Database\Seeders\CitySeeder;
-use Database\Seeders\ProvinceSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use PHPUnit\Framework\Attributes\Test;
@@ -36,12 +34,13 @@ class OrderConfirmOrderDeliveredPutTest extends ApiTestCase
     #[Test]
     public function can_confirm_order_delivered()
     {
-        $this->seed([ProvinceSeeder::class, CitySeeder::class]);
-
         $order = Order::factory()
-            ->has(Shipping::factory(state: ['status' => Shipping::STATUS_PROCESSING]))
             ->for($this->user)
             ->create(['status' => Order::STATUS_ON_DELIVERY]);
+        Shipping::factory()->create([
+            'order_id' => $order->id,
+            'status' => Shipping::STATUS_PROCESSING,
+        ]);
 
         Sanctum::actingAs($this->user);
 

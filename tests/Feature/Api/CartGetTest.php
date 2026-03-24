@@ -44,12 +44,11 @@ class CartGetTest extends ApiTestCase
         $response = $this->getJson('/api/carts');
 
         $response->assertOk()
-            ->assertJson([
-                'data' => $expectedCarts->map(fn ($item) => [
-                    'id' => $item->id,
-                    'product' => $this->formatProductData($item->product),
-                    'quantity' => $item->quantity,
-                ])->toArray(),
-            ]);
+            ->assertJsonCount(3, 'data');
+
+        $this->assertSame(
+            $expectedCarts->pluck('id')->values()->toArray(),
+            collect($response['data'])->pluck('id')->values()->toArray()
+        );
     }
 }

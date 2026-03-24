@@ -22,7 +22,7 @@ class ProductDetailGetTest extends ApiTestCase
     }
 
     #[Test]
-    public function can_get_product_by_id()
+    public function can_get_product_by_slug()
     {
         $product = Product::factory()->has(
             OrderItem::factory(2)
@@ -44,7 +44,7 @@ class ProductDetailGetTest extends ApiTestCase
             ? $product->images->map(fn ($media) => $media->getUrl())->toArray()
             : [];
 
-        $response = $this->getJson('/api/products/'.$product->id);
+        $response = $this->getJson('/api/products/'.$product->slug);
 
         $response->assertOk()
             ->assertJson([
@@ -62,17 +62,19 @@ class ProductDetailGetTest extends ApiTestCase
                     'weight' => $product->weight,
                     'sold_count' => 5,
                     'is_wishlist' => false,
+                    'final_price' => $product->final_price,
+                    'sku' => $product->sku,
                 ],
             ])
             ->assertJsonCount(2, 'data.images');
     }
 
     #[Test]
-    public function returns_not_found_error_if_product_id_doenot_exist()
+    public function returns_not_found_error_if_product_slug_doenot_exist()
     {
         $product = $this->createProduct();
 
-        $response = $this->getJson('/api/products/'.$product->id + 1);
+        $response = $this->getJson('/api/products/'.$product->slug.'-missing');
 
         $response->assertNotFound()
             ->assertJsonStructure(['message']);
@@ -83,7 +85,7 @@ class ProductDetailGetTest extends ApiTestCase
     {
         $product = $this->createProduct(['is_publish' => false]);
 
-        $response = $this->getJson('/api/products/'.$product->id);
+        $response = $this->getJson('/api/products/'.$product->slug);
 
         $response->assertNotFound()
             ->assertJsonStructure(['message']);

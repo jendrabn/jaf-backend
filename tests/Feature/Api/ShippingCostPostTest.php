@@ -5,8 +5,7 @@ namespace Tests\Feature\Api;
 use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Requests\Api\ShippingCostRequest;
 use App\Models\Shipping;
-use Database\Seeders\CitySeeder;
-use Database\Seeders\ProvinceSeeder;
+use Database\Seeders\CourierSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\ApiTestCase;
@@ -28,13 +27,38 @@ class ShippingCostPostTest extends ApiTestCase
             'destination' => [
                 'required',
                 'integer',
-                'exists:cities,id',
             ],
             'weight' => [
                 'required',
                 'integer',
-                'max:' . Shipping::MAX_WEIGHT,
+                'max:'.Shipping::MAX_WEIGHT,
             ],
         ], (new ShippingCostRequest)->rules());
+    }
+
+    #[Test]
+    public function can_get_shipping_costs()
+    {
+        $this->seed(CourierSeeder::class);
+        $this->fakeRajaOngkirApi();
+
+        $response = $this->postJson('/api/shipping_costs', [
+            'destination' => 154,
+            'weight' => 1500,
+        ]);
+
+        $response->assertOk()
+            ->assertJson([
+                'data' => [
+                    [
+                        'courier' => 'jne',
+                        'courier_name' => 'Jalur Nugraha Ekakurir (JNE)',
+                        'service' => 'REG',
+                        'service_name' => 'Layanan Reguler',
+                        'cost' => 34000,
+                        'etd' => '1-2 hari',
+                    ],
+                ],
+            ]);
     }
 }

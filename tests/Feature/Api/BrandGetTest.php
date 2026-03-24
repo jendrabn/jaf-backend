@@ -23,6 +23,6 @@ class BrandGetTest extends ApiTestCase
 
         $response->assertOk()
             ->assertJson(['data' => $this->formatBrandData($brands)])
-            ->assertJsonCount(3, 'data');
+            ->assertJsonCount($brands->count(), 'data');
     }
 }

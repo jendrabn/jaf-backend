@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Api;
 
-use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\AccountController;
 use App\Http\Requests\Api\ProfileRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\Rule;
@@ -18,7 +18,7 @@ class UserPutTest extends ApiTestCase
     public function update_profile_uses_the_correct_form_request()
     {
         $this->assertActionUsesFormRequest(
-            UserController::class,
+            AccountController::class,
             'update',
             ProfileRequest::class
         );
@@ -62,13 +62,19 @@ class UserPutTest extends ApiTestCase
                 'string',
                 'date',
             ],
+            'avatar' => [
+                'nullable',
+                'file',
+                'max:1024',
+                'mimes:jpg,jpeg,png',
+            ],
         ], $rules);
     }
 
     #[Test]
     public function unauthenticated_user_cannot_update_profile()
     {
-        $response = $this->putJson('/api/user');
+        $response = $this->putJson('/api/account/me');
 
         $response->assertUnauthorized()
             ->assertJson(['message' => 'Unauthenticated.']);
@@ -89,11 +95,21 @@ class UserPutTest extends ApiTestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->putJson('/api/user', $data);
+        $response = $this->putJson('/api/account/me', $data);
 
         $response->assertOk()
-            ->assertJson(['data' => ['id' => $user->id, ...$data]]);
+            ->assertJson([
+                'data' => [
+                    'id' => $user->id,
+                    ...$data,
+                    'phone' => '+6287991776171',
+                    'avatar' => asset('images/default-profile.jpg'),
+                ],
+            ]);
 
-        $this->assertDatabaseHas('users', $data);
+        $this->assertDatabaseHas('users', [
+            ...$data,
+            'phone' => '+6287991776171',
+        ]);
     }
 }
