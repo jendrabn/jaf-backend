@@ -40,7 +40,9 @@ class ApiTestCase extends BaseTestCase
 
     protected function createProduct(?array $data = [], int $count = 1): Product|Collection
     {
-        $products = Product::factory()->count($count)->create($data);
+        $products = Product::factory()->count($count)->create(array_merge([
+            'is_publish' => true,
+        ], $data ?? []));
 
         return $count > 1 ? $products : $products->first();
     }
@@ -58,7 +60,9 @@ class ApiTestCase extends BaseTestCase
 
         return Product::factory()
             ->has(OrderItem::factory(count($sequence))->sequence(...$sequence))
-            ->create($data);
+            ->create(array_merge([
+                'is_publish' => true,
+            ], $data ?? []));
     }
 
     protected function createCategory(?array $data = [], int $count = 1): ProductCategory|Collection

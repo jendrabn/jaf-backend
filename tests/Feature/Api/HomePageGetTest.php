@@ -28,9 +28,12 @@ class HomePageGetTest extends ApiTestCase
         $admin->assignRole(User::ROLE_ADMIN);
 
         $banners = Banner::factory(12)->create();
+        $banners->values()->each(function (Banner $banner, int $index): void {
+            $banner->update(['order' => $index + 1]);
+        });
 
-        // Add image only for first banner
-        $banners[0]->addMedia(UploadedFile::fake()->image('banner.jpg'))->toMediaCollection(Banner::MEDIA_COLLECTION_NAME);
+        $bannerWithImage = $banners->sortBy('order')->first();
+        $bannerWithImage?->addMedia(UploadedFile::fake()->image('banner.jpg'))->toMediaCollection(Banner::MEDIA_COLLECTION_NAME);
 
         $this->createProduct(['is_publish' => false]);
         $products = $this->createProduct(count: 12);
@@ -48,7 +51,10 @@ class HomePageGetTest extends ApiTestCase
             ->assertJsonCount(10, 'data.products')
             ->assertJsonCount(3, 'data.blogs');
 
-        $this->assertStringStartsWith('http', $response['data']['banners'][0]['image']);
+        $this->assertStringStartsWith(
+            'http',
+            collect($response['data']['banners'])->firstWhere('id', $bannerWithImage?->id)['image']
+        );
         $this->assertSame($products->sortByDesc('id')->first()->id, $response['data']['products'][0]['id']);
     }
 }

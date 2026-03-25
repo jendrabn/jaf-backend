@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Bank;
 use App\Models\Invoice;
+use App\Models\Payment;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,19 +19,37 @@ class PaymentFactory extends Factory
      */
     public function definition(): array
     {
-        $bank = Bank::inRandomOrder()->first();
-
-        return [
-            'invoice_id' => Invoice::inRandomOrder()->first()->id,
-            'method' => 'bank',
-            'info' => [
+        $method = fake()->randomElement([
+            Payment::METHOD_BANK,
+            Payment::METHOD_EWALLET,
+            Payment::METHOD_GATEWAY,
+        ]);
+        $bank = Bank::query()->inRandomOrder()->first();
+        $bankInfo = $bank !== null
+            ? [
                 'name' => $bank->name,
                 'code' => $bank->code,
                 'account_name' => $bank->account_name,
                 'account_number' => $bank->account_number,
+            ]
+            : FactoryData::paymentBank();
+        $ewalletInfo = FactoryData::paymentEwallet();
+        $info = match ($method) {
+            Payment::METHOD_BANK => $bankInfo,
+            Payment::METHOD_EWALLET => $ewalletInfo,
+            default => [
+                'provider' => 'midtrans',
+                'channel' => fake()->randomElement(['qris', 'gopay', 'bank_transfer']),
+                'reference' => 'MID-'.fake()->unique()->numerify('########'),
             ],
-            'amount' => fake()->numberBetween(150000, 1000000),
-            'status' => fake()->randomElement(['pending', 'cancelled', 'realeased']),
+        };
+
+        return [
+            'invoice_id' => Invoice::factory(),
+            'method' => $method,
+            'info' => $info,
+            'amount' => fake()->numberBetween(250000, 7500000),
+            'status' => fake()->randomElement([Payment::STATUS_PENDING, Payment::STATUS_CANCELLED, Payment::STATUS_RELEASED]),
         ];
     }
 }

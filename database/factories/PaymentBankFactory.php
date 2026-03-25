@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\PaymentBank;
+use App\Models\Payment;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,13 +17,16 @@ class PaymentBankFactory extends Factory
      */
     public function definition(): array
     {
+        $bank = FactoryData::paymentBank();
+
         return [
-            'payment_id' => function () {
-                return PaymentBank::inRandomOrder()->first()->id;
-            },
-            'name' => fake()->randomElement(['BCA', 'BSI', 'Mandiri', 'BRI', 'BNI']),
-            'account_name' => fake()->name(),
-            'account_number' => fake()->creditCardNumber(),
+            'payment_id' => Payment::factory()->state([
+                'method' => 'bank',
+                'info' => $bank,
+            ]),
+            'name' => $bank['name'],
+            'account_name' => $bank['account_name'],
+            'account_number' => $bank['account_number'],
         ];
     }
 }

@@ -17,22 +17,10 @@ class UserNotificationFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            'user_id' => User::factory(),
-            'title' => fake()->sentence(4),
-            'body' => fake()->paragraph(2),
-            'category' => fake()->randomElement(['transaction', 'account', 'promo', 'system']),
-            'level' => fake()->randomElement(['info', 'warning', 'success', 'error']),
-            'url' => fake()->optional(0.7)->url(),
-            'icon' => fake()->optional(0.8)->randomElement(['fas fa-bell', 'fas fa-check', 'fas fa-exclamation', 'fas fa-info', 'fas fa-gift']),
-            'meta' => fake()->optional(0.6)->randomElement([
-                ['order_id' => fake()->numberBetween(1000, 9999)],
-                ['promo_code' => fake()->word()],
-                ['amount' => fake()->numberBetween(10000, 1000000)],
-                ['action' => fake()->word()],
-            ]),
-            'read_at' => fake()->optional(0.3)->dateTime(),
-        ];
+        return array_merge(
+            ['user_id' => User::factory()],
+            FactoryData::notification()
+        );
     }
 
     /**
@@ -62,7 +50,7 @@ class UserNotificationFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'category' => 'transaction',
-            'title' => fake()->randomElement(['Order Confirmed', 'Payment Received', 'Order Shipped', 'Order Delivered']),
+            'title' => fake()->randomElement(['Order parfum dikonfirmasi', 'Pembayaran berhasil diterima', 'Paket siap dikirim', 'Pesanan telah sampai']),
             'icon' => 'fas fa-shopping-cart',
         ]);
     }
@@ -74,7 +62,7 @@ class UserNotificationFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'category' => 'account',
-            'title' => fake()->randomElement(['Profile Updated', 'Password Changed', 'Login Alert']),
+            'title' => fake()->randomElement(['Profil berhasil diperbarui', 'Password akun diubah', 'Login dari perangkat baru']),
             'icon' => 'fas fa-user',
         ]);
     }
@@ -86,7 +74,7 @@ class UserNotificationFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'category' => 'promo',
-            'title' => fake()->randomElement(['Special Offer', 'Discount Available', 'New Promotion']),
+            'title' => fake()->randomElement(['Promo parfum akhir pekan', 'Voucher koleksi premium tersedia', 'Diskon room spray baru aktif']),
             'icon' => 'fas fa-gift',
         ]);
     }
@@ -98,7 +86,7 @@ class UserNotificationFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'category' => 'system',
-            'title' => fake()->randomElement(['System Maintenance', 'New Feature', 'System Update']),
+            'title' => fake()->randomElement(['Maintenance sistem terjadwal', 'Fitur wishlist baru aktif', 'Pembaruan aplikasi tersedia']),
             'icon' => 'fas fa-cog',
         ]);
     }

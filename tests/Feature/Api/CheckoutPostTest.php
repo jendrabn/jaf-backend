@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Requests\Api\CheckoutRequest;
 use App\Models\Bank;
 use App\Models\Cart;
+use App\Models\Ewallet;
 use App\Models\User;
 use App\Models\UserAddress;
 use Database\Seeders\BankSeeder;
@@ -143,8 +144,8 @@ class CheckoutPostTest extends ApiTestCase
             ->assertJsonPath('data.payment_methods.gateway.fee', (int) config('services.midtrans.fee_flat', 0))
             ->assertJsonCount(2, 'data.carts')
             ->assertJsonCount(1, 'data.shipping_methods')
-            ->assertJsonCount(1, 'data.payment_methods.bank')
-            ->assertJsonCount(1, 'data.payment_methods.ewallet')
+            ->assertJsonCount($this->banks->count(), 'data.payment_methods.bank')
+            ->assertJsonCount(Ewallet::query()->count(), 'data.payment_methods.ewallet')
             ->assertJsonFragment([
                 'courier' => 'jne',
                 'courier_name' => 'Jalur Nugraha Ekakurir (JNE)',
@@ -154,7 +155,9 @@ class CheckoutPostTest extends ApiTestCase
                 'etd' => '1-2 hari',
             ]);
 
-        $this->assertStringStartsWith('http', $response['data']['payment_methods']['bank'][0]['logo']);
+        $bankWithLogo = collect($response['data']['payment_methods']['bank'])->firstWhere('id', $this->banks->first()?->id);
+
+        $this->assertStringStartsWith('http', $bankWithLogo['logo']);
     }
 
     #[Test]
@@ -172,8 +175,8 @@ class CheckoutPostTest extends ApiTestCase
             ->assertJsonPath('data.total_price', 100000)
             ->assertJsonCount(2, 'data.carts')
             ->assertJsonCount(0, 'data.shipping_methods')
-            ->assertJsonCount(1, 'data.payment_methods.bank')
-            ->assertJsonCount(1, 'data.payment_methods.ewallet');
+            ->assertJsonCount($this->banks->count(), 'data.payment_methods.bank')
+            ->assertJsonCount(Ewallet::query()->count(), 'data.payment_methods.ewallet');
     }
 
     #[Test]

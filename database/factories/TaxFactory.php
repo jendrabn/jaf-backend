@@ -14,9 +14,11 @@ class TaxFactory extends Factory
 
     public function definition(): array
     {
+        $tax = FactoryData::tax();
+
         return [
-            'name' => fake()->unique()->words(2, true),
-            'rate' => fake()->randomFloat(2, 0, 100),
+            'name' => $tax['name'],
+            'rate' => $tax['rate'],
         ];
     }
 }

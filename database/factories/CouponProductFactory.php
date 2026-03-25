@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Coupon;
+use App\Models\CouponProduct;
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -9,6 +12,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class CouponProductFactory extends Factory
 {
+    protected $model = CouponProduct::class;
+
     /**
      * Define the model's default state.
      *
@@ -17,7 +22,11 @@ class CouponProductFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'coupon_id' => Coupon::factory()->state([
+                'promo_type' => 'product',
+                'discount_type' => fake()->randomElement(['fixed', 'percentage']),
+            ]),
+            'product_id' => Product::factory()->state(['is_publish' => true]),
         ];
     }
 }

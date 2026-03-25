@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Invoice;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,12 +17,16 @@ class InvoiceFactory extends Factory
      */
     public function definition(): array
     {
+        $status = fake()->randomElement(['paid', 'unpaid']);
+
         return [
-            'order_id' => Order::inRandomOrder()->first()->id ?? Order::factory()->create()->id,
-            'number' => 'INV/'.fake()->date('Ymd').'/'.fake()->randomDigit(),
-            'amount' => fake()->numberBetween(150000, 1000000),
-            'status' => fake()->randomElement([Invoice::STATUS_PAID, Invoice::STATUS_UNPAID]),
-            'due_date' => fake()->dateTime(),
+            'order_id' => Order::factory(),
+            'number' => 'INV/'.now()->format('Ymd').'/'.fake()->unique()->numerify('######'),
+            'amount' => fake()->numberBetween(250000, 7500000),
+            'status' => $status,
+            'due_date' => $status === 'paid'
+                ? fake()->dateTimeBetween('-30 days', '-1 day')
+                : fake()->dateTimeBetween('now', '+7 days'),
         ];
     }
 }

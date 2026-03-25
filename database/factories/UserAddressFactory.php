@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\City;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,14 +17,18 @@ class UserAddressFactory extends Factory
      */
     public function definition(): array
     {
+        $address = FactoryData::address();
+
         return [
-            'user_id' => User::inRandomOrder()->first()->id,
-            'city_id' => City::inRandomOrder()->first()->id,
-            'district' => fake()->city(),
-            'name' => fake()->name(),
-            'phone' => fake()->phoneNumber(),
-            'postal_code' => fake()->postcode(),
-            'address' => fake()->streetAddress(),
+            'user_id' => User::factory(),
+            'province_id' => $address['province_id'],
+            'city_id' => $address['city_id'],
+            'district_id' => $address['district_id'],
+            'subdistrict_id' => $address['subdistrict_id'],
+            'name' => $address['name'],
+            'phone' => $address['phone'],
+            'zip_code' => $address['zip_code'],
+            'address' => $address['address'],
         ];
     }
 }

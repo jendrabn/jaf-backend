@@ -16,9 +16,6 @@ class BannerFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            'image_description' => fake()->sentence(),
-            'url' => fake()->url(),
-        ];
+        return FactoryData::banner();
     }
 }

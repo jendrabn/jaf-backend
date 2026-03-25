@@ -16,9 +16,6 @@ class ProductCategoryFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            'name' => fake()->name(),
-            'slug' => fake()->unique()->slug(),
-        ];
+        return FactoryData::category();
     }
 }

@@ -19,13 +19,30 @@ class CampaignReceiptFactory extends Factory
      */
     public function definition(): array
     {
+        $status = fake()->randomElement(CampaignReceiptStatus::cases());
+        $sentAt = null;
+        $openedAt = null;
+        $clickedAt = null;
+
+        if ($status !== CampaignReceiptStatus::Queued) {
+            $sentAt = fake()->dateTimeBetween('-14 days', 'now');
+        }
+
+        if (in_array($status, [CampaignReceiptStatus::Opened, CampaignReceiptStatus::Clicked], true) && $sentAt !== null) {
+            $openedAt = fake()->dateTimeBetween($sentAt, 'now');
+        }
+
+        if ($status === CampaignReceiptStatus::Clicked && $openedAt !== null) {
+            $clickedAt = fake()->dateTimeBetween($openedAt, 'now');
+        }
+
         return [
             'campaign_id' => Campaign::factory(),
             'subscriber_id' => Subscriber::factory(),
-            'status' => fake()->randomElement(CampaignReceiptStatus::cases()),
-            'sent_at' => fake()->optional(0.8)->dateTimeBetween('-1 month', 'now'),
-            'opened_at' => fake()->optional(0.6)->dateTimeBetween('-2 weeks', 'now'),
-            'clicked_at' => fake()->optional(0.3)->dateTimeBetween('-1 week', 'now'),
+            'status' => $status,
+            'sent_at' => $sentAt,
+            'opened_at' => $openedAt,
+            'clicked_at' => $clickedAt,
         ];
     }
 }

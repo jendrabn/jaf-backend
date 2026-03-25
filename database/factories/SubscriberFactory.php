@@ -17,13 +17,21 @@ class SubscriberFactory extends Factory
      */
     public function definition(): array
     {
+        $status = fake()->randomElement(SubscriberStatus::cases());
+        $subscribedAt = $status !== SubscriberStatus::Pending
+            ? fake()->dateTimeBetween('-1 year', '-1 day')
+            : null;
+        $unsubscribedAt = $status === SubscriberStatus::Unsubscribed
+            ? fake()->dateTimeBetween($subscribedAt ?? '-30 days', 'now')
+            : null;
+
         return [
             'email' => fake()->unique()->safeEmail(),
             'name' => fake()->name(),
             'token' => fake()->unique()->sha256(),
-            'status' => fake()->randomElement(SubscriberStatus::cases()),
-            'subscribed_at' => fake()->optional(0.7)->dateTimeBetween('-1 year', 'now'),
-            'unsubscribed_at' => fake()->optional(0.2)->dateTimeBetween('-6 months', 'now'),
+            'status' => $status,
+            'subscribed_at' => $subscribedAt,
+            'unsubscribed_at' => $unsubscribedAt,
         ];
     }
 }

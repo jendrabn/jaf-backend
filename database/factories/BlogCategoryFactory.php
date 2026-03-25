@@ -16,9 +16,6 @@ class BlogCategoryFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            'name' => fake()->sentence(2),
-            'slug' => fake()->unique()->slug(),
-        ];
+        return FactoryData::blogCategory();
     }
 }

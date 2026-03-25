@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Ewallet;
+use Database\Factories\FactoryData;
 use Illuminate\Database\Seeder;
 
 class EwalletSeeder extends Seeder
@@ -12,11 +13,15 @@ class EwalletSeeder extends Seeder
      */
     public function run(): void
     {
-        Ewallet::create([
-            'name' => 'ShopeePay',
-            'account_name' => 'JAF Parfum\'s Store',
-            'account_username' => 'jafparfumsstore',
-            'phone' => '08123456789',
-        ]);
+        foreach (FactoryData::ewalletDefinitions() as $ewallet) {
+            Ewallet::query()->updateOrCreate(
+                ['name' => $ewallet['name']],
+                [
+                    'account_name' => $ewallet['account_name'],
+                    'account_username' => $ewallet['account_username'],
+                    'phone' => $ewallet['phone'],
+                ]
+            );
+        }
     }
 }

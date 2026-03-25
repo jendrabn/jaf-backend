@@ -17,29 +17,29 @@ class ShippingFactory extends Factory
      */
     public function definition(): array
     {
-        // $city = City::inRandomOrder()->first();
+        $address = FactoryData::address();
+        $shipping = FactoryData::shipping();
 
         return [
-            'order_id' => Order::inRandomOrder()->first()->id,
+            'order_id' => Order::factory(),
             'address' => [
-                'name' => fake()->name(),
-                'phone' => fake()->phoneNumber(),
-                // 'province' => $city->province->name,
-                // 'city' => $city->name,
-                'province' => fake()->city(),
-                'city' => fake()->city(),
-                'district' => fake()->city(),
-                'zip_code' => fake()->postcode(),
-                'address' => fake()->address(),
+                'name' => $address['name'],
+                'phone' => $address['phone'],
+                'province' => fake()->randomElement(['DKI Jakarta', 'Jawa Barat', 'DI Yogyakarta', 'Jawa Timur', 'Banten']),
+                'city' => fake()->randomElement(['Jakarta Selatan', 'Bandung', 'Yogyakarta', 'Malang', 'Tangerang']),
+                'district' => fake()->randomElement(['Cilandak', 'Coblong', 'Depok', 'Lowokwaru', 'Karawaci']),
+                'subdistrict' => fake()->randomElement(['Lebak Bulus', 'Dago', 'Caturtunggal', 'Mojolangu', 'Cibodas']),
+                'zip_code' => $address['zip_code'],
+                'address' => $address['address'],
             ],
-            'courier' => fake()->randomElement(['jne', 'tiki', 'pos']),
-            'courier_name' => fake()->company(),
-            'service' => fake()->randomElement(['REG', 'YES', 'Pos Reguler', 'ECO']),
-            'service_name' => fake()->randomElement(['Layanan Reguler', 'Yakin Esok Sampai', 'Economy Service']),
-            'etd' => fake()->randomElement(['1-2 hari', '3-4 hari', '7 hari']),
-            'weight' => fake()->numberBetween(700, 5000),
-            'tracking_number' => fake()->unique()->isbn10(),
-            'status' => fake()->randomElement(['pending', 'processing', 'shipped']),
+            'courier' => $shipping['courier'],
+            'courier_name' => $shipping['courier_name'],
+            'service' => $shipping['service'],
+            'service_name' => $shipping['service_name'],
+            'etd' => $shipping['etd'],
+            'weight' => $shipping['weight'],
+            'tracking_number' => $shipping['tracking_number'],
+            'status' => $shipping['status'],
         ];
     }
 }

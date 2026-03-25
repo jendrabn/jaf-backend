@@ -350,7 +350,10 @@ class Product extends Model implements HasMedia
             $catCode
         );
 
-        $sku = sprintf('%s-%s-%s-%s-%s', $brandCode, $catCode, $nameCode, $sexCode, $seq);
+        $sku = self::ensureUniqueSku(
+            sprintf('%s-%s-%s-%s', $brandCode, $catCode, $nameCode, $sexCode),
+            $seq
+        );
 
         return mb_substr($sku, 0, 50);
     }
@@ -387,7 +390,11 @@ class Product extends Model implements HasMedia
             $catCode
         );
 
-        $sku = sprintf('%s-%s-%s-%s-%s', $brandCode, $catCode, $nameCode, $sexCode, $seq);
+        $sku = self::ensureUniqueSku(
+            sprintf('%s-%s-%s-%s', $brandCode, $catCode, $nameCode, $sexCode),
+            $seq,
+            $p->id
+        );
 
         return mb_substr($sku, 0, 50);
     }
@@ -458,5 +465,26 @@ class Product extends Model implements HasMedia
         $next = $max + 1;
 
         return str_pad((string) $next, 4, '0', STR_PAD_LEFT);
+    }
+
+    private static function ensureUniqueSku(string $prefix, string $startingSequence, ?int $ignoreId = null): string
+    {
+        $sequence = (int) $startingSequence;
+
+        while (true) {
+            $candidate = sprintf('%s-%s', $prefix, str_pad((string) $sequence, 4, '0', STR_PAD_LEFT));
+
+            $query = static::query()->where('sku', $candidate);
+
+            if ($ignoreId !== null) {
+                $query->whereKeyNot($ignoreId);
+            }
+
+            if (! $query->exists()) {
+                return $candidate;
+            }
+
+            $sequence++;
+        }
     }
 }

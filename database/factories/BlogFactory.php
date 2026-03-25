@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\Blog;
 use App\Models\BlogCategory;
-use App\Models\BlogTag;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -20,16 +19,13 @@ class BlogFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            'title' => fake()->sentence(4),
-            'slug' => fake()->unique()->slug(),
-            'content' => fake()->text(1000),
-            'featured_image_description' => fake()->sentence(3),
-            'min_read' => fake()->numberBetween(1, 100),
-            'is_publish' => fake()->boolean(80),
-            'blog_category_id' => BlogCategory::inRandomOrder()->first()->id,
-            'user_id' => User::role(User::ROLE_ADMIN)->inRandomOrder()->first()->id,
-        ];
+        $blog = FactoryData::blog();
+        $category = BlogCategory::factory();
+
+        return array_merge($blog, [
+            'blog_category_id' => $category,
+            'user_id' => User::factory(),
+        ]);
     }
 
     // public function configure()

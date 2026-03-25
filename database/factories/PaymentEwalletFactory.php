@@ -18,12 +18,17 @@ class PaymentEwalletFactory extends Factory
      */
     public function definition(): array
     {
+        $ewallet = FactoryData::paymentEwallet();
+
         return [
-            'payment_id' => Payment::inRandomOrder()->first()->id,
-            'name' => fake()->randomElement(Ewallet::EWALLET_SELECT),
-            'account_name' => fake()->name,
-            'account_username' => fake()->userName,
-            'phone' => fake()->phoneNumber,
+            'payment_id' => Payment::factory()->state([
+                'method' => 'ewallet',
+                'info' => $ewallet,
+            ]),
+            'name' => $ewallet['name'] ?? fake()->randomElement(Ewallet::EWALLET_SELECT),
+            'account_name' => $ewallet['account_name'],
+            'account_username' => $ewallet['account_username'],
+            'phone' => $ewallet['phone'],
         ];
     }
 }

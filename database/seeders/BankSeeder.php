@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Bank;
+use Database\Factories\FactoryData;
 use Illuminate\Database\Seeder;
 
 class BankSeeder extends Seeder
@@ -12,11 +13,15 @@ class BankSeeder extends Seeder
      */
     public function run(): void
     {
-        Bank::create([
-            'code' => '014',
-            'name' => 'BCA (Bank Central Asia)',
-            'account_name' => 'Muhammad',
-            'account_number' => '0240597799',
-        ]);
+        foreach (FactoryData::paymentBanks() as $bank) {
+            Bank::query()->updateOrCreate(
+                ['code' => $bank['code']],
+                [
+                    'name' => $bank['name'],
+                    'account_name' => $bank['account_name'],
+                    'account_number' => $bank['account_number'],
+                ]
+            );
+        }
     }
 }
